@@ -1,6 +1,6 @@
 # flutter_pjt
 
-A Project developed by Gabriel Vasconcelos Danieleves, Maria Claro Amaro Lopes, Gabriel Saldanha e Gustavo Peixoto for the school project fair Escola Técnica de Eletrônica (PROJETE 2k25).
+Project developed by Gabriel Vasconcelos Danieleves, Maria Claro Amaro Lopes, Gabriel Saldanha and Gustavo Peixoto for the school project fair at the Electronics Technical School (PROJETE 2k25).
 
 ## Getting Started
 
