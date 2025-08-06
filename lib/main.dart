@@ -13,8 +13,7 @@ class TelaInicial extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Center(
+            Center(
                 child: Image.asset(
                   'image/dermapetbottomless.png',
                   width: 400,
@@ -22,7 +21,6 @@ class TelaInicial extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-            ),
             // Botão
             Padding(
               padding: const EdgeInsets.only(bottom: 30.0),
@@ -39,7 +37,7 @@ class TelaInicial extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => Login()),
                   );
                 },
-                child: Text("Start"),
+                child: Text("Iniciar"),
               ),
             ),
           ],
@@ -102,7 +100,7 @@ class Login extends StatelessWidget {
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'User',
+                              hintText: 'Usuário',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -126,7 +124,7 @@ class Login extends StatelessWidget {
                           child: TextField(
                             obscureText: true,
                             decoration: InputDecoration(
-                              hintText: 'Password',
+                              hintText: 'Senha',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -155,7 +153,7 @@ class Login extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Firstscreen(),
+                                builder: (context) => PrimeiraTela(),
                               ),
                             );
                           },
@@ -171,7 +169,7 @@ class Login extends StatelessWidget {
                             child: Divider(color: Colors.black, thickness: 1),
                           ),
                           SizedBox(width: 10),
-                          Text('OR'),
+                          Text('OU'),
                           SizedBox(width: 10),
                           SizedBox(
                             width: 60,
@@ -188,7 +186,7 @@ class Login extends StatelessWidget {
                           );
                         },
                         child: Text(
-                          'Create Account',
+                          'Criar Conta',
                           style: TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
@@ -208,7 +206,7 @@ class Login extends StatelessWidget {
   }
 }
 
-class Firstscreen extends StatelessWidget {
+class PrimeiraTela extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -276,7 +274,7 @@ class Signup extends StatelessWidget {
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Email/mobile number',
+                              hintText: 'Email/Número de telefone',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -322,7 +320,7 @@ class Signup extends StatelessWidget {
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'User',
+                              hintText: 'Usuário',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -346,7 +344,7 @@ class Signup extends StatelessWidget {
                           child: TextField(
                             obscureText: true,
                             decoration: InputDecoration(
-                              hintText: 'Password',
+                              hintText: 'Senha',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -370,7 +368,7 @@ class Signup extends StatelessWidget {
                           child: TextField(
                             obscureText: true,
                             decoration: InputDecoration(
-                              hintText: 'Confirm Password',
+                              hintText: 'Confirme a senha',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -401,7 +399,7 @@ class Signup extends StatelessWidget {
                               MaterialPageRoute(builder: (context) => Login()),
                             );
                           },
-                          child: Text("Confirm"),
+                          child: Text("Confirmar"),
                         ),
                       ),
                     ],
