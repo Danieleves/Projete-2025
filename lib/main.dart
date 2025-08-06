@@ -206,21 +206,6 @@ class Login extends StatelessWidget {
   }
 }
 
-class PrimeiraTela extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.lightBlueAccent,
-      appBar: AppBar(
-          title: Text(
-              'Derma Pet'
-          ),
-              centerTitle: true,
-      )
-    );
-  }
-}
-
 class Signup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -410,6 +395,21 @@ class Signup extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class PrimeiraTela extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.lightBlueAccent,
+      appBar: AppBar(
+          title: Text(
+              'Derma Pet'
+          ),
+              centerTitle: true,
+      )
     );
   }
 }
