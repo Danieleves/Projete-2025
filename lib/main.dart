@@ -367,7 +367,7 @@ class Signup extends StatelessWidget {
                       SizedBox(height: 40),
                       //botao
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF49D5D2),
