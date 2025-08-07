@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,13 +16,13 @@ class TelaInicial extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Center(
-                child: Image.asset(
-                  'image/dermapetbottomless.png',
-                  width: 400,
-                  height: 400,
-                  fit: BoxFit.cover,
-                ),
+              child: Image.asset(
+                'image/dermapetbottomless.png',
+                width: 400,
+                height: 400,
+                fit: BoxFit.cover,
               ),
+            ),
             // Botão
             Padding(
               padding: const EdgeInsets.only(bottom: 30.0),
@@ -403,13 +405,36 @@ class PrimeiraTela extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlueAccent,
-      appBar: AppBar(
-          title: Text(
-              'Derma Pet'
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-              centerTitle: true,
-      )
+          ListView(
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: 100),
+                    Card(child: SizedBox(height: 170.0, width: 350.0)),
+                    SizedBox(height: 45),
+                    Card(child: SizedBox(height: 170.0, width: 350.0)),
+                    SizedBox(height: 45),
+                    Card(child: SizedBox(height: 170.0, width: 350.0)),
+                    SizedBox(height: 45),
+                    Card(child: SizedBox(height: 170.0, width: 350.0)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
