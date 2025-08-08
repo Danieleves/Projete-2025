@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -17,8 +15,7 @@ class TelaInicial extends StatelessWidget {
           children: [
             SizedBox(height: 15),
             Center(
-              child:
-              Image.asset(
+              child: Image.asset(
                 'image/dermapetbottomless.png',
                 width: 400,
                 height: 400,
@@ -420,7 +417,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
   void criarTeste() {
     setState(() {
-      cards.add(Informacoes("", "", 0));
+      cards.add(Informacoes("Gabriel", "Theo", 27));
     });
   }
 
@@ -441,23 +438,27 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               ),
             ),
           ),
-          ListView(
+            ListView(
             children: [
-              Center(
-                child: Column(
-                  children: [
-                    SizedBox(height: 100),
-                    for (var card in cards) ...[
-                      Card(
-                        child: SizedBox(
-                          height: 170.0,
-                          width: 350.0,
+              SizedBox(height: 100),
+              Column(
+                children: [
+                  for (var card in cards) ...[
+                    Center(
+                      child: Card(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 130.0, width: 350.0),
+                            Text('Nome $card.nome'),
+                            Text('animal $card.animal'),
+                            Text('data $card.data'),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 45),
-                    ],
+                    ),
+                    SizedBox(height: 45),
                   ],
-                ),
+                ],
               ),
             ],
           ),
