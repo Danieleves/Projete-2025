@@ -15,8 +15,10 @@ class TelaInicial extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            SizedBox(height: 15),
             Center(
-              child: Image.asset(
+              child:
+              Image.asset(
                 'image/dermapetbottomless.png',
                 width: 400,
                 height: 400,
@@ -401,10 +403,34 @@ class Signup extends StatelessWidget {
   }
 }
 
-class PrimeiraTela extends StatelessWidget {
+class Informacoes {
+  String dono;
+  String animal;
+  int data;
+  Informacoes(this.dono, this.animal, this.data);
+}
+
+class PrimeiraTela extends StatefulWidget {
+  @override
+  _PrimeiraTelaState createState() => _PrimeiraTelaState();
+}
+
+class _PrimeiraTelaState extends State<PrimeiraTela> {
+  List<Informacoes> cards = [];
+
+  void criarTeste() {
+    setState(() {
+      cards.add(Informacoes("", "", 0));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: criarTeste,
+        child: Icon(Icons.add),
+      ),
       body: Stack(
         children: [
           Container(
@@ -421,13 +447,15 @@ class PrimeiraTela extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 100),
-                    Card(child: SizedBox(height: 170.0, width: 350.0)),
-                    SizedBox(height: 45),
-                    Card(child: SizedBox(height: 170.0, width: 350.0)),
-                    SizedBox(height: 45),
-                    Card(child: SizedBox(height: 170.0, width: 350.0)),
-                    SizedBox(height: 45),
-                    Card(child: SizedBox(height: 170.0, width: 350.0)),
+                    for (var card in cards) ...[
+                      Card(
+                        child: SizedBox(
+                          height: 170.0,
+                          width: 350.0,
+                        ),
+                      ),
+                      SizedBox(height: 45),
+                    ],
                   ],
                 ),
               ),
