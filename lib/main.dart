@@ -155,6 +155,7 @@ class Login extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => PrimeiraTela(),
+                                settings: RouteSettings(name: 'PrimeiraTela'),
                               ),
                             );
                           },
@@ -425,7 +426,14 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: criarTeste,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => preencherInfos()),
+          ).then((_) {
+            criarTeste();
+          });
+        },
         child: Icon(Icons.add),
       ),
       body: Stack(
@@ -438,7 +446,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               ),
             ),
           ),
-            ListView(
+          ListView(
             children: [
               SizedBox(height: 100),
               Column(
@@ -461,6 +469,330 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                 ],
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class preencherInfos extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          //foreground
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  height: 900.0,
+                  width: 400.0,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 40),
+                      Text(
+                        'Início de um novo teste',
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Preencha a esse questionário para continuar',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 90),
+                      //Textfield Nome do Animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Nome do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Dono do Animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Dono do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Idade do Animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Idade do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Sexo do Animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Sexo do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Raça do Animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Raça do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Remédio dado
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Remédio dado',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Hora em que o remédio foi aplicado
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Hora em que o remédio foi aplicado',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //Textfield Área em que o remédio foi aplicado
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Área em que o remédio foi aplicado',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 60),
+                      //botao
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 10,
+                            ),
+                            textStyle: TextStyle(fontSize: 18),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Foto()),
+                            );
+                          },
+                          child: Text("Confirmar"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            //Navigator.pop(context); voltar para a tela inicial
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Foto extends StatefulWidget {
+  @override
+  _FotoState createState() => _FotoState();
+}
+
+class _FotoState extends State<Foto> {
+  List<String> fotos = [];
+
+  void atualizarFoto() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          //foreground
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  height: 900.0,
+                  width: 400.0,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 10,
+                            ),
+                            textStyle: TextStyle(fontSize: 18),
+                          ),
+                          onPressed: () {
+                            Navigator.popUntil(
+                              context,
+                              ModalRoute.withName('PrimeiraTela'),
+                            );
+                          },
+                          child: Text("Confirmar"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
