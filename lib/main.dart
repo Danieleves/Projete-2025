@@ -105,9 +105,7 @@ class Login extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -128,9 +126,7 @@ class Login extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -263,9 +259,7 @@ class Signup extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -285,9 +279,7 @@ class Signup extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -307,9 +299,7 @@ class Signup extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -330,9 +320,7 @@ class Signup extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -353,9 +341,7 @@ class Signup extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -450,9 +436,10 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                         child: Column(
                           children: [
                             SizedBox(height: 130.0, width: 350.0),
-                            Text('Nome $card.nome'),
-                            Text('animal $card.animal'),
-                            Text('data $card.data'),
+                            //Text('Nome $card.nome'),
+                            //Text('animal $card.animal'),
+                            //Text('data $card.data'),
+                            Text('DermaPet'),
                           ],
                         ),
                       ),
@@ -520,9 +507,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -542,9 +527,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -564,9 +547,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -586,9 +567,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -608,9 +587,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -630,9 +607,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -652,9 +627,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -674,9 +647,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -696,9 +667,7 @@ class preencherInfos extends StatelessWidget {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: TextStyle(fontSize: 20),
                           ),
                         )),
                       ),
@@ -774,6 +743,12 @@ class _FotoState extends State<Foto> {
                   color: Colors.white,
                   child: Column(
                     children: [
+                      SizedBox(height: 100),
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: Icon(Icons.camera_alt, color: Colors.black),
+                      ),
+                      SizedBox(height: 500),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: ElevatedButton(
