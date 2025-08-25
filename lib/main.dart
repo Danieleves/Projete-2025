@@ -107,7 +107,6 @@ class Login extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -131,7 +130,6 @@ class Login extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -267,7 +265,6 @@ class Signup extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -290,7 +287,6 @@ class Signup extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -313,7 +309,6 @@ class Signup extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -337,7 +332,6 @@ class Signup extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -361,7 +355,6 @@ class Signup extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -529,7 +522,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -552,7 +544,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -575,7 +566,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -598,7 +588,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -621,7 +610,28 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )),
+                      ),
+                      SizedBox(height: 20),
+                      //textfield Peso do animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: (Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Peso do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(
+                              fontSize: 20,
                             ),
                           ),
                         )),
@@ -644,7 +654,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -667,7 +676,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
@@ -690,7 +698,6 @@ class preencherInfos extends StatelessWidget {
                             ),
                             style: TextStyle(
                               fontSize: 20,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                         )),
