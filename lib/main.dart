@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:camera/camera.dart';
 
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
@@ -380,11 +382,31 @@ class Signup extends StatelessWidget {
   }
 }
 
-class Informacoes {
-  String dono;
+class Laudo {
   String animal;
+  String dono;
+  int idade;
+  String sexo;
+  String raca;
+  double peso;
+  String remedio;
+  int hora;
+  String area;
   int data;
-  Informacoes(this.dono, this.animal, this.data);
+  int id;
+  Laudo(
+    this.animal,
+    this.dono,
+    this.idade,
+    this.sexo,
+    this.raca,
+    this.peso,
+    this.remedio,
+    this.hora,
+    this.area,
+    this.data,
+    this.id,
+  );
 }
 
 class PrimeiraTela extends StatefulWidget {
@@ -393,12 +415,10 @@ class PrimeiraTela extends StatefulWidget {
 }
 
 class _PrimeiraTelaState extends State<PrimeiraTela> {
-  List<Informacoes> cards = [];
+  List<Laudo> cards = [];
 
   void criarTeste() {
-    setState(() {
-      cards.add(Informacoes("Gabriel", "Theo", 27));
-    });
+    setState(() {});
   }
 
   @override
@@ -408,7 +428,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => preencherInfos()),
+            MaterialPageRoute(
+              builder: (context) => preencherInfos(cards: cards),
+            ),
           ).then((_) {
             criarTeste();
           });
@@ -430,16 +452,15 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               SizedBox(height: 100),
               Column(
                 children: [
-                  for (var card in cards) ...[
+                  for (int i = 0; i < cards.length; i++) ...[
                     Center(
                       child: Card(
                         child: Column(
                           children: [
                             SizedBox(height: 130.0, width: 350.0),
-                            //Text('Nome $card.nome'),
-                            //Text('animal $card.animal'),
-                            //Text('data $card.data'),
-                            Text('DermaPet'),
+                            Text('Card: ${i + 1}'),
+                            Text('Animal: ${cards[i].animal}'),
+                            Text('Data: ${cards[i].data}'),
                           ],
                         ),
                       ),
@@ -457,6 +478,8 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 }
 
 class preencherInfos extends StatelessWidget {
+  final List<Laudo> cards;
+  const preencherInfos({required this.cards, Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -688,7 +711,9 @@ class preencherInfos extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => Foto()),
+                              MaterialPageRoute(
+                                builder: (context) => Foto(cards: cards),
+                              ),
                             );
                           },
                           child: Text("Confirmar"),
@@ -708,12 +733,15 @@ class preencherInfos extends StatelessWidget {
 }
 
 class Foto extends StatefulWidget {
+  final List<Laudo> cards;
+  const Foto({required this.cards, Key? key}) : super(key: key);
   @override
   _FotoState createState() => _FotoState();
 }
 
 class _FotoState extends State<Foto> {
   List<String> fotos = [];
+  String? _fotoPath;
 
   void atualizarFoto() {
     setState(() {});
@@ -745,10 +773,51 @@ class _FotoState extends State<Foto> {
                     children: [
                       SizedBox(height: 100),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final path = await Navigator.push<String?>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CameraCapturePage(),
+                            ),
+                          );
+                          if (path != null && mounted) {
+                            setState(() => _fotoPath = path);
+                          }
+                        },
                         child: Icon(Icons.camera_alt, color: Colors.black),
                       ),
-                      SizedBox(height: 500),
+                      SizedBox(height: 20),
+                      if (_fotoPath != null)
+                        Container(
+                          width: 320,
+                          height: 320,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.black12),
+                            color: Colors.grey.shade200,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.file(
+                            File(_fotoPath!),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      else
+                        Container(
+                          width: 320,
+                          height: 320,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.black12),
+                            color: Colors.grey.shade100,
+                          ),
+                          child: const Text(
+                            'Nenhuma foto',
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                      const Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: ElevatedButton(
@@ -762,6 +831,9 @@ class _FotoState extends State<Foto> {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
+                            widget.cards.add(
+                              Laudo("", "", 0, "", "", 0, "", 0, "", 0, 0),
+                            );
                             Navigator.popUntil(
                               context,
                               ModalRoute.withName('PrimeiraTela'),
@@ -778,6 +850,147 @@ class _FotoState extends State<Foto> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CameraCapturePage extends StatefulWidget {
+  const CameraCapturePage({Key? key}) : super(key: key);
+
+  @override
+  State<CameraCapturePage> createState() => _CameraCapturePageState();
+}
+
+class _CameraCapturePageState extends State<CameraCapturePage>
+    with WidgetsBindingObserver {
+  CameraController? _controller;
+  Future<void>? _initFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      final cameras = await availableCameras();
+      final back = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+
+      final controller = CameraController(
+        back,
+        ResolutionPreset.max,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
+      );
+
+      _controller = controller;
+      _initFuture = controller.initialize();
+      setState(() {});
+    } catch (e) {
+      //Permissão negada
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao iniciar câmera: $e')));
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  // Pausa/retoma preview quando o app muda de estado
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = _controller;
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      _controller?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      _initCamera();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: const Text('Câmera'),
+        centerTitle: true,
+      ),
+      body: controller == null
+          ? const Center(child: CircularProgressIndicator())
+          : FutureBuilder<void>(
+              future: _initFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Stack(
+                    children: [
+                      Center(child: CameraPreview(controller)),
+                      // Botão de captura
+                      Positioned(
+                        bottom: 32,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(18),
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                            ),
+                            onPressed: () async {
+                              try {
+                                await _initFuture;
+                                final file = await controller.takePicture();
+                                if (!mounted) return;
+                                // Retorna o caminho da foto para a tela anterior
+                                Navigator.pop(context, file.path);
+                              } catch (e) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Falha ao tirar foto: $e'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Icon(Icons.camera_alt, size: 32),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
     );
   }
 }
