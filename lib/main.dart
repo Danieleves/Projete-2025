@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
+
+var dataFormatter = MaskTextInputFormatter(
+  mask: '##/##/####',
+  filter: {"#": RegExp(r'[0-9]')},
+  type: MaskAutoCompletionType.lazy,
+);
+
+var mobileFormatter = MaskTextInputFormatter(
+  mask: '+## (##) #####-####',
+  filter: {"#": RegExp(r'[0-9]')},
+  type: MaskAutoCompletionType.lazy,
+);
 
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
@@ -37,7 +50,9 @@ class TelaInicial extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Login()),
+                    MaterialPageRoute(
+                      builder: (context) => Login(usuarios: []),
+                    ),
                   );
                 },
                 child: Text("Iniciar"),
@@ -51,6 +66,8 @@ class TelaInicial extends StatelessWidget {
 }
 
 class Login extends StatelessWidget {
+  final List<Entrar> usuarios;
+  Login({required this.usuarios});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,7 +221,21 @@ class Login extends StatelessWidget {
   }
 }
 
-class Signup extends StatelessWidget {
+class Entrar {
+  String phone;
+  String crmv;
+  String usuario;
+  String senha;
+  Entrar(this.phone, this.crmv, this.usuario, this.senha);
+}
+
+class Signup extends StatefulWidget {
+  @override
+  _SignupState createState() => _SignupState();
+}
+
+class _SignupState extends State<Signup> {
+  List<Entrar> usuarios = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,24 +277,25 @@ class Signup extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 80),
-                      //Textfield email/mobile number
+                      //Textfield mobile number
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
-                        child: (Container(
+                        child: Container(
                           height: 40,
                           width: 200,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            inputFormatters: [mobileFormatter],
                             decoration: InputDecoration(
-                              hintText: 'Email/Número de telefone',
+                              hintText: 'Número de telefone',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
                             style: TextStyle(fontSize: 20),
                           ),
-                        )),
+                        ),
                       ),
                       SizedBox(height: 20),
                       //Textfield CRMV
@@ -364,7 +396,9 @@ class Signup extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => Login()),
+                              MaterialPageRoute(
+                                builder: (context) => Login(usuarios: usuarios),
+                              ),
                             );
                           },
                           child: Text("Confirmar"),
@@ -394,6 +428,7 @@ class Laudo {
   String area;
   int data;
   int id;
+  String? fotoPath;
   Laudo(
     this.animal,
     this.dono,
@@ -406,6 +441,7 @@ class Laudo {
     this.area,
     this.data,
     this.id,
+    this.fotoPath,
   );
 }
 
@@ -514,7 +550,28 @@ class preencherInfos extends StatelessWidget {
                         'Preencha a esse questionário para continuar',
                         style: TextStyle(fontSize: 18),
                       ),
-                      SizedBox(height: 90),
+                      SizedBox(height: 60),
+                      //Textfield data
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            inputFormatters: [dataFormatter],
+                            decoration: InputDecoration(
+                              hintText: 'dd/mm/aaaa',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
                       //Textfield Nome do Animal
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
@@ -724,7 +781,6 @@ class preencherInfos extends StatelessWidget {
                 ),
               ),
             ),
-            //Navigator.pop(context); voltar para a tela inicial
           ),
         ],
       ),
@@ -741,7 +797,7 @@ class Foto extends StatefulWidget {
 
 class _FotoState extends State<Foto> {
   List<String> fotos = [];
-  String? _fotoPath;
+  String? fotoPath;
 
   void atualizarFoto() {
     setState(() {});
@@ -777,17 +833,17 @@ class _FotoState extends State<Foto> {
                           final path = await Navigator.push<String?>(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const CameraCapturePage(),
+                              builder: (_) => const CapturaCamera(),
                             ),
                           );
                           if (path != null && mounted) {
-                            setState(() => _fotoPath = path);
+                            setState(() => fotoPath = path);
                           }
                         },
                         child: Icon(Icons.camera_alt, color: Colors.black),
                       ),
                       SizedBox(height: 20),
-                      if (_fotoPath != null)
+                      if (fotoPath != null)
                         Container(
                           width: 320,
                           height: 320,
@@ -797,10 +853,7 @@ class _FotoState extends State<Foto> {
                             color: Colors.grey.shade200,
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: Image.file(
-                            File(_fotoPath!),
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.file(File(fotoPath!), fit: BoxFit.cover),
                         )
                       else
                         Container(
@@ -832,7 +885,20 @@ class _FotoState extends State<Foto> {
                           ),
                           onPressed: () {
                             widget.cards.add(
-                              Laudo("", "", 0, "", "", 0, "", 0, "", 0, 0),
+                              Laudo(
+                                "",
+                                "",
+                                0,
+                                "",
+                                "",
+                                0,
+                                "",
+                                0,
+                                "",
+                                0,
+                                0,
+                                fotoPath,
+                              ),
                             );
                             Navigator.popUntil(
                               context,
@@ -854,14 +920,14 @@ class _FotoState extends State<Foto> {
   }
 }
 
-class CameraCapturePage extends StatefulWidget {
-  const CameraCapturePage({Key? key}) : super(key: key);
+class CapturaCamera extends StatefulWidget {
+  const CapturaCamera({Key? key}) : super(key: key);
 
   @override
-  State<CameraCapturePage> createState() => _CameraCapturePageState();
+  State<CapturaCamera> createState() => _CapturaCameraState();
 }
 
-class _CameraCapturePageState extends State<CameraCapturePage>
+class _CapturaCameraState extends State<CapturaCamera>
     with WidgetsBindingObserver {
   CameraController? _controller;
   Future<void>? _initFuture;
@@ -902,7 +968,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     }
   }
 
-  // Pausa/retoma preview quando o app muda de estado
+  // Para o preview na mudança de estado
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final CameraController? cameraController = _controller;
@@ -944,7 +1010,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
                   return Stack(
                     children: [
                       Center(child: CameraPreview(controller)),
-                      // Botão de captura
+                      // Botão da camera
                       Positioned(
                         bottom: 32,
                         left: 0,
@@ -962,7 +1028,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
                                 await _initFuture;
                                 final file = await controller.takePicture();
                                 if (!mounted) return;
-                                // Retorna o caminho da foto para a tela anterior
+                                // Retorna o caminho da foto para a tela "foto"
                                 Navigator.pop(context, file.path);
                               } catch (e) {
                                 if (!mounted) return;
