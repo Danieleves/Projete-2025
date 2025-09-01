@@ -65,8 +65,21 @@ class TelaInicial extends StatelessWidget {
   }
 }
 
+class validar{
+  String user;
+  String senha;
+  validar({
+    required this.user,
+    required this.senha,
+});
+
+}
+
 class Login extends StatelessWidget {
-  final List<Entrar> usuarios;
+  final TextEditingController userController = TextEditingController();
+  final TextEditingController senhaController = TextEditingController();
+  final List<cadastro> usuarios;
+  final List<validar> validacao = [];
   Login({required this.usuarios});
   @override
   Widget build(BuildContext context) {
@@ -119,6 +132,7 @@ class Login extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: userController,
                             decoration: InputDecoration(
                               hintText: 'Usuário',
                               border: InputBorder.none,
@@ -139,6 +153,7 @@ class Login extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: senhaController,
                             obscureText: true,
                             decoration: InputDecoration(
                               hintText: 'Senha',
@@ -164,6 +179,14 @@ class Login extends StatelessWidget {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
+                            final novovalidar = validar(
+                              user: userController.text,
+                              senha: senhaController.text,
+                            );
+                            validacao.add(novovalidar);
+                            userController.clear();
+                            senhaController.clear();
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -221,12 +244,16 @@ class Login extends StatelessWidget {
   }
 }
 
-class Entrar {
+class cadastro {
   String phone;
   String crmv;
   String usuario;
   String senha;
-  Entrar(this.phone, this.crmv, this.usuario, this.senha);
+  cadastro({
+  required this.phone,
+    required this.crmv,
+    required this.usuario,
+    required this.senha});
 }
 
 class Signup extends StatefulWidget {
@@ -235,7 +262,13 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  List<Entrar> usuarios = [];
+  String? confirm;
+  List<cadastro> usuarios = [];
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController crmvController = TextEditingController();
+  final TextEditingController usuarioController = TextEditingController();
+  final TextEditingController senhaController = TextEditingController();
+  final TextEditingController confirmController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -287,6 +320,7 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: phoneController,
                             inputFormatters: [mobileFormatter],
                             decoration: InputDecoration(
                               hintText: 'Número de telefone',
@@ -308,6 +342,7 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: crmvController,
                             decoration: InputDecoration(
                               hintText: 'CRMV',
                               border: InputBorder.none,
@@ -328,6 +363,7 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: usuarioController,
                             decoration: InputDecoration(
                               hintText: 'Usuário',
                               border: InputBorder.none,
@@ -348,6 +384,7 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: senhaController,
                             obscureText: true,
                             decoration: InputDecoration(
                               hintText: 'Senha',
@@ -369,6 +406,8 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: confirmController,
+                            // confirm: confirmController.text,
                             obscureText: true,
                             decoration: InputDecoration(
                               hintText: 'Confirme a senha',
@@ -393,7 +432,22 @@ class _SignupState extends State<Signup> {
                             ),
                             textStyle: TextStyle(fontSize: 18),
                           ),
-                          onPressed: () {
+                          onPressed: () {final novocadastro = cadastro(
+                              phone: phoneController.text,
+                              crmv: crmvController.text,
+                              usuario: usuarioController.text,
+                              senha: senhaController.text,
+                            );
+                            usuarios.add(novocadastro);
+                            phoneController.clear();
+                            crmvController.clear();
+                            usuarioController.clear();
+                            senhaController.clear();
+                            confirmController.clear();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Cadstrado com sucesso!',
+                            )),
+                          );
                             Navigator.push(
                               context,
                               MaterialPageRoute(
