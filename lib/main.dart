@@ -263,7 +263,7 @@ class _SignupState extends State<Signup> {
                     children: [
                       //logo
                       Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+                        padding: EdgeInsets.only(top: 15.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(60),
                           child: Container(
@@ -282,7 +282,7 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(40),
                         child: Container(
                           height: 40,
-                          width: 200,
+                          width: 220,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
@@ -303,7 +303,7 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(40),
                         child: (Container(
                           height: 40,
-                          width: 200,
+                          width: 220,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
@@ -323,7 +323,7 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(40),
                         child: (Container(
                           height: 40,
-                          width: 200,
+                          width: 220,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
@@ -343,7 +343,7 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(40),
                         child: (Container(
                           height: 40,
-                          width: 200,
+                          width: 220,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
@@ -364,7 +364,7 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(40),
                         child: (Container(
                           height: 40,
-                          width: 200,
+                          width: 220,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
@@ -429,20 +429,20 @@ class Laudo {
   int data;
   int id;
   String? fotoPath;
-  Laudo(
-    this.animal,
-    this.dono,
-    this.idade,
-    this.sexo,
-    this.raca,
-    this.peso,
-    this.remedio,
-    this.hora,
-    this.area,
-    this.data,
-    this.id,
-    this.fotoPath,
-  );
+  Laudo({
+    required this.animal,
+    required this.dono,
+    required this.idade,
+    required this.sexo,
+    required this.raca,
+    required this.peso,
+    required this.remedio,
+    required this.hora,
+    required this.area,
+    required this.data,
+    required this.id,
+    required this.fotoPath,
+  });
 }
 
 class PrimeiraTela extends StatefulWidget {
@@ -465,7 +465,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => preencherInfos(cards: cards),
+              builder: (context) => PreencherInfos(cards: cards),
             ),
           ).then((_) {
             criarTeste();
@@ -513,9 +513,23 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 }
 
-class preencherInfos extends StatelessWidget {
+class PreencherInfos extends StatelessWidget {
   final List<Laudo> cards;
-  const preencherInfos({required this.cards, Key? key}) : super(key: key);
+  PreencherInfos({required this.cards, Key? key}) : super(key: key);
+
+  //controllers de armazenamento textfield
+  final TextEditingController animalController = TextEditingController();
+  final TextEditingController donoController = TextEditingController();
+  final TextEditingController idadeController = TextEditingController();
+  final TextEditingController sexoController = TextEditingController();
+  final TextEditingController racaController = TextEditingController();
+  final TextEditingController pesoController = TextEditingController();
+  final TextEditingController remedioController = TextEditingController();
+  final TextEditingController horaController = TextEditingController();
+  final TextEditingController areaController = TextEditingController();
+  final TextEditingController dataController = TextEditingController();
+  final TextEditingController ideController = TextEditingController();
+  final TextEditingController fotopathController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -561,6 +575,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: dataController,
                             inputFormatters: [dataFormatter],
                             decoration: InputDecoration(
                               hintText: 'dd/mm/aaaa',
@@ -582,6 +597,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: animalController,
                             decoration: InputDecoration(
                               hintText: 'Nome do animal',
                               border: InputBorder.none,
@@ -602,6 +618,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: donoController,
                             decoration: InputDecoration(
                               hintText: 'Dono do animal',
                               border: InputBorder.none,
@@ -622,6 +639,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: idadeController,
                             decoration: InputDecoration(
                               hintText: 'Idade do animal',
                               border: InputBorder.none,
@@ -642,6 +660,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: sexoController,
                             decoration: InputDecoration(
                               hintText: 'Sexo do animal',
                               border: InputBorder.none,
@@ -662,6 +681,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: racaController,
                             decoration: InputDecoration(
                               hintText: 'Raça do animal',
                               border: InputBorder.none,
@@ -682,6 +702,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: pesoController,
                             decoration: InputDecoration(
                               hintText: 'Peso do animal',
                               border: InputBorder.none,
@@ -702,6 +723,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: remedioController,
                             decoration: InputDecoration(
                               hintText: 'Remédio dado',
                               border: InputBorder.none,
@@ -722,6 +744,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: horaController,
                             decoration: InputDecoration(
                               hintText: 'Hora em que o remédio foi aplicado',
                               border: InputBorder.none,
@@ -742,6 +765,7 @@ class preencherInfos extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
+                            controller: areaController,
                             decoration: InputDecoration(
                               hintText: 'Área em que o remédio foi aplicado',
                               border: InputBorder.none,
@@ -766,10 +790,36 @@ class preencherInfos extends StatelessWidget {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
+                            final novoLaudo = Laudo(
+                              animal: animalController.text,
+                              dono: donoController.text,
+                              idade: int.tryParse(idadeController.text) ?? 0,
+                              sexo: sexoController.text,
+                              raca: racaController.text,
+                              peso: double.tryParse(pesoController.text) ?? 0,
+                              remedio: remedioController.text,
+                              hora: int.tryParse(horaController.text) ?? 0,
+                              area: areaController.text,
+                              data: int.tryParse(dataController.text) ?? 0,
+                              id: cards.length + 1,
+                              fotoPath: null,
+                            );
+                            cards.add(novoLaudo);
+                            animalController.clear();
+                            donoController.clear();
+                            idadeController.clear();
+                            sexoController.clear();
+                            racaController.clear();
+                            pesoController.clear();
+                            remedioController.clear();
+                            horaController.clear();
+                            areaController.clear();
+                            dataController.clear();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Foto(cards: cards),
+                                builder: (context) =>
+                                    Foto(cards: cards, index: cards.length - 1),
                               ),
                             );
                           },
@@ -790,7 +840,9 @@ class preencherInfos extends StatelessWidget {
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
-  const Foto({required this.cards, Key? key}) : super(key: key);
+  final int index;
+  const Foto({required this.cards, required this.index, Key? key})
+    : super(key: key);
   @override
   _FotoState createState() => _FotoState();
 }
@@ -837,20 +889,22 @@ class _FotoState extends State<Foto> {
                             ),
                           );
                           if (path != null && mounted) {
-                            setState(() => fotoPath = path);
+                            setState(() {
+                              fotoPath = path;
+                              widget.cards[widget.index].fotoPath = path;
+                            });
                           }
                         },
                         child: Icon(Icons.camera_alt, color: Colors.black),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 120),
                       if (fotoPath != null)
                         Container(
                           width: 320,
                           height: 320,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.black12),
-                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
                           child: Image.file(File(fotoPath!), fit: BoxFit.cover),
@@ -863,14 +917,14 @@ class _FotoState extends State<Foto> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: Colors.black12),
-                            color: Colors.grey.shade100,
+                            color: Colors.grey.shade200,
                           ),
                           child: const Text(
                             'Nenhuma foto',
-                            style: TextStyle(color: Colors.black54),
+                            style: TextStyle(color: Colors.black),
                           ),
                         ),
-                      const Spacer(),
+                      Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: ElevatedButton(
@@ -884,28 +938,12 @@ class _FotoState extends State<Foto> {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
-                            widget.cards.add(
-                              Laudo(
-                                "",
-                                "",
-                                0,
-                                "",
-                                "",
-                                0,
-                                "",
-                                0,
-                                "",
-                                0,
-                                0,
-                                fotoPath,
-                              ),
-                            );
                             Navigator.popUntil(
                               context,
                               ModalRoute.withName('PrimeiraTela'),
                             );
                           },
-                          child: Text("Confirmar"),
+                          child: const Text("Confirmar"),
                         ),
                       ),
                     ],
@@ -929,6 +967,7 @@ class CapturaCamera extends StatefulWidget {
 
 class _CapturaCameraState extends State<CapturaCamera>
     with WidgetsBindingObserver {
+  //mixin
   CameraController? _controller;
   Future<void>? _initFuture;
 
@@ -957,12 +996,12 @@ class _CapturaCameraState extends State<CapturaCamera>
       _controller = controller;
       _initFuture = controller.initialize();
       setState(() {});
-    } catch (e) {
+    } catch (erro) {
       //Permissão negada
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao iniciar câmera: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao iniciar câmera: $erro')),
+        );
         Navigator.pop(context);
       }
     }
@@ -1030,11 +1069,11 @@ class _CapturaCameraState extends State<CapturaCamera>
                                 if (!mounted) return;
                                 // Retorna o caminho da foto para a tela "foto"
                                 Navigator.pop(context, file.path);
-                              } catch (e) {
+                              } catch (erro) {
                                 if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Falha ao tirar foto: $e'),
+                                    content: Text('Falha ao tirar foto: $erro'),
                                   ),
                                 );
                               }
