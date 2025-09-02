@@ -65,22 +65,19 @@ class TelaInicial extends StatelessWidget {
   }
 }
 
-class validar{
+class Validar {
   String user;
   String senha;
-  validar({
-    required this.user,
-    required this.senha,
-});
-
+  Validar({required this.user, required this.senha});
 }
 
 class Login extends StatelessWidget {
-  final TextEditingController userController = TextEditingController();
-  final TextEditingController senhaController = TextEditingController();
-  final List<cadastro> usuarios;
-  final List<validar> validacao = [];
+  TextEditingController userController = TextEditingController();
+  TextEditingController senhaController = TextEditingController();
+  List<cadastro> usuarios;
+  List<Validar> validacao = [];
   Login({required this.usuarios});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,11 +176,23 @@ class Login extends StatelessWidget {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
-                            final novovalidar = validar(
+                            final novoValidar = Validar(
                               user: userController.text,
                               senha: senhaController.text,
                             );
-                            validacao.add(novovalidar);
+                            validacao.add(novoValidar);
+                            if (usuarios.any((c) => c.usuario != userController.text)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Usuario não existe')),
+                              );
+                              return;
+                            }
+                            else if(usuarios.any((c) => c.senha != senhaController.text)){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Senha incorreta')),
+                            );
+                            return;
+                            }
                             userController.clear();
                             senhaController.clear();
 
@@ -249,11 +258,14 @@ class cadastro {
   String crmv;
   String usuario;
   String senha;
+  String confirm;
   cadastro({
-  required this.phone,
+    required this.phone,
     required this.crmv,
     required this.usuario,
-    required this.senha});
+    required this.senha,
+    required this.confirm,
+  });
 }
 
 class Signup extends StatefulWidget {
@@ -262,13 +274,13 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  String? confirm;
   List<cadastro> usuarios = [];
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController crmvController = TextEditingController();
-  final TextEditingController usuarioController = TextEditingController();
-  final TextEditingController senhaController = TextEditingController();
-  final TextEditingController confirmController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController crmvController = TextEditingController();
+  TextEditingController usuarioController = TextEditingController();
+  TextEditingController senhaController = TextEditingController();
+  TextEditingController confirmController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -432,30 +444,61 @@ class _SignupState extends State<Signup> {
                             ),
                             textStyle: TextStyle(fontSize: 18),
                           ),
-                          onPressed: () {final novocadastro = cadastro(
+                          onPressed: () {
+                            final novocadastro = cadastro(
                               phone: phoneController.text,
                               crmv: crmvController.text,
                               usuario: usuarioController.text,
                               senha: senhaController.text,
+                              confirm: confirmController.text,
                             );
                             usuarios.add(novocadastro);
-                            phoneController.clear();
-                            crmvController.clear();
-                            usuarioController.clear();
-                            senhaController.clear();
-                            confirmController.clear();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Cadstrado com sucesso!',
-                            )),
-                          );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Login(usuarios: usuarios),
-                              ),
-                            );
+                            if (senhaController.text !=
+                                confirmController.text) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Senhas não coincidem')),
+                              );
+                              return;
+                            } else {
+                              phoneController.clear();
+                              crmvController.clear();
+                              usuarioController.clear();
+                              senhaController.clear();
+                              confirmController.clear();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Cadstrado com sucesso!'),
+                                ),
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Login(usuarios: usuarios),
+                                ),
+                              );
+                            }
                           },
                           child: Text("Confirmar"),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Login(usuarios: []),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'voltar',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],
