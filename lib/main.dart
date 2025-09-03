@@ -71,13 +71,18 @@ class Validar {
   Validar({required this.user, required this.senha});
 }
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  final List<cadastro> usuarios;
+  const Login({required this.usuarios, Key? key})
+      : super(key: key);
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  List<Validar> validacao = [];
   TextEditingController userController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
-  List<cadastro> usuarios;
-  List<Validar> validacao = [];
-  Login({required this.usuarios});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,13 +186,13 @@ class Login extends StatelessWidget {
                               senha: senhaController.text,
                             );
                             validacao.add(novoValidar);
-                            if (usuarios.any((c) => c.usuario != userController.text)) {
+                            if (widget.usuarios.any((c) => c.usuario != userController.text)) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Usuario não existe')),
                               );
                               return;
                             }
-                            else if(usuarios.any((c) => c.senha != senhaController.text)){
+                            else if(widget.usuarios.any((c) => c.senha != senhaController.text)){
                             ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Senha incorreta')),
                             );
@@ -452,7 +457,6 @@ class _SignupState extends State<Signup> {
                               senha: senhaController.text,
                               confirm: confirmController.text,
                             );
-                            usuarios.add(novocadastro);
                             if (senhaController.text !=
                                 confirmController.text) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -460,6 +464,7 @@ class _SignupState extends State<Signup> {
                               );
                               return;
                             } else {
+                              usuarios.add(novocadastro);
                               phoneController.clear();
                               crmvController.clear();
                               usuarioController.clear();
@@ -610,23 +615,27 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 }
 
-class PreencherInfos extends StatelessWidget {
+class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
   PreencherInfos({required this.cards, Key? key}) : super(key: key);
+  @override
+  _PreencherInfosState createState() => _PreencherInfosState();
+}
 
+class _PreencherInfosState extends State<PreencherInfos> {
   //controllers de armazenamento textfield
-  final TextEditingController animalController = TextEditingController();
-  final TextEditingController donoController = TextEditingController();
-  final TextEditingController idadeController = TextEditingController();
-  final TextEditingController sexoController = TextEditingController();
-  final TextEditingController racaController = TextEditingController();
-  final TextEditingController pesoController = TextEditingController();
-  final TextEditingController remedioController = TextEditingController();
-  final TextEditingController horaController = TextEditingController();
-  final TextEditingController areaController = TextEditingController();
-  final TextEditingController dataController = TextEditingController();
-  final TextEditingController ideController = TextEditingController();
-  final TextEditingController fotopathController = TextEditingController();
+   TextEditingController animalController = TextEditingController();
+   TextEditingController donoController = TextEditingController();
+   TextEditingController idadeController = TextEditingController();
+   TextEditingController sexoController = TextEditingController();
+   TextEditingController racaController = TextEditingController();
+   TextEditingController pesoController = TextEditingController();
+   TextEditingController remedioController = TextEditingController();
+   TextEditingController horaController = TextEditingController();
+   TextEditingController areaController = TextEditingController();
+   TextEditingController dataController = TextEditingController();
+   TextEditingController ideController = TextEditingController();
+   TextEditingController fotopathController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -898,27 +907,43 @@ class PreencherInfos extends StatelessWidget {
                               hora: int.tryParse(horaController.text) ?? 0,
                               area: areaController.text,
                               data: int.tryParse(dataController.text) ?? 0,
-                              id: cards.length + 1,
+                              id: widget.cards.length + 1,
                               fotoPath: null,
                             );
-                            cards.add(novoLaudo);
-                            animalController.clear();
-                            donoController.clear();
-                            idadeController.clear();
-                            sexoController.clear();
-                            racaController.clear();
-                            pesoController.clear();
-                            remedioController.clear();
-                            horaController.clear();
-                            areaController.clear();
-                            dataController.clear();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    Foto(cards: cards, index: cards.length - 1),
-                              ),
-                            );
+                            if(animalController.text.isEmpty || donoController.text.isEmpty || idadeController.text.isEmpty || sexoController.text.isEmpty || racaController.text.isEmpty || pesoController.text.isEmpty || remedioController.text.isEmpty || horaController.text.isEmpty || areaController.text.isEmpty || dataController.text.isEmpty){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Preencha todos os campos')),
+                              );
+                              return;
+                            }
+                            else if(int.tryParse(idadeController.text) == 0 || double.tryParse(pesoController.text) == 0 || int.tryParse(horaController.text) == 0 || int.tryParse(dataController.text) == 0){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Preencha os campos corretamente')),
+                              );
+                              return;
+                            }
+                            else {
+                              widget.cards.add(novoLaudo);
+                              animalController.clear();
+                              donoController.clear();
+                              idadeController.clear();
+                              sexoController.clear();
+                              racaController.clear();
+                              pesoController.clear();
+                              remedioController.clear();
+                              horaController.clear();
+                              areaController.clear();
+                              dataController.clear();
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Foto(cards: widget.cards,
+                                          index: widget.cards.length - 1),
+                                ),
+                              );
+                            }
                           },
                           child: Text("Confirmar"),
                         ),
