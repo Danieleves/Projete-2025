@@ -186,7 +186,7 @@ class _LoginState extends State<Login> {
                               senha: senhaController.text,
                             );
                             validacao.add(novoValidar);
-                            if (widget.usuarios.any((c) => c.usuario != userController.text)) {
+                            if (widget.usuarios.any((c) => c.usuario != userController.text)) {  //ver isso mais a fundo, o any
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Usuario não existe')),
                               );
