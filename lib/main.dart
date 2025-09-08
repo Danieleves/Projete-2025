@@ -203,7 +203,7 @@ class _LoginState extends State<Login> {
                               senha: senhaController.text,
                             );
                             validacao.add(novoValidar);
-                             final usuarioValido = widget.usuarios.any(
+                            var usuarioValido = widget.usuarios.any(
                               (c) =>
                                   c.usuario == userController.text &&
                                   c.senha == senhaController.text,
@@ -263,6 +263,8 @@ class _LoginState extends State<Login> {
                       SizedBox(height: 20),
                       GestureDetector(
                         onTap: () {
+                          userController.clear();
+                          senhaController.clear();
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => Signup()),
