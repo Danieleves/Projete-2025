@@ -203,32 +203,42 @@ class _LoginState extends State<Login> {
                               senha: senhaController.text,
                             );
                             validacao.add(novoValidar);
-                            if (widget.usuarios.any(
-                              (c) => c.usuario != userController.text,
-                            )) {
+                             final usuarioValido = widget.usuarios.any(
+                              (c) =>
+                                  c.usuario == userController.text &&
+                                  c.senha == senhaController.text,
+                            );
+
+                            if (!usuarioValido) {
                               //ver isso mais a fundo, o any
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Usuario não existe')),
+                                SnackBar(
+                                  content: Text('Usuario ou senha incorretos'),
+                                ),
                               );
                               return;
-                            } else if (widget.usuarios.any(
-                              (c) => c.senha != senhaController.text,
-                            )) {
+                            } else if (userController.text.isEmpty ||
+                                senhaController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Senha incorreta')),
+                                SnackBar(
+                                  content: Text(
+                                    'Preencha os campos corretamente',
+                                  ),
+                                ),
                               );
                               return;
-                            }
-                            userController.clear();
-                            senhaController.clear();
+                            } else if (usuarioValido) {
+                              userController.clear();
+                              senhaController.clear();
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PrimeiraTela(),
-                                settings: RouteSettings(name: 'PrimeiraTela'),
-                              ),
-                            );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PrimeiraTela(),
+                                  settings: RouteSettings(name: 'PrimeiraTela'),
+                                ),
+                              );
+                            }
                           },
                           child: Text("Login"),
                         ),
@@ -506,13 +516,7 @@ class _SignupState extends State<Signup> {
                                 ),
                               );
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      Login(usuarios: usuarios),
-                                ),
-                              );
+                              Navigator.pop(context, novocadastro);
                             }
                           },
                           child: Text("Confirmar"),
