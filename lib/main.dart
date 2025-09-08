@@ -19,8 +19,8 @@ var mobileFormatter = MaskTextInputFormatter(
 
 void main() async {
   runApp(MaterialApp(home: TelaInicial()));
-  // Exemplo POST → envia dados para /process do Flask
-  /*File file = File('C:/Users/gabri/Downloads/projete/client/bin/img2.jpeg');
+   /*Exemplo POST → envia dados para /process do Flask
+  File file = File('C:/Users/gabri/Downloads/projete/client/bin/img2.jpeg');
     List<int> imageBytes = await file.readAsBytes();
     String base64Image = base64Encode(imageBytes);
 
@@ -34,10 +34,11 @@ void main() async {
         "imagem":base64Image
       }), // Dados enviados em JSON
     );
-  print('Resposta POST: ${postResponse.body}');*/
+  print('Resposta POST: ${postResponse.body}'); */
 }
 
 class TelaInicial extends StatelessWidget {
+  final List<cadastro> usuarios = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +70,7 @@ class TelaInicial extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Login(usuarios: []),
+                      builder: (context) => Login(usuarios: usuarios),
                     ),
                   );
                 },
@@ -267,9 +268,10 @@ class _LoginState extends State<Login> {
                           senhaController.clear();
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Signup()),
+                            MaterialPageRoute(builder: (context) => Signup(usuarios: widget.usuarios),),
                           );
                         },
+
                         child: Text(
                           'Criar Conta',
                           style: TextStyle(
@@ -307,12 +309,13 @@ class cadastro {
 }
 
 class Signup extends StatefulWidget {
+  final List<cadastro> usuarios;
+  const Signup({required this.usuarios, Key? key}) : super(key: key);
   @override
   _SignupState createState() => _SignupState();
 }
 
 class _SignupState extends State<Signup> {
-  List<cadastro> usuarios = [];
   TextEditingController phoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController usuarioController = TextEditingController();
@@ -506,7 +509,7 @@ class _SignupState extends State<Signup> {
                                 ),
                               );
                             } else {
-                              usuarios.add(novocadastro);
+                              widget.usuarios.add(novocadastro);
                               phoneController.clear();
                               emailController.clear();
                               usuarioController.clear();
@@ -518,7 +521,7 @@ class _SignupState extends State<Signup> {
                                 ),
                               );
 
-                              Navigator.pop(context, novocadastro);
+                              Navigator.pop(context);
                             }
                           },
                           child: Text("Confirmar"),
