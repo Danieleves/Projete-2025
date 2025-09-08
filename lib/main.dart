@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -15,8 +17,24 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-void main() {
+void main() async {
   runApp(MaterialApp(home: TelaInicial()));
+  // Exemplo POST → envia dados para /process do Flask
+  /*File file = File('C:/Users/gabri/Downloads/projete/client/bin/img2.jpeg');
+    List<int> imageBytes = await file.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+
+    var postUrl = Uri.parse('http://127.0.0.1:5000/process');
+
+    var postResponse = await http.post(
+      postUrl,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nome": "Gabriel",
+        "imagem":base64Image
+      }), // Dados enviados em JSON
+    );
+  print('Resposta POST: ${postResponse.body}');*/
 }
 
 class TelaInicial extends StatelessWidget {
@@ -73,8 +91,7 @@ class Validar {
 
 class Login extends StatefulWidget {
   final List<cadastro> usuarios;
-  const Login({required this.usuarios, Key? key})
-      : super(key: key);
+  const Login({required this.usuarios, Key? key}) : super(key: key);
   @override
   _LoginState createState() => _LoginState();
 }
@@ -186,17 +203,21 @@ class _LoginState extends State<Login> {
                               senha: senhaController.text,
                             );
                             validacao.add(novoValidar);
-                            if (widget.usuarios.any((c) => c.usuario != userController.text)) {  //ver isso mais a fundo, o any
+                            if (widget.usuarios.any(
+                              (c) => c.usuario != userController.text,
+                            )) {
+                              //ver isso mais a fundo, o any
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Usuario não existe')),
                               );
                               return;
-                            }
-                            else if(widget.usuarios.any((c) => c.senha != senhaController.text)){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Senha incorreta')),
-                            );
-                            return;
+                            } else if (widget.usuarios.any(
+                              (c) => c.senha != senhaController.text,
+                            )) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Senha incorreta')),
+                              );
+                              return;
                             }
                             userController.clear();
                             senhaController.clear();
@@ -260,13 +281,13 @@ class _LoginState extends State<Login> {
 
 class cadastro {
   String phone;
-  String crmv;
+  String email;
   String usuario;
   String senha;
   String confirm;
   cadastro({
     required this.phone,
-    required this.crmv,
+    required this.email,
     required this.usuario,
     required this.senha,
     required this.confirm,
@@ -281,7 +302,7 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   List<cadastro> usuarios = [];
   TextEditingController phoneController = TextEditingController();
-  TextEditingController crmvController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController usuarioController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmController = TextEditingController();
@@ -359,9 +380,9 @@ class _SignupState extends State<Signup> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
-                            controller: crmvController,
+                            controller: emailController,
                             decoration: InputDecoration(
-                              hintText: 'CRMV',
+                              hintText: 'Email',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -424,7 +445,6 @@ class _SignupState extends State<Signup> {
                           padding: EdgeInsets.only(left: 12),
                           child: TextField(
                             controller: confirmController,
-                            // confirm: confirmController.text,
                             obscureText: true,
                             decoration: InputDecoration(
                               hintText: 'Confirme a senha',
@@ -452,7 +472,7 @@ class _SignupState extends State<Signup> {
                           onPressed: () {
                             final novocadastro = cadastro(
                               phone: phoneController.text,
-                              crmv: crmvController.text,
+                              email: emailController.text,
                               usuario: usuarioController.text,
                               senha: senhaController.text,
                               confirm: confirmController.text,
@@ -463,16 +483,26 @@ class _SignupState extends State<Signup> {
                                 SnackBar(content: Text('Senhas não coincidem')),
                               );
                               return;
+                            } else if (phoneController.text.isEmpty ||
+                                emailController.text.isEmpty ||
+                                usuarioController.text.isEmpty ||
+                                senhaController.text.isEmpty ||
+                                confirmController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Preencha todos os campos'),
+                                ),
+                              );
                             } else {
                               usuarios.add(novocadastro);
                               phoneController.clear();
-                              crmvController.clear();
+                              emailController.clear();
                               usuarioController.clear();
                               senhaController.clear();
                               confirmController.clear();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Cadstrado com sucesso!'),
+                                  content: Text('Cadastrado com sucesso!'),
                                 ),
                               );
 
@@ -525,9 +555,6 @@ class Laudo {
   String sexo;
   String raca;
   double peso;
-  String remedio;
-  int hora;
-  String area;
   int data;
   int id;
   String? fotoPath;
@@ -538,9 +565,6 @@ class Laudo {
     required this.sexo,
     required this.raca,
     required this.peso,
-    required this.remedio,
-    required this.hora,
-    required this.area,
     required this.data,
     required this.id,
     required this.fotoPath,
@@ -624,18 +648,14 @@ class PreencherInfos extends StatefulWidget {
 
 class _PreencherInfosState extends State<PreencherInfos> {
   //controllers de armazenamento textfield
-   TextEditingController animalController = TextEditingController();
-   TextEditingController donoController = TextEditingController();
-   TextEditingController idadeController = TextEditingController();
-   TextEditingController sexoController = TextEditingController();
-   TextEditingController racaController = TextEditingController();
-   TextEditingController pesoController = TextEditingController();
-   TextEditingController remedioController = TextEditingController();
-   TextEditingController horaController = TextEditingController();
-   TextEditingController areaController = TextEditingController();
-   TextEditingController dataController = TextEditingController();
-   TextEditingController ideController = TextEditingController();
-   TextEditingController fotopathController = TextEditingController();
+  TextEditingController animalController = TextEditingController();
+  TextEditingController donoController = TextEditingController();
+  TextEditingController idadeController = TextEditingController();
+  TextEditingController sexoController = TextEditingController();
+  TextEditingController racaController = TextEditingController();
+  TextEditingController pesoController = TextEditingController();
+  TextEditingController dataController = TextEditingController();
+  TextEditingController fotopathController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -818,69 +838,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           ),
                         )),
                       ),
-                      SizedBox(height: 20),
-                      //Textfield Remédio dado
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: remedioController,
-                            decoration: InputDecoration(
-                              hintText: 'Remédio dado',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Hora em que o remédio foi aplicado
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: horaController,
-                            decoration: InputDecoration(
-                              hintText: 'Hora em que o remédio foi aplicado',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Área em que o remédio foi aplicado
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: areaController,
-                            decoration: InputDecoration(
-                              hintText: 'Área em que o remédio foi aplicado',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
                       SizedBox(height: 60),
                       //botao
                       Padding(
@@ -903,26 +860,36 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               sexo: sexoController.text,
                               raca: racaController.text,
                               peso: double.tryParse(pesoController.text) ?? 0,
-                              remedio: remedioController.text,
-                              hora: int.tryParse(horaController.text) ?? 0,
-                              area: areaController.text,
                               data: int.tryParse(dataController.text) ?? 0,
                               id: widget.cards.length + 1,
                               fotoPath: null,
                             );
-                            if(animalController.text.isEmpty || donoController.text.isEmpty || idadeController.text.isEmpty || sexoController.text.isEmpty || racaController.text.isEmpty || pesoController.text.isEmpty || remedioController.text.isEmpty || horaController.text.isEmpty || areaController.text.isEmpty || dataController.text.isEmpty){
+                            if (animalController.text.isEmpty ||
+                                donoController.text.isEmpty ||
+                                idadeController.text.isEmpty ||
+                                sexoController.text.isEmpty ||
+                                racaController.text.isEmpty ||
+                                pesoController.text.isEmpty ||
+                                dataController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Preencha todos os campos')),
+                                SnackBar(
+                                  content: Text('Preencha todos os campos'),
+                                ),
                               );
                               return;
-                            }
-                            else if(int.tryParse(idadeController.text) == 0 || double.tryParse(pesoController.text) == 0 || int.tryParse(horaController.text) == 0 || int.tryParse(dataController.text) == 0){
+                            } else if (int.tryParse(idadeController.text) ==
+                                    0 ||
+                                double.tryParse(pesoController.text) == 0 ||
+                                int.tryParse(dataController.text) == 0) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Preencha os campos corretamente')),
+                                SnackBar(
+                                  content: Text(
+                                    'Preencha os campos corretamente',
+                                  ),
+                                ),
                               );
                               return;
-                            }
-                            else {
+                            } else {
                               widget.cards.add(novoLaudo);
                               animalController.clear();
                               donoController.clear();
@@ -930,17 +897,15 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               sexoController.clear();
                               racaController.clear();
                               pesoController.clear();
-                              remedioController.clear();
-                              horaController.clear();
-                              areaController.clear();
                               dataController.clear();
 
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      Foto(cards: widget.cards,
-                                          index: widget.cards.length - 1),
+                                  builder: (context) => Foto(
+                                    cards: widget.cards,
+                                    index: widget.cards.length - 1,
+                                  ),
                                 ),
                               );
                             }
