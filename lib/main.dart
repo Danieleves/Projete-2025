@@ -322,6 +322,26 @@ class _SignupState extends State<Signup> {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmController = TextEditingController();
 
+  Future<void> cadastrarUsuario() async {
+    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "usuario": usuarioController.text,
+        "senha": senhaController.text,
+        "email": emailController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("Usuário cadastrado com sucesso!");
+    } else {
+      print("Erro ao cadastrar: ${response.body}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -520,7 +540,7 @@ class _SignupState extends State<Signup> {
                                   content: Text('Cadastrado com sucesso!'),
                                 ),
                               );
-
+                              cadastrarUsuario();
                               Navigator.pop(context);
                             }
                           },
