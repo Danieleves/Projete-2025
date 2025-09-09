@@ -322,6 +322,7 @@ class _SignupState extends State<Signup> {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmController = TextEditingController();
 
+  //conexão backend
   Future<void> cadastrarUsuario() async {
     final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
 
@@ -685,6 +686,31 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController pesoController = TextEditingController();
   TextEditingController dataController = TextEditingController();
   TextEditingController fotopathController = TextEditingController();
+
+  //conexão backend
+  Future<void> adicionarLaudo() async {
+    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "animal": animalController.text,
+        "dono": donoController.text,
+        "idade": idadeController.text,
+        "sexo": sexoController.text,
+        "raca": racaController.text,
+        "peso": pesoController.text,
+        "data": dataController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("Usuário cadastrado com sucesso!");
+    } else {
+      print("Erro ao cadastrar: ${response.body}");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -920,6 +946,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               return;
                             } else {
                               widget.cards.add(novoLaudo);
+                              adicionarLaudo();
                               animalController.clear();
                               donoController.clear();
                               idadeController.clear();
@@ -1215,3 +1242,68 @@ class _CapturaCameraState extends State<CapturaCamera>
     );
   }
 }
+
+class Settings extends StatefulWidget {
+  final List<cadastro> usuarios;
+  const Settings({required this.usuarios, Key? key}) : super(key: key);
+  @override
+  _SettingsState createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      //background
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          //foreground
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  height: 600.0,
+                  width: 400.0,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      //logo
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            height: 120,
+                            width: 120,
+                            child: Image.asset(
+                              'image/dermapet.jpeg',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
