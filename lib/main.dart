@@ -19,22 +19,6 @@ var mobileFormatter = MaskTextInputFormatter(
 
 void main() async {
   runApp(MaterialApp(home: TelaInicial()));
-   /*Exemplo POST → envia dados para /process do Flask
-  File file = File('C:/Users/gabri/Downloads/projete/client/bin/img2.jpeg');
-    List<int> imageBytes = await file.readAsBytes();
-    String base64Image = base64Encode(imageBytes);
-
-    var postUrl = Uri.parse('http://127.0.0.1:5000/process');
-
-    var postResponse = await http.post(
-      postUrl,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "nome": "Gabriel",
-        "imagem":base64Image
-      }), // Dados enviados em JSON
-    );
-  print('Resposta POST: ${postResponse.body}'); */
 }
 
 class TelaInicial extends StatelessWidget {
@@ -268,7 +252,10 @@ class _LoginState extends State<Login> {
                           senhaController.clear();
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Signup(usuarios: widget.usuarios),),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Signup(usuarios: widget.usuarios),
+                            ),
                           );
                         },
 
@@ -621,7 +608,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PreencherInfos(cards: cards),
+              builder: (context) => CadastroCliente(cards: cards),
             ),
           ).then((_) {
             criarTeste();
@@ -669,9 +656,337 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 }
 
+class Clientes {
+  String nome;
+  String nomeanimal;
+  String telefone;
+  String email;
+  String endereco;
+
+  Clientes({
+    required this.nome,
+    required this.nomeanimal,
+    required this.telefone,
+    required this.email,
+    required this.endereco,
+  });
+}
+
+class CadastroCliente extends StatefulWidget {
+  final List<Laudo> cards;
+  CadastroCliente({required this.cards, Key? key}) : super(key: key);
+  @override
+  _CadastroClienteState createState() => _CadastroClienteState();
+}
+
+class _CadastroClienteState extends State<CadastroCliente> {
+  List<Clientes> cadastro = [];
+
+  void criarCliente() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ClientesInfos(cards: widget.cards, cadastro: cadastro),
+            ),
+          ).then((_) {
+            criarCliente();
+          });
+        },
+        child: Icon(Icons.add),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          ListView(
+            children: [
+              SizedBox(height: 100),
+              Column(
+                children: [
+                  for (int i = 0; i < cadastro.length; i++) ...[
+                    Center(
+                      child: Card(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 130.0, width: 150.0),
+                            Text('Card: ${i + 1}'),
+                            Text('Animal: ${cadastro[i].nomeanimal}'),
+                            Text('Dono: ${cadastro[i].nome}')
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 45),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ClientesInfos extends StatefulWidget {
+  final List<Laudo> cards;
+  final List<Clientes> cadastro;
+  ClientesInfos({required this.cards, required this.cadastro, Key? key})
+    : super(key: key);
+
+  @override
+  _ClientesInfosState createState() => _ClientesInfosState();
+}
+
+class _ClientesInfosState extends State<ClientesInfos> {
+  //controllers de armazenamento textfield
+  TextEditingController nomeController = TextEditingController();
+  TextEditingController nomeAnimalController = TextEditingController();
+  TextEditingController telefoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController enderecoController = TextEditingController();
+
+  //conexão backend
+  Future<void> adicionarCliente() async {
+    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nome": nomeController.text,
+        "nomeAnimal": nomeAnimalController.text,
+        "telefone": telefoneController.text,
+        "email": emailController.text,
+        "endereco": enderecoController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("Cliente cadastrado com sucesso!");
+    } else {
+      print("Erro ao cadastrar: ${response.body}");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          //foreground
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  height: 900.0,
+                  width: 400.0,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 40),
+                      Text(
+                        'Cadastre um novo cliente',
+                        style: TextStyle(fontSize: 60),
+                      ),
+                      SizedBox(height: 70),
+                      //Textfield nome cliente
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: nomeController,
+                            decoration: InputDecoration(
+                              hintText: 'Nome do cliente',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      //Textfield nome animal
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: nomeAnimalController,
+                            decoration: InputDecoration(
+                              hintText: 'Nome do animal',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      //Textfield telefone
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: telefoneController,
+                            inputFormatters: [mobileFormatter],
+                            decoration: InputDecoration(
+                              hintText: 'Telefone',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      //Textfield email
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              hintText: 'Email',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      //Textfield Endereço
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: enderecoController,
+                            decoration: InputDecoration(
+                              hintText: 'Endereço',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      //botao
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 10,
+                            ),
+                            textStyle: TextStyle(fontSize: 18),
+                          ),
+                          onPressed: () {
+                            final novoClientes = Clientes(
+                              nome: nomeController.text,
+                              nomeanimal: nomeAnimalController.text,
+                              telefone: telefoneController.text,
+                              email: emailController.text,
+                              endereco: enderecoController.text,
+                            );
+                            if (nomeController.text.isEmpty ||
+                                nomeAnimalController.text.isEmpty ||
+                                telefoneController.text.isEmpty ||
+                                emailController.text.isEmpty ||
+                                enderecoController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Preencha todos os campos'),
+                                ),
+                              );
+                              return;
+                            } else {
+                              widget.cadastro.add(novoClientes);
+                              adicionarCliente();
+                              nomeController.clear();
+                              nomeAnimalController.clear();
+                              telefoneController.clear();
+                              emailController.clear();
+                              enderecoController.clear();
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PreencherInfos(
+                                    cadastro: widget.cadastro,
+                                    cards: widget.cards,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text("Confirmar"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
-  PreencherInfos({required this.cards, Key? key}) : super(key: key);
+  final List<Clientes> cadastro;
+  PreencherInfos({required this.cards, required this.cadastro, Key? key}) : super(key: key);
   @override
   _PreencherInfosState createState() => _PreencherInfosState();
 }
@@ -695,18 +1010,18 @@ class _PreencherInfosState extends State<PreencherInfos> {
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "animal": animalController.text,
-        "dono": donoController.text,
-        "idade": idadeController.text,
+        //"animal": animalController.text,
+        //"dono": donoController.text,
+        //"idade": idadeController.text,
         "sexo": sexoController.text,
         "raca": racaController.text,
-        "peso": pesoController.text,
-        "data": dataController.text,
+        //"peso": pesoController.text,
+        //"data": dataController.text,
       }),
     );
 
     if (response.statusCode == 200) {
-      print("Usuário cadastrado com sucesso!");
+      print("Exame cadastrado com sucesso!");
     } else {
       print("Erro ao cadastrar: ${response.body}");
     }
@@ -959,6 +1274,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Foto(
+                                    cadastro: widget.cadastro,
                                     cards: widget.cards,
                                     index: widget.cards.length - 1,
                                   ),
@@ -983,8 +1299,9 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
+  final List<Clientes> cadastro;
   final int index;
-  const Foto({required this.cards, required this.index, Key? key})
+  const Foto({required this.cards, required this.cadastro, required this.index, Key? key})
     : super(key: key);
   @override
   _FotoState createState() => _FotoState();
@@ -1304,6 +1621,3 @@ class _SettingsState extends State<Settings> {
     );
   }
 }
-
-
-
