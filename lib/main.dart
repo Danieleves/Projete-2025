@@ -716,6 +716,9 @@ class _CadastroClienteState extends State<CadastroCliente> {
           ListView(
             children: [
               SizedBox(height: 100),
+              Text('Criação de cliente',
+              style: TextStyle(fontSize: 30,),
+              textAlign: TextAlign.center),
               Column(
                 children: [
                   for (int i = 0; i < cadastro.length; i++) ...[
@@ -1261,7 +1264,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               return;
                             } else {
                               widget.cards.add(novoLaudo);
-                              adicionarLaudo();
+                              adicionarLaudo();  //Arrumar para receber valores após o retorno da foto
                               animalController.clear();
                               donoController.clear();
                               idadeController.clear();
