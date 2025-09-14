@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+//import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -595,6 +596,7 @@ class PrimeiraTela extends StatefulWidget {
 
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
+  List<Clientes> cadastro = [];
 
   void criarTeste() {
     setState(() {});
@@ -608,7 +610,8 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CadastroCliente(cards: cards),
+              builder: (context) =>
+                  CadastroCliente(cards: cards, cadastro: cadastro),
             ),
           ).then((_) {
             criarTeste();
@@ -674,32 +677,73 @@ class Clientes {
 
 class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
-  CadastroCliente({required this.cards, Key? key}) : super(key: key);
+  final List<Clientes> cadastro;
+  CadastroCliente({required this.cards, required this.cadastro, Key? key})
+    : super(key: key);
+
   @override
   _CadastroClienteState createState() => _CadastroClienteState();
 }
 
 class _CadastroClienteState extends State<CadastroCliente> {
-  List<Clientes> cadastro = [];
-
-  void criarCliente() {
+  void atualizarTela() {
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    //atualizarTela();
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Clientes'),
+        backgroundColor: Colors.transparent,
+        elevation: 0.1,
+        centerTitle: true,
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final novoCliente = await Navigator.push<Clientes>(
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  ClientesInfos(cards: widget.cards, cadastro: cadastro),
+                  ClientesInfos(cadastro: widget.cadastro, cards: widget.cards),
             ),
-          ).then((_) {
-            criarCliente();
-          });
+          );
+
+          if (novoCliente != null) {
+            setState(() {
+              widget.cadastro.add(novoCliente);
+            });
+
+            final novoLaudo = await Navigator.push<Laudo>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PreencherInfos(
+                  cadastro: widget.cadastro,
+                  cards: widget.cards,
+                ),
+              ),
+            );
+
+            if (novoLaudo != null) {
+              final fotoPath = await Navigator.push<String?>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Foto(
+                    cadastro: widget.cadastro,
+                    cards: [novoLaudo], //laudo temporário
+                    index: 0,
+                  ),
+                ),
+              );
+              //Junta foto ao laudo
+              novoLaudo.fotoPath = fotoPath;
+              setState(() {
+                widget.cards.add(novoLaudo);
+                //Navigator.pop(context,);
+              });
+            }
+          }
         },
         child: Icon(Icons.add),
       ),
@@ -714,30 +758,23 @@ class _CadastroClienteState extends State<CadastroCliente> {
             ),
           ),
           ListView(
+            padding: EdgeInsets.only(top: 100),
             children: [
-              SizedBox(height: 100),
-              Text('Criação de cliente',
-              style: TextStyle(fontSize: 30,),
-              textAlign: TextAlign.center),
-              Column(
-                children: [
-                  for (int i = 0; i < cadastro.length; i++) ...[
-                    Center(
-                      child: Card(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 130.0, width: 150.0),
-                            Text('Card: ${i + 1}'),
-                            Text('Animal: ${cadastro[i].nomeanimal}'),
-                            Text('Dono: ${cadastro[i].nome}')
-                          ],
-                        ),
-                      ),
+              for (int i = 0; i < widget.cadastro.length; i++) ...[
+                Center(
+                  child: Card(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 130.0, width: 150.0),
+                        Text('Card: ${i + 1}'),
+                        Text('Animal: ${widget.cadastro[i].nomeanimal}'),
+                        Text('Dono: ${widget.cadastro[i].nome}'),
+                      ],
                     ),
-                    SizedBox(height: 45),
-                  ],
-                ],
-              ),
+                  ),
+                ),
+                SizedBox(height: 45),
+              ],
             ],
           ),
         ],
@@ -814,7 +851,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                       SizedBox(height: 40),
                       Text(
                         'Cadastre um novo cliente',
-                        style: TextStyle(fontSize: 60),
+                        style: TextStyle(fontSize: 30),
                       ),
                       SizedBox(height: 70),
                       //Textfield nome cliente
@@ -837,6 +874,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 18),
                       //Textfield nome animal
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
@@ -857,6 +895,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 18),
                       //Textfield telefone
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
@@ -878,6 +917,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 18),
                       //Textfield email
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
@@ -898,6 +938,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 18),
                       //Textfield Endereço
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
@@ -918,6 +959,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           ),
                         ),
                       ),
+                      Spacer(),
                       //botao
                       Padding(
                         padding: const EdgeInsets.all(10.0),
@@ -951,7 +993,6 @@ class _ClientesInfosState extends State<ClientesInfos> {
                               );
                               return;
                             } else {
-                              widget.cadastro.add(novoClientes);
                               adicionarCliente();
                               nomeController.clear();
                               nomeAnimalController.clear();
@@ -959,15 +1000,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                               emailController.clear();
                               enderecoController.clear();
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PreencherInfos(
-                                    cadastro: widget.cadastro,
-                                    cards: widget.cards,
-                                  ),
-                                ),
-                              );
+                              Navigator.pop(context, novoClientes);
                             }
                           },
                           child: Text("Confirmar"),
@@ -985,11 +1018,11 @@ class _ClientesInfosState extends State<ClientesInfos> {
   }
 }
 
-
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
-  PreencherInfos({required this.cards, required this.cadastro, Key? key}) : super(key: key);
+  PreencherInfos({required this.cards, required this.cadastro, Key? key})
+    : super(key: key);
   @override
   _PreencherInfosState createState() => _PreencherInfosState();
 }
@@ -1003,7 +1036,16 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController racaController = TextEditingController();
   TextEditingController pesoController = TextEditingController();
   TextEditingController dataController = TextEditingController();
-  TextEditingController fotopathController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Controllers com valores instanciados
+    animalController = TextEditingController(
+      text: widget.cadastro[0].nomeanimal,
+    );
+    donoController = TextEditingController(text: widget.cadastro[0].nome);
+  }
 
   //conexão backend
   Future<void> adicionarLaudo() async {
@@ -1029,6 +1071,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       print("Erro ao cadastrar: ${response.body}");
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1060,8 +1103,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        'Preencha a esse questionário para continuar',
-                        style: TextStyle(fontSize: 18),
+                        'Preencha a esse questionário sobre o animal para continuar',
+                        style: TextStyle(fontSize: 14),
                       ),
                       SizedBox(height: 60),
                       //Textfield data
@@ -1102,6 +1145,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
+                            readOnly: true,
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -1123,6 +1167,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
+                            readOnly: true,
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -1211,7 +1256,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           ),
                         )),
                       ),
-                      SizedBox(height: 60),
+                      Spacer(),
                       //botao
                       Padding(
                         padding: const EdgeInsets.all(10.0),
@@ -1264,7 +1309,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               return;
                             } else {
                               widget.cards.add(novoLaudo);
-                              adicionarLaudo();  //Arrumar para receber valores após o retorno da foto
+                              adicionarLaudo();
                               animalController.clear();
                               donoController.clear();
                               idadeController.clear();
@@ -1273,16 +1318,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               pesoController.clear();
                               dataController.clear();
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Foto(
-                                    cadastro: widget.cadastro,
-                                    cards: widget.cards,
-                                    index: widget.cards.length - 1,
-                                  ),
-                                ),
-                              );
+                              Navigator.pop(context, novoLaudo);
                             }
                           },
                           child: Text("Confirmar"),
@@ -1304,8 +1340,12 @@ class Foto extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   final int index;
-  const Foto({required this.cards, required this.cadastro, required this.index, Key? key})
-    : super(key: key);
+  const Foto({
+    required this.cards,
+    required this.cadastro,
+    required this.index,
+    Key? key,
+  }) : super(key: key);
   @override
   _FotoState createState() => _FotoState();
 }
@@ -1401,10 +1441,7 @@ class _FotoState extends State<Foto> {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
-                            Navigator.popUntil(
-                              context,
-                              ModalRoute.withName('PrimeiraTela'),
-                            );
+                            Navigator.pop(context, fotoPath);
                           },
                           child: const Text("Confirmar"),
                         ),
@@ -1571,7 +1608,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
