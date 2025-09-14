@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-//import 'package:flutter_screenutil/flutter_screenutil.dart';
+//import 'package:flutter_screenutil/flutter_screenutil.dart';  tamanho dinamico
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -575,6 +575,7 @@ class Laudo {
   double peso;
   int data;
   int id;
+  String? observacao;
   String? fotoPath;
   Laudo({
     required this.animal,
@@ -585,6 +586,7 @@ class Laudo {
     required this.peso,
     required this.data,
     required this.id,
+    required this.observacao,
     required this.fotoPath,
   });
 }
@@ -636,51 +638,64 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                 children: [
                   for (int i = 0; i < cards.length; i++) ...[
                     Center(
-                      child: Card(
-                        child: SizedBox(
-                          height: 130.0,
-                          width: 350.0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2, // ocupa 2/3 do card
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Card: ${i + 1}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetalhesLaudo(laudo: cards[i]),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          child: SizedBox(
+                            height: 130.0,
+                            width: 350.0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2, // ocupa 2/3 do card
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Card: ${i + 1}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 15),
-                                      Text('Dono: ${cards[i].dono}'),
-                                      Text('Animal: ${cards[i].animal}'),
-                                      Text('Data: ${cards[i].data}'),
-                                    ],
+                                        SizedBox(height: 15),
+                                        Text('Dono: ${cards[i].dono}'),
+                                        Text('Animal: ${cards[i].animal}'),
+                                        Text('Data: ${cards[i].data}'),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ), // espaçamento entre texto e imagem
-                                Expanded(
-                                  flex: 1, // ocupa 1/3 do card
-                                  child: cards[i].fotoPath != null
-                                      ? Image.file(
-                                          File(cards[i].fotoPath!),
-                                          fit:
-                                              BoxFit.cover, // preenche o espaço
-                                          height: double.infinity, // Adequação
-                                        )
-                                      : Container(
-                                          color: Colors.grey,
-                                        ), // placeholder
-                                ),
-                              ],
+                                  SizedBox(
+                                    width: 10,
+                                  ), // espaçamento entre texto e imagem
+                                  Expanded(
+                                    flex: 1, // ocupa 1/3 do card
+                                    child: cards[i].fotoPath != null
+                                        ? Image.file(
+                                            File(cards[i].fotoPath!),
+                                            fit: BoxFit
+                                                .cover, // preenche o espaço
+                                            height:
+                                                double.infinity, // Adequação
+                                          )
+                                        : Container(
+                                            color: Colors.grey,
+                                          ), // placeholder
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -799,11 +814,12 @@ class _CadastroClienteState extends State<CadastroCliente> {
                                   'Card: ${i + 1}',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(height: 15),
+                                SizedBox(height: 25),
                                 Text(
                                   'Animal: ${widget.cadastro[i].nomeanimal}',
                                 ),
-                                Text('Data: ${widget.cadastro[i].nome}'),
+                                Text('Dono: ${widget.cadastro[i].nome}'),
+                                Text('Endereço: ${widget.cadastro[i].endereco}'),
                               ],
                             ),
                           ),
@@ -1307,6 +1323,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               peso: double.tryParse(pesoController.text) ?? 0,
                               data: int.tryParse(dataController.text) ?? 0,
                               id: widget.cards.length + 1,
+                              observacao: null,
                               fotoPath: null,
                             );
                             if (animalController.text.isEmpty ||
@@ -1692,6 +1709,209 @@ class _SettingsState extends State<Settings> {
                         ),
                       ),
                       SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DetalhesLaudo extends StatefulWidget {
+  final Laudo laudo;
+  DetalhesLaudo({required this.laudo, Key? key}) : super(key: key);
+  @override
+  _DetalhesLaudoState createState() => _DetalhesLaudoState();
+}
+
+class _DetalhesLaudoState extends State<DetalhesLaudo> {
+  TextEditingController observacaoController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    observacaoController.text = widget.laudo.observacao ?? '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          //foreground
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  height: 900.0,
+                  width: 400.0,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 40),
+                      Text(
+                        'Detalhes do Exame ',
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      SizedBox(height: 20),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Dono: ${widget.laudo.dono}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Animal: ${widget.laudo.animal}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Idade do animal: ${widget.laudo.idade}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Sexo do animal: ${widget.laudo.sexo}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Raça do animal: ${widget.laudo.raca}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Peso do animal: ${widget.laudo.peso}'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('Data do Exame: ${widget.laudo.data}'),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          height: 130,
+                          width: 380,
+                          child: widget.laudo.fotoPath != null
+                              ? Image.file(
+                                  File(widget.laudo.fotoPath!),
+                                  fit: BoxFit.fill,
+                                )
+                              : Container(color: Colors.grey),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 170,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: TextField(
+                            controller: observacaoController,
+                            maxLines: null,
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Adicione observações caso seja necessário: ',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                            ),
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ),
+                      //botao
+                      Padding(
+                        padding: const EdgeInsets.all(7.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 4,
+                            ),
+                            textStyle: TextStyle(fontSize: 18),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              widget.laudo.observacao =
+                                  observacaoController.text;
+                            });
+
+                            Navigator.pop(
+                              context,
+                            );
+                          },
+                          child: Text("Baixar"),
+                        ),
+                      ),
                     ],
                   ),
                 ),
