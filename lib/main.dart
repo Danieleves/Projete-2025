@@ -17,12 +17,12 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-void main() async {
+void main() {
   runApp(MaterialApp(home: TelaInicial()));
 }
 
 class TelaInicial extends StatelessWidget {
-  final List<cadastro> usuarios = [];
+  final List<Cadastro> usuarios = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +75,7 @@ class Validar {
 }
 
 class Login extends StatefulWidget {
-  final List<cadastro> usuarios;
+  final List<Cadastro> usuarios;
   const Login({required this.usuarios, Key? key}) : super(key: key);
   @override
   _LoginState createState() => _LoginState();
@@ -280,13 +280,13 @@ class _LoginState extends State<Login> {
   }
 }
 
-class cadastro {
+class Cadastro {
   String phone;
   String email;
   String usuario;
   String senha;
   String confirm;
-  cadastro({
+  Cadastro({
     required this.phone,
     required this.email,
     required this.usuario,
@@ -296,7 +296,7 @@ class cadastro {
 }
 
 class Signup extends StatefulWidget {
-  final List<cadastro> usuarios;
+  final List<Cadastro> usuarios;
   const Signup({required this.usuarios, Key? key}) : super(key: key);
   @override
   _SignupState createState() => _SignupState();
@@ -493,7 +493,7 @@ class _SignupState extends State<Signup> {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
-                            final novocadastro = cadastro(
+                            final novocadastro = Cadastro(
                               phone: phoneController.text,
                               email: emailController.text,
                               usuario: usuarioController.text,
@@ -1564,7 +1564,7 @@ class _CapturaCameraState extends State<CapturaCamera>
 }
 
 class Settings extends StatefulWidget {
-  final List<cadastro> usuarios;
+  final List<Cadastro> usuarios;
   const Settings({required this.usuarios, Key? key}) : super(key: key);
   @override
   _SettingsState createState() => _SettingsState();
