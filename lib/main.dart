@@ -637,17 +637,56 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                   for (int i = 0; i < cards.length; i++) ...[
                     Center(
                       child: Card(
-                        child: Column(
-                          children: [
-                            SizedBox(height: 130.0, width: 350.0),
-                            Text('Card: ${i + 1}'),
-                            Text('Animal: ${cards[i].animal}'),
-                            Text('Data: ${cards[i].data}'),
-                          ],
+                        child: SizedBox(
+                          height: 130.0,
+                          width: 350.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2, // ocupa 2/3 do card
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Card: ${i + 1}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 15),
+                                      Text('Dono: ${cards[i].dono}'),
+                                      Text('Animal: ${cards[i].animal}'),
+                                      Text('Data: ${cards[i].data}'),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ), // espaçamento entre texto e imagem
+                                Expanded(
+                                  flex: 1, // ocupa 1/3 do card
+                                  child: cards[i].fotoPath != null
+                                      ? Image.file(
+                                          File(cards[i].fotoPath!),
+                                          fit:
+                                              BoxFit.cover, // preenche o espaço
+                                          height: double.infinity, // Adequação
+                                        )
+                                      : Container(
+                                          color: Colors.grey,
+                                        ), // placeholder
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 45),
+                    SizedBox(height: 20),
                   ],
                 ],
               ),
@@ -678,7 +717,7 @@ class Clientes {
 class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
-  CadastroCliente({Key? key, required this.cards, required this.cadastro, })
+  CadastroCliente({Key? key, required this.cards, required this.cadastro})
     : super(key: key);
 
   @override
@@ -719,8 +758,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
               context,
               MaterialPageRoute(
                 builder: (context) => PreencherInfos(
-                    cards: widget.cards,
-                  cadastro: widget.cadastro
+                  cards: widget.cards,
+                  cadastro: widget.cadastro,
                 ),
               ),
             );
@@ -740,23 +779,41 @@ class _CadastroClienteState extends State<CadastroCliente> {
             ),
           ),
           ListView(
-            padding: EdgeInsets.only(top: 100),
             children: [
-              for (int i = 0; i < widget.cadastro.length; i++) ...[
-                Center(
-                  child: Card(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 130.0, width: 150.0),
-                        Text('Card: ${i + 1}'),
-                        Text('Animal: ${widget.cadastro[i].nomeanimal}'),
-                        Text('Dono: ${widget.cadastro[i].nome}'),
-                      ],
+              SizedBox(height: 70),
+              Column(
+                children: [
+                  for (int i = 0; i < widget.cadastro.length; i++) ...[
+                    Center(
+                      child: Card(
+                        child: SizedBox(
+                          height: 130.0,
+                          width: 350.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Card: ${i + 1}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 15),
+                                Text(
+                                  'Animal: ${widget.cadastro[i].nomeanimal}',
+                                ),
+                                Text('Data: ${widget.cadastro[i].nome}'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(height: 45),
-              ],
+                    SizedBox(height: 20),
+                  ],
+                ],
+              ),
             ],
           ),
         ],
@@ -1240,7 +1297,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18),
                           ),
-                          onPressed: () async{
+                          onPressed: () async {
                             final novoLaudo = Laudo(
                               animal: animalController.text,
                               dono: donoController.text,
