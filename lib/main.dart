@@ -678,7 +678,7 @@ class Clientes {
 class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
-  CadastroCliente({required this.cards, required this.cadastro, Key? key})
+  CadastroCliente({Key? key, required this.cards, required this.cadastro, })
     : super(key: key);
 
   @override
@@ -706,7 +706,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  ClientesInfos(cadastro: widget.cadastro, cards: widget.cards),
+                  ClientesInfos(cards: widget.cards, cadastro: widget.cadastro),
             ),
           );
 
@@ -719,30 +719,12 @@ class _CadastroClienteState extends State<CadastroCliente> {
               context,
               MaterialPageRoute(
                 builder: (context) => PreencherInfos(
-                  cadastro: widget.cadastro,
-                  cards: widget.cards,
+                    cards: widget.cards,
+                  cadastro: widget.cadastro
                 ),
               ),
             );
-
-            if (novoLaudo != null) {
-              final fotoPath = await Navigator.push<String?>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Foto(
-                    cadastro: widget.cadastro,
-                    cards: [novoLaudo], //laudo temporário
-                    index: 0,
-                  ),
-                ),
-              );
-              //Junta foto ao laudo
-              novoLaudo.fotoPath = fotoPath;
-              setState(() {
-                widget.cards.add(novoLaudo);
-                //Navigator.pop(context,);
-              });
-            }
+            Navigator.pop(context, novoLaudo);
           }
         },
         child: Icon(Icons.add),
@@ -974,7 +956,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                             textStyle: TextStyle(fontSize: 18),
                           ),
                           onPressed: () {
-                            final novoClientes = Clientes(
+                            final novoCliente = Clientes(
                               nome: nomeController.text,
                               nomeanimal: nomeAnimalController.text,
                               telefone: telefoneController.text,
@@ -1000,7 +982,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                               emailController.clear();
                               enderecoController.clear();
 
-                              Navigator.pop(context, novoClientes);
+                              Navigator.pop(context, novoCliente);
                             }
                           },
                           child: Text("Confirmar"),
@@ -1036,16 +1018,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController racaController = TextEditingController();
   TextEditingController pesoController = TextEditingController();
   TextEditingController dataController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Controllers com valores instanciados
-    animalController = TextEditingController(
-      text: widget.cadastro[0].nomeanimal,
-    );
-    donoController = TextEditingController(text: widget.cadastro[0].nome);
-  }
 
   //conexão backend
   Future<void> adicionarLaudo() async {
@@ -1145,7 +1117,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            readOnly: true,
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -1167,7 +1138,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            readOnly: true,
                             style: TextStyle(fontSize: 20),
                           ),
                         )),
@@ -1270,7 +1240,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18),
                           ),
-                          onPressed: () {
+                          onPressed: () async{
                             final novoLaudo = Laudo(
                               animal: animalController.text,
                               dono: donoController.text,
@@ -1306,19 +1276,35 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   ),
                                 ),
                               );
-                              return;
                             } else {
-                              widget.cards.add(novoLaudo);
-                              adicionarLaudo();
-                              animalController.clear();
-                              donoController.clear();
-                              idadeController.clear();
-                              sexoController.clear();
-                              racaController.clear();
-                              pesoController.clear();
-                              dataController.clear();
+                              final fotoPath = await Navigator.push<String?>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Foto(
+                                    cards: [novoLaudo], // laudo temporário
+                                    cadastro: widget.cadastro,
+                                    index: 0,
+                                  ),
+                                ),
+                              );
+                              if (fotoPath != null && fotoPath.isNotEmpty) {
+                                novoLaudo.fotoPath = fotoPath;
 
-                              Navigator.pop(context, novoLaudo);
+                                setState(() {
+                                  widget.cards.add(novoLaudo);
+                                  adicionarLaudo();
+                                  animalController.clear();
+                                  donoController.clear();
+                                  idadeController.clear();
+                                  sexoController.clear();
+                                  racaController.clear();
+                                  pesoController.clear();
+                                  dataController.clear();
+                                });
+
+                                // Só fecha a tela depois que a foto foi anexada
+                                Navigator.pop(context, novoLaudo);
+                              }
                             }
                           },
                           child: Text("Confirmar"),
