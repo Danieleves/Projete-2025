@@ -220,7 +220,7 @@ class _LoginState extends State<Login> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PrimeiraTela(),
+                                  builder: (context) => PrimeiraTela(usuarios: widget.usuarios),
                                   settings: RouteSettings(name: 'PrimeiraTela'),
                                 ),
                               );
@@ -592,6 +592,8 @@ class Laudo {
 }
 
 class PrimeiraTela extends StatefulWidget {
+  final List<Cadastro> usuarios;
+  PrimeiraTela({required this.usuarios, Key? key}) : super(key: key);
   @override
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
@@ -599,6 +601,7 @@ class PrimeiraTela extends StatefulWidget {
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
+  bool _tconfiguracoes = false;
 
   void criarTeste() {
     setState(() {});
@@ -606,6 +609,8 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
   @override
   Widget build(BuildContext context) {
+    final larguraTela = MediaQuery.of(context).size.width;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -629,6 +634,18 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                 image: AssetImage('image/backgrounddp2.png'),
                 fit: BoxFit.cover,
               ),
+            ),
+          ),
+          //alteração tela de config
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                setState(() {
+                  _tconfiguracoes = true;
+                });
+              },
             ),
           ),
           ListView(
@@ -707,11 +724,72 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               ),
             ],
           ),
+
+          if (_tconfiguracoes)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _tconfiguracoes = false;
+                      });
+                    },
+                    child: Container(
+                      height: double.infinity,
+                      width: larguraTela * 0.4,
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  Container(
+                    height: double.infinity,
+                    width: larguraTela * 0.6,
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Configurações',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(child:
+                             Row(
+                                 children: [
+                                   Align(
+                                     alignment: Alignment.bottomRight,
+                                     child: IconButton(
+                                       icon: Icon(Icons.account_circle_outlined),
+                                       onPressed: () {
+                                         Navigator.push(
+                                           context,
+                                           MaterialPageRoute(
+                                             builder: (context) => Account(usuarios: widget.usuarios),
+                                           ),
+                                         );
+                                       },
+                                     ),
+                                   ),
+                                 ]
+                             )
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
 }
+
 //teste de tela responsiva
 /* class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
@@ -850,6 +928,137 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 } */
 
+//teste de tela responsiva 2
+/* class _PrimeiraTelaState extends State<PrimeiraTela> {
+  List<Laudo> cards = [];
+  List<Clientes> cadastro = [];
+
+  void criarTeste() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ✅ Adicionado para responsividade baseada em lógica
+    final screenWidth = MediaQuery.of(context).size.width; // ✅
+    final screenHeight = MediaQuery.of(context).size.height; // ✅
+
+    // ✅ Base lógica de layout: 360x808 (equivalente a 1080x2424 em ~3x DPR)
+    final widthFactor = screenWidth / 360; // ✅
+    final heightFactor = screenHeight / 808; // ✅
+
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CadastroCliente(cards: cards, cadastro: cadastro),
+            ),
+          ).then((_) {
+            criarTeste();
+          });
+        },
+        child: Icon(Icons.add),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          ListView(
+            children: [
+              SizedBox(height: 100 * heightFactor), // ✅ Tornado responsivo
+              Column(
+                children: [
+                  for (int i = 0; i < cards.length; i++) ...[
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetalhesLaudo(laudo: cards[i]),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          child: SizedBox(
+                            height: 130.0 * heightFactor, // ✅ Tornado responsivo
+                            width: 350.0 * widthFactor, // ✅ Tornado responsivo
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0 * widthFactor), // ✅ Tornado responsivo
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Card: ${i + 1}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16 * widthFactor, // ✅ Tornado responsivo
+                                          ),
+                                        ),
+                                        SizedBox(height: 15 * heightFactor), // ✅ Tornado responsivo
+                                        Text(
+                                          'Dono: ${cards[i].dono}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // ✅
+                                        ),
+                                        Text(
+                                          'Animal: ${cards[i].animal}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // ✅
+                                        ),
+                                        Text(
+                                          'Data: ${cards[i].data}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // ✅
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 10 * widthFactor), // ✅ Tornado responsivo
+                                  Expanded(
+                                    flex: 1,
+                                    child: cards[i].fotoPath != null
+                                        ? Image.file(
+                                            File(cards[i].fotoPath!),
+                                            fit: BoxFit.cover,
+                                            height: double.infinity,
+                                          )
+                                        : Container(
+                                            color: Colors.grey,
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20 * heightFactor), // ✅ Tornado responsivo
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+} */
 
 class Clientes {
   String nome;
@@ -957,7 +1166,9 @@ class _CadastroClienteState extends State<CadastroCliente> {
                                   'Animal: ${widget.cadastro[i].nomeanimal}',
                                 ),
                                 Text('Dono: ${widget.cadastro[i].nome}'),
-                                Text('Endereço: ${widget.cadastro[i].endereco}'),
+                                Text(
+                                  'Endereço: ${widget.cadastro[i].endereco}',
+                                ),
                               ],
                             ),
                           ),
@@ -1798,14 +2009,15 @@ class _CapturaCameraState extends State<CapturaCamera>
   }
 }
 
-class Settings extends StatefulWidget {
+class Account extends StatefulWidget {
   final List<Cadastro> usuarios;
-  const Settings({required this.usuarios, Key? key}) : super(key: key);
+
+  Account({required this.usuarios, Key? key}) : super(key: key);
   @override
-  _SettingsState createState() => _SettingsState();
+  _AccountState createState() => _AccountState();
 }
 
-class _SettingsState extends State<Settings> {
+class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1826,8 +2038,8 @@ class _SettingsState extends State<Settings> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 600.0,
-                  width: 400.0,
+                  height: 400.0,
+                  width: 300.0,
                   color: Colors.white,
                   child: Column(
                     children: [
@@ -1839,14 +2051,22 @@ class _SettingsState extends State<Settings> {
                           child: Container(
                             height: 120,
                             width: 120,
-                            child: Image.asset(
-                              'image/dermapet.jpeg',
-                              fit: BoxFit.contain,
-                            ),
+                            child: Icon(Icons.account_circle)
                           ),
                         ),
                       ),
                       SizedBox(height: 30),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Container(
+                          height: 40,
+                          width: 380,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12),
+                          child: Text('xx: ${widget.usuarios}'),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -2043,9 +2263,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   observacaoController.text;
                             });
 
-                            Navigator.pop(
-                              context,
-                            );
+                            Navigator.pop(context);
                           },
                           child: Text("Baixar"),
                         ),
