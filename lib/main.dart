@@ -712,6 +712,144 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     );
   }
 }
+//teste de tela responsiva
+/* class _PrimeiraTelaState extends State<PrimeiraTela> {
+  List<Laudo> cards = [];
+  List<Clientes> cadastro = [];
+
+  void criarTeste() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // responsivo: pega dimensões da tela atual
+    final screenWidth = MediaQuery.of(context).size.width; // responsivo
+    final screenHeight = MediaQuery.of(context).size.height; // responsivo
+
+    // responsivo: fator de escala com base na tela original 1080x2424
+    final widthFactor = screenWidth / 1080; // responsivo
+    final heightFactor = screenHeight / 2424; // responsivo
+
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CadastroCliente(cards: cards, cadastro: cadastro),
+            ),
+          ).then((_) {
+            criarTeste();
+          });
+        },
+        child: Icon(Icons.add),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          ListView(
+            children: [
+              // responsivo
+              SizedBox(height: 100 * heightFactor), // responsivo
+              Column(
+                children: [
+                  for (int i = 0; i < cards.length; i++) ...[
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetalhesLaudo(laudo: cards[i]),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          child: SizedBox(
+                            // responsivo
+                            height: 130.0 * heightFactor, // responsivo
+                            width: 350.0 * widthFactor, // responsivo
+                            child: Padding(
+                              // responsivo
+                              padding: EdgeInsets.all(8.0 * widthFactor), // responsivo
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Card: ${i + 1}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16 * widthFactor, // responsivo
+                                          ),
+                                        ),
+                                        // responsivo
+                                        SizedBox(height: 15 * heightFactor), // responsivo
+                                        Text(
+                                          'Dono: ${cards[i].dono}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // responsivo
+                                        ),
+                                        Text(
+                                          'Animal: ${cards[i].animal}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // responsivo
+                                        ),
+                                        Text(
+                                          'Data: ${cards[i].data}',
+                                          style: TextStyle(fontSize: 14 * widthFactor), // responsivo
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // responsivo
+                                  SizedBox(width: 10 * widthFactor), // responsivo
+                                  Expanded(
+                                    flex: 1,
+                                    child: cards[i].fotoPath != null
+                                        ? Image.file(
+                                      File(cards[i].fotoPath!),
+                                      fit: BoxFit.cover,
+                                      height: double.infinity,
+                                    )
+                                        : Container(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // responsivo
+                    SizedBox(height: 20 * heightFactor), // responsivo
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+} */
+
 
 class Clientes {
   String nome;
