@@ -18,6 +18,8 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
+var ips = "";
+
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
 }
@@ -220,7 +222,8 @@ class _LoginState extends State<Login> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PrimeiraTela(usuarios: widget.usuarios),
+                                  builder: (context) =>
+                                      PrimeiraTela(usuarios: widget.usuarios),
                                   settings: RouteSettings(name: 'PrimeiraTela'),
                                 ),
                               );
@@ -312,17 +315,20 @@ class _SignupState extends State<Signup> {
 
   //conexão backend
   Future<void> cadastrarUsuario() async {
-    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+    final url = Uri.parse("http://172.20.10.2:5000/adduser");
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "usuario": usuarioController.text,
+        "nome": usuarioController.text,
         "senha": senhaController.text,
         "email": emailController.text,
       }),
     );
+    print(usuarioController.text);
+    print(senhaController.text);
+    print(emailController.text);
 
     if (response.statusCode == 200) {
       print("Usuário cadastrado com sucesso!");
@@ -394,7 +400,7 @@ class _SignupState extends State<Signup> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      //Textfield CRMV
+                      //Textfield email
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
                         child: (Container(
@@ -519,6 +525,7 @@ class _SignupState extends State<Signup> {
                               );
                             } else {
                               widget.usuarios.add(novocadastro);
+                              cadastrarUsuario();
                               phoneController.clear();
                               emailController.clear();
                               usuarioController.clear();
@@ -529,7 +536,7 @@ class _SignupState extends State<Signup> {
                                   content: Text('Cadastrado com sucesso!'),
                                 ),
                               );
-                              cadastrarUsuario();
+
                               Navigator.pop(context);
                             }
                           },
@@ -670,9 +677,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     flex: 2,
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       mainAxisAlignment:
-                                      MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Card: ${i + 1}',
@@ -684,15 +691,21 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                         SizedBox(height: 15 * heightFactor),
                                         Text(
                                           'Dono: ${cards[i].dono}',
-                                          style: TextStyle(fontSize: 14 * widthFactor),
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
                                         ),
                                         Text(
                                           'Animal: ${cards[i].animal}',
-                                          style: TextStyle(fontSize: 14 * widthFactor),
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
                                         ),
                                         Text(
                                           'Data: ${cards[i].data}',
-                                          style: TextStyle(fontSize: 14 * widthFactor),
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -702,13 +715,11 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     flex: 1,
                                     child: cards[i].fotoPath != null
                                         ? Image.file(
-                                      File(cards[i].fotoPath!),
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                    )
-                                        : Container(
-                                      color: Colors.grey,
-                                    ),
+                                            File(cards[i].fotoPath!),
+                                            fit: BoxFit.cover,
+                                            height: double.infinity,
+                                          )
+                                        : Container(color: Colors.grey),
                                   ),
                                 ],
                               ),
@@ -730,7 +741,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 }
 
 //tela com lógica de configurações
- /* class _PrimeiraTelaState extends State<PrimeiraTela> {
+/* class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
   bool _tconfiguracoes = false;
@@ -1071,12 +1082,13 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
   //conexão backend
   Future<void> adicionarCliente() async {
-    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+    final url = Uri.parse("http://172.20.10.2:5000/clientes");
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
+        "usuarioid": 10,
         "nome": nomeController.text,
         "nomeAnimal": nomeAnimalController.text,
         "telefone": telefoneController.text,
@@ -1084,6 +1096,11 @@ class _ClientesInfosState extends State<ClientesInfos> {
         "endereco": enderecoController.text,
       }),
     );
+    print(nomeController.text);
+    print(nomeAnimalController.text);
+    print(telefoneController.text);
+    print(emailController.text);
+    print(enderecoController.text);
 
     if (response.statusCode == 200) {
       print("Cliente cadastrado com sucesso!");
@@ -1915,7 +1932,7 @@ class _AccountState extends State<Account> {
                           child: Container(
                             height: 120,
                             width: 120,
-                            child: Icon(Icons.account_circle)
+                            child: Icon(Icons.account_circle),
                           ),
                         ),
                       ),
