@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -31,7 +32,6 @@ class TelaInicial extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // ✅ Base lógica de layout: 360x808
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
 
@@ -209,8 +209,8 @@ class _LoginState extends State<Login> {
                             );
                             validacao.add(novoValidar);
                             var usuarioValido = widget.usuarios.any(
-                                  (c) =>
-                              c.usuario == userController.text &&
+                              (c) =>
+                                  c.usuario == userController.text &&
                                   c.senha == senhaController.text,
                             );
 
@@ -257,7 +257,10 @@ class _LoginState extends State<Login> {
                             child: Divider(color: Colors.black, thickness: 1),
                           ),
                           SizedBox(width: 10 * widthFactor),
-                          Text('OU', style: TextStyle(fontSize: 16 * widthFactor)),
+                          Text(
+                            'OU',
+                            style: TextStyle(fontSize: 16 * widthFactor),
+                          ),
                           SizedBox(width: 10 * widthFactor),
                           SizedBox(
                             width: 60 * widthFactor,
@@ -357,6 +360,12 @@ class _SignupState extends State<Signup> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       //background
       body: Stack(
@@ -375,19 +384,19 @@ class _SignupState extends State<Signup> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 700.0,
-                  width: 400.0,
+                  height: 700.0 * heightFactor,
+                  width: 400.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
                       //logo
                       Padding(
-                        padding: EdgeInsets.only(top: 15.0),
+                        padding: EdgeInsets.only(top: 15.0 * heightFactor),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60),
+                          borderRadius: BorderRadius.circular(60 * widthFactor),
                           child: Container(
-                            height: 120,
-                            width: 120,
+                            height: 120 * heightFactor,
+                            width: 120 * widthFactor,
                             child: Image.asset(
                               'image/dermapet.jpeg',
                               fit: BoxFit.contain,
@@ -395,16 +404,16 @@ class _SignupState extends State<Signup> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 80),
+                      SizedBox(height: 80 * heightFactor),
                       //Textfield mobile number
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 220,
+                          height: 40 * heightFactor,
+                          width: 220 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: phoneController,
                             inputFormatters: [mobileFormatter],
@@ -413,20 +422,20 @@ class _SignupState extends State<Signup> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       //Textfield email
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 220,
+                          height: 40 * heightFactor,
+                          width: 220 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: emailController,
                             decoration: InputDecoration(
@@ -434,20 +443,20 @@ class _SignupState extends State<Signup> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       //Textfield user
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 220,
+                          height: 40 * heightFactor,
+                          width: 220 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: usuarioController,
                             decoration: InputDecoration(
@@ -455,20 +464,20 @@ class _SignupState extends State<Signup> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       //Textfield Password
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 220,
+                          height: 40 * heightFactor,
+                          width: 220 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: senhaController,
                             obscureText: true,
@@ -477,20 +486,20 @@ class _SignupState extends State<Signup> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       //Textfield Confirm password
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 220,
+                          height: 40 * heightFactor,
+                          width: 220 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: confirmController,
                             obscureText: true,
@@ -499,23 +508,23 @@ class _SignupState extends State<Signup> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 40),
+                      SizedBox(height: 40 * heightFactor),
                       //botao
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 10,
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
                             ),
-                            textStyle: TextStyle(fontSize: 18),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () async {
                             final novocadastro = Cadastro(
@@ -543,13 +552,13 @@ class _SignupState extends State<Signup> {
                               );
                               return;
                             }
-                            String? erro = await cadastrarUsuario(); //usuario existente
-                              if (erro != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(erro)),
-                              );
+                            String? erro = await cadastrarUsuario();
+                            if (erro != null) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(erro)));
                               return;
-                            }else {
+                            } else {
                               widget.usuarios.add(novocadastro);
                               phoneController.clear();
                               emailController.clear();
@@ -582,7 +591,7 @@ class _SignupState extends State<Signup> {
                           style: TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
-                            fontSize: 16,
+                            fontSize: 16 * widthFactor,
                           ),
                         ),
                       ),
@@ -630,7 +639,6 @@ class PrimeiraTela extends StatefulWidget {
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
 
-//teste de tela responsiva 2 funcionou melhor
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
@@ -644,7 +652,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // ✅ Base lógica de layout: 360x808 (equivalente a 1080x2424 em ~3x DPR)
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
 
@@ -993,7 +1000,12 @@ class _CadastroClienteState extends State<CadastroCliente> {
 
   @override
   Widget build(BuildContext context) {
-    //atualizarTela();
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Clientes'),
@@ -1029,7 +1041,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
             Navigator.pop(context, novoLaudo);
           }
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, size: 24 * widthFactor),
       ),
       body: Stack(
         children: [
@@ -1043,32 +1055,40 @@ class _CadastroClienteState extends State<CadastroCliente> {
           ),
           ListView(
             children: [
-              SizedBox(height: 70),
+              SizedBox(height: 70 * heightFactor),
               Column(
                 children: [
                   for (int i = 0; i < widget.cadastro.length; i++) ...[
                     Center(
                       child: Card(
                         child: SizedBox(
-                          height: 130.0,
-                          width: 350.0,
+                          height: 130.0 * heightFactor,
+                          width: 350.0 * widthFactor,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0 * widthFactor),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
                                   'Card: ${i + 1}',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16 * widthFactor,
+                                  ),
                                 ),
-                                SizedBox(height: 25),
+                                SizedBox(height: 10 * heightFactor),
                                 Text(
                                   'Animal: ${widget.cadastro[i].nomeanimal}',
+                                  style: TextStyle(fontSize: 14 * widthFactor),
                                 ),
-                                Text('Dono: ${widget.cadastro[i].nome}'),
+                                Text(
+                                  'Dono: ${widget.cadastro[i].nome}',
+                                  style: TextStyle(fontSize: 14 * widthFactor),
+                                ),
                                 Text(
                                   'Endereço: ${widget.cadastro[i].endereco}',
+                                  style: TextStyle(fontSize: 14 * widthFactor),
                                 ),
                               ],
                             ),
@@ -1076,7 +1096,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 20 * heightFactor),
                   ],
                 ],
               ),
@@ -1122,11 +1142,6 @@ class _ClientesInfosState extends State<ClientesInfos> {
         "endereco": enderecoController.text,
       }),
     );
-    print(nomeController.text);
-    print(nomeAnimalController.text);
-    print(telefoneController.text);
-    print(emailController.text);
-    print(enderecoController.text);
 
     if (response.statusCode == 200) {
       print("Cliente cadastrado com sucesso!");
@@ -1137,6 +1152,12 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -1148,141 +1169,71 @@ class _ClientesInfosState extends State<ClientesInfos> {
               ),
             ),
           ),
-          //foreground
           SafeArea(
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 900.0,
-                  width: 400.0,
+                  height: 750.0 * heightFactor,
+                  width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
-                      SizedBox(height: 40),
+                      SizedBox(height: 40 * heightFactor),
                       Text(
                         'Cadastre um novo cliente',
-                        style: TextStyle(fontSize: 30),
+                        style: TextStyle(fontSize: 30 * widthFactor),
                       ),
-                      SizedBox(height: 70),
-                      //Textfield nome cliente
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: nomeController,
-                            decoration: InputDecoration(
-                              hintText: 'Nome do cliente',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
+                      SizedBox(height: 70 * heightFactor),
+                      //Textfields
+                      _buildTextField(
+                        nomeController,
+                        'Nome do cliente',
+                        widthFactor,
+                        heightFactor,
                       ),
-                      SizedBox(height: 18),
-                      //Textfield nome animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: nomeAnimalController,
-                            decoration: InputDecoration(
-                              hintText: 'Nome do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
+                      SizedBox(height: 12 * heightFactor),
+                      _buildTextField(
+                        nomeAnimalController,
+                        'Nome do animal',
+                        widthFactor,
+                        heightFactor,
                       ),
-                      SizedBox(height: 18),
-                      //Textfield telefone
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: telefoneController,
-                            inputFormatters: [mobileFormatter],
-                            decoration: InputDecoration(
-                              hintText: 'Telefone',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
+                      SizedBox(height: 12 * heightFactor),
+                      _buildTextField(
+                        telefoneController,
+                        'Telefone',
+                        widthFactor,
+                        heightFactor,
+                        inputFormatters: [mobileFormatter],
                       ),
-                      SizedBox(height: 18),
-                      //Textfield email
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              hintText: 'Email',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
+                      SizedBox(height: 12 * heightFactor),
+                      _buildTextField(
+                        emailController,
+                        'Email',
+                        widthFactor,
+                        heightFactor,
                       ),
-                      SizedBox(height: 18),
-                      //Textfield Endereço
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: enderecoController,
-                            decoration: InputDecoration(
-                              hintText: 'Endereço',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
+                      SizedBox(height: 12 * heightFactor),
+                      _buildTextField(
+                        enderecoController,
+                        'Endereço',
+                        widthFactor,
+                        heightFactor,
                       ),
                       Spacer(),
-                      //botao
+                      //botão
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 10,
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
                             ),
-                            textStyle: TextStyle(fontSize: 18),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () {
                             final novoCliente = Clientes(
@@ -1327,14 +1278,47 @@ class _ClientesInfosState extends State<ClientesInfos> {
       ),
     );
   }
-} //backend
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(40 * widthFactor),
+      child: Container(
+        height: 40 * heightFactor,
+        width: 330 * widthFactor,
+        color: Colors.grey[300],
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.only(left: 12 * widthFactor),
+        child: TextField(
+          controller: controller,
+          inputFormatters: inputFormatters,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: InputBorder.none,
+            isCollapsed: true,
+          ),
+          style: TextStyle(fontSize: 20 * widthFactor),
+        ),
+      ),
+    );
+  }
+}  //backend
 
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   final List<String> fotos;
-  PreencherInfos({required this.cards, required this.cadastro, required this.fotos, Key? key})
-    : super(key: key);
+  PreencherInfos({
+    required this.cards,
+    required this.cadastro,
+    required this.fotos,
+    Key? key,
+  }) : super(key: key);
   @override
   _PreencherInfosState createState() => _PreencherInfosState();
 }
@@ -1351,7 +1335,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   //conexão backend
   Future<void> adicionarLaudo(String fotoPath) async {
-
     //final bytes = await File(fotoPath).readAsBytes();
     //final String fotoBase64 = base64Encode(bytes);
     final url = Uri.parse("http://$ips/cadastrar");
@@ -1681,29 +1664,34 @@ class _FotoState extends State<Foto> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('image/backgrounddp.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          //foreground
           SafeArea(
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 900.0,
-                  width: 400.0,
+                  height: 750.0 * heightFactor,
+                  width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
-                      SizedBox(height: 100),
+                      SizedBox(height: 50 * heightFactor),
                       ElevatedButton(
                         onPressed: () async {
                           final path = await Navigator.push<String?>(
@@ -1719,15 +1707,20 @@ class _FotoState extends State<Foto> {
                             });
                           }
                         },
-                        child: Icon(Icons.camera_alt, color: Colors.black),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.black,
+                        ),
                       ),
-                      SizedBox(height: 120),
+                      SizedBox(height: 130 * heightFactor),
                       if (fotoPath != null)
                         Container(
-                          width: 320,
-                          height: 320,
+                          width: 280 * widthFactor,
+                          height: 280 * heightFactor,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(
+                              20 * widthFactor,
+                            ),
                             border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
@@ -1735,11 +1728,13 @@ class _FotoState extends State<Foto> {
                         )
                       else
                         Container(
-                          width: 320,
-                          height: 320,
+                          width: 280 * widthFactor,
+                          height: 280 * heightFactor,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(
+                              16 * widthFactor,
+                            ),
                             border: Border.all(color: Colors.black12),
                             color: Colors.grey.shade200,
                           ),
@@ -1748,21 +1743,32 @@ class _FotoState extends State<Foto> {
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
-                      Spacer(),
+                      const Spacer(),
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
+                            backgroundColor: const Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 10,
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
                             ),
-                            textStyle: TextStyle(fontSize: 18),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () {
-                            Navigator.pop(context, fotoPath);
+                            if (fotoPath != null) {
+                              Navigator.pop(context, fotoPath);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Uma foto precisa ser anexada para dar andamento ao exame",
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
                           },
                           child: const Text("Confirmar"),
                         ),
@@ -1788,7 +1794,6 @@ class CapturaCamera extends StatefulWidget {
 
 class _CapturaCameraState extends State<CapturaCamera>
     with WidgetsBindingObserver {
-  //mixin
   CameraController? _controller;
   Future<void>? _initFuture;
 
@@ -1818,7 +1823,6 @@ class _CapturaCameraState extends State<CapturaCamera>
       _initFuture = controller.initialize();
       setState(() {});
     } catch (erro) {
-      //Permissão negada
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao iniciar câmera: $erro')),
@@ -1828,7 +1832,6 @@ class _CapturaCameraState extends State<CapturaCamera>
     }
   }
 
-  // Para o preview na mudança de estado
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final CameraController? cameraController = _controller;
@@ -1853,12 +1856,18 @@ class _CapturaCameraState extends State<CapturaCamera>
   Widget build(BuildContext context) {
     final controller = _controller;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: const Text('Câmera'),
+        title: Text('Câmera', style: TextStyle(fontSize: 20 * widthFactor)),
         centerTitle: true,
       ),
       body: controller == null
@@ -1870,16 +1879,15 @@ class _CapturaCameraState extends State<CapturaCamera>
                   return Stack(
                     children: [
                       Center(child: CameraPreview(controller)),
-                      // Botão da camera
                       Positioned(
-                        bottom: 32,
+                        bottom: 32 * heightFactor,
                         left: 0,
                         right: 0,
                         child: Center(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               shape: const CircleBorder(),
-                              padding: const EdgeInsets.all(18),
+                              padding: EdgeInsets.all(18 * widthFactor),
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black,
                             ),
@@ -1888,7 +1896,6 @@ class _CapturaCameraState extends State<CapturaCamera>
                                 await _initFuture;
                                 final file = await controller.takePicture();
                                 if (!mounted) return;
-                                // Retorna o caminho da foto para a tela "foto"
                                 Navigator.pop(context, file.path);
                               } catch (erro) {
                                 if (!mounted) return;
@@ -1899,7 +1906,10 @@ class _CapturaCameraState extends State<CapturaCamera>
                                 );
                               }
                             },
-                            child: const Icon(Icons.camera_alt, size: 32),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 32 * widthFactor,
+                            ),
                           ),
                         ),
                       ),
@@ -1909,7 +1919,10 @@ class _CapturaCameraState extends State<CapturaCamera>
                   return Center(
                     child: Text(
                       'Erro: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16 * widthFactor,
+                      ),
                     ),
                   );
                 } else {
@@ -2009,11 +2022,17 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('image/backgrounddp.png'),
                 fit: BoxFit.cover,
@@ -2024,162 +2043,226 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
           SafeArea(
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 900.0,
-                  width: 400.0,
+                  height: 850.0 * heightFactor,
+                  width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
-                      SizedBox(height: 40),
+                      SizedBox(height: 20 * heightFactor),
                       Text(
                         'Detalhes do Exame ',
-                        style: TextStyle(fontSize: 30),
+                        style: TextStyle(fontSize: 30 * widthFactor),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
+
+                      // Dono
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Dono: ${widget.laudo.dono}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Dono: ${widget.laudo.dono}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Animal
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Animal: ${widget.laudo.animal}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Animal: ${widget.laudo.animal}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Idade
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Idade do animal: ${widget.laudo.idade}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Idade do animal: ${widget.laudo.idade}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Sexo
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Sexo do animal: ${widget.laudo.sexo}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Sexo do animal: ${widget.laudo.sexo}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Raça
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Raça do animal: ${widget.laudo.raca}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Raça do animal: ${widget.laudo.raca}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Peso
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Peso do animal: ${widget.laudo.peso}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Peso do animal: ${widget.laudo.peso}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Data
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: Text('Data do Exame: ${widget.laudo.data}'),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Data do Exame: ${widget.laudo.data}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
+
+                      // Foto
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12 * widthFactor),
                         child: Container(
-                          height: 130,
-                          width: 380,
+                          height: 110 * heightFactor,
+                          width: 380 * widthFactor,
                           child: widget.laudo.fotoPath != null
                               ? Image.file(
-                                  File(widget.laudo.fotoPath!),
-                                  fit: BoxFit.fill,
-                                )
+                            File(widget.laudo.fotoPath!),
+                            fit: BoxFit.fill,
+                          )
                               : Container(color: Colors.grey),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
+
+                      // Observação
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 170,
-                          width: 380,
+                          height: 120 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: observacaoController,
                             maxLines: null,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText:
-                                  'Adicione observações caso seja necessário: ',
+                              'Adicione observações caso seja necessário: ',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
                       ),
-                      //botao
-                      Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 4,
-                            ),
-                            textStyle: TextStyle(fontSize: 18),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              widget.laudo.observacao =
-                                  observacaoController.text;
-                            });
 
-                            Navigator.pop(context);
-                          },
-                          child: Text("Baixar"),
+                      // Botões
+                      Padding(
+                        padding: EdgeInsets.all(7.0 * widthFactor),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF49D5D2),
+                                  foregroundColor: Colors.black,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 4 * heightFactor,
+                                  ),
+                                  textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    widget.laudo.observacao = observacaoController.text;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Baixando PDF')),
+                                    );
+                                  });
+                                  return;
+                                },
+                                child: const Text("Baixar PDF"),
+                              ),
+                            ),
+                            SizedBox(width: 10 * widthFactor),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF49D5D2),
+                                  foregroundColor: Colors.black,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 4 * heightFactor,
+                                  ),
+                                  textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context,);
+                                },
+                                child: const Text("Voltar"),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      )
+
                     ],
                   ),
                 ),
@@ -2191,3 +2274,4 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
     );
   }
 }
+
