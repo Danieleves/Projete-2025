@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-//import 'package:flutter_screenutil/flutter_screenutil.dart';  tamanho dinamico
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -18,7 +17,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-var ips = "";
+var ips = "172.20.10.2:5000";
 
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
@@ -315,7 +314,7 @@ class _SignupState extends State<Signup> {
 
   //conexão backend
   Future<void> cadastrarUsuario() async {
-    final url = Uri.parse("http://172.20.10.2:5000/adduser");
+    final url = Uri.parse("http://$ips/adduser");
 
     final response = await http.post(
       url,
@@ -571,7 +570,7 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-}
+} //backend
 
 class Laudo {
   String animal;
@@ -997,6 +996,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
                 builder: (context) => PreencherInfos(
                   cards: widget.cards,
                   cadastro: widget.cadastro,
+                  fotos: [],
                 ),
               ),
             );
@@ -1082,7 +1082,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
   //conexão backend
   Future<void> adicionarCliente() async {
-    final url = Uri.parse("http://172.20.10.2:5000/clientes");
+    final url = Uri.parse("http://$ips/clientes");
 
     final response = await http.post(
       url,
@@ -1301,12 +1301,13 @@ class _ClientesInfosState extends State<ClientesInfos> {
       ),
     );
   }
-}
+} //backend
 
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
-  PreencherInfos({required this.cards, required this.cadastro, Key? key})
+  final List<String> fotos;
+  PreencherInfos({required this.cards, required this.cadastro, required this.fotos, Key? key})
     : super(key: key);
   @override
   _PreencherInfosState createState() => _PreencherInfosState();
@@ -1323,8 +1324,11 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController dataController = TextEditingController();
 
   //conexão backend
-  Future<void> adicionarLaudo() async {
-    final url = Uri.parse("http://127.0.0.1:5000/cadastrar");
+  Future<void> adicionarLaudo(String fotoPath) async {
+
+    //final bytes = await File(fotoPath).readAsBytes();
+    //final String fotoBase64 = base64Encode(bytes);
+    final url = Uri.parse("http://$ips/cadastrar");
 
     final response = await http.post(
       url,
@@ -1337,6 +1341,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
         "raca": racaController.text,
         //"peso": pesoController.text,
         //"data": dataController.text,
+        //"foto": fotoBase64,
       }),
     );
 
@@ -1596,7 +1601,9 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
                                 setState(() {
                                   widget.cards.add(novoLaudo);
-                                  adicionarLaudo();
+                                  if (novoLaudo.fotoPath != null) {
+                                    adicionarLaudo(novoLaudo.fotoPath!);
+                                  }
                                   animalController.clear();
                                   donoController.clear();
                                   idadeController.clear();
@@ -1605,8 +1612,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   pesoController.clear();
                                   dataController.clear();
                                 });
-
-                                // Só fecha a tela depois que a foto foi anexada
                                 Navigator.pop(context, novoLaudo);
                               }
                             }
@@ -1624,7 +1629,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-}
+} // backend
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
@@ -1958,7 +1963,7 @@ class _AccountState extends State<Account> {
       ),
     );
   }
-}
+} //mexer
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
