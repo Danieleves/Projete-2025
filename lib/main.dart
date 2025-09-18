@@ -25,32 +25,43 @@ void main() {
 
 class TelaInicial extends StatelessWidget {
   final List<Cadastro> usuarios = [];
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // ✅ Base lógica de layout: 360x808
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
-      backgroundColor: Color(0xFF21C5C1),
+      backgroundColor: const Color(0xFF21C5C1),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(height: 15),
+            SizedBox(height: 15 * heightFactor),
             Center(
               child: Image.asset(
                 'image/dermapetbottomless.png',
-                width: 400,
-                height: 400,
+                width: 400 * widthFactor,
+                height: 400 * heightFactor,
                 fit: BoxFit.cover,
               ),
             ),
             // Botão
             Padding(
-              padding: const EdgeInsets.only(bottom: 30.0),
+              padding: EdgeInsets.only(bottom: 30.0 * heightFactor),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF49D5D2),
+                  backgroundColor: const Color(0xFF49D5D2),
                   foregroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
-                  textStyle: TextStyle(fontSize: 23),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 60 * widthFactor,
+                    vertical: 20 * heightFactor,
+                  ),
+                  textStyle: TextStyle(fontSize: 23 * widthFactor),
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -60,7 +71,7 @@ class TelaInicial extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text("Iniciar"),
+                child: const Text("Iniciar"),
               ),
             ),
           ],
@@ -87,8 +98,15 @@ class _LoginState extends State<Login> {
   List<Validar> validacao = [];
   TextEditingController userController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       //background
       body: Stack(
@@ -107,19 +125,19 @@ class _LoginState extends State<Login> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 600.0,
-                  width: 400.0,
+                  height: 600.0 * heightFactor,
+                  width: 340.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
                       //logo
                       Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+                        padding: EdgeInsets.only(top: 10.0 * heightFactor),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60),
+                          borderRadius: BorderRadius.circular(60 * widthFactor),
                           child: Container(
-                            height: 120,
-                            width: 120,
+                            height: 120 * heightFactor,
+                            width: 120 * widthFactor,
                             child: Image.asset(
                               'image/dermapet.jpeg',
                               fit: BoxFit.contain,
@@ -127,16 +145,16 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 80),
+                      SizedBox(height: 80 * heightFactor),
                       //Textfield User
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 200,
+                          height: 40 * heightFactor,
+                          width: 200 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: userController,
                             decoration: InputDecoration(
@@ -144,20 +162,20 @@ class _LoginState extends State<Login> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       //Textfield password
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: (Container(
-                          height: 40,
-                          width: 200,
+                          height: 40 * heightFactor,
+                          width: 200 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: TextField(
                             controller: senhaController,
                             obscureText: true,
@@ -166,23 +184,23 @@ class _LoginState extends State<Login> {
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20 * widthFactor),
                           ),
                         )),
                       ),
-                      SizedBox(height: 40),
+                      SizedBox(height: 40 * heightFactor),
                       //botao
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
+                        padding: EdgeInsets.only(bottom: 20.0 * heightFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 10,
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
                             ),
-                            textStyle: TextStyle(fontSize: 18),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () {
                             final novoValidar = Validar(
@@ -191,13 +209,12 @@ class _LoginState extends State<Login> {
                             );
                             validacao.add(novoValidar);
                             var usuarioValido = widget.usuarios.any(
-                              (c) =>
-                                  c.usuario == userController.text &&
+                                  (c) =>
+                              c.usuario == userController.text &&
                                   c.senha == senhaController.text,
                             );
 
                             if (!usuarioValido) {
-                              //ver isso mais a fundo, o any
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Usuario ou senha incorretos'),
@@ -231,24 +248,24 @@ class _LoginState extends State<Login> {
                           child: Text("Login"),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 60,
+                            width: 60 * widthFactor,
                             child: Divider(color: Colors.black, thickness: 1),
                           ),
-                          SizedBox(width: 10),
-                          Text('OU'),
-                          SizedBox(width: 10),
+                          SizedBox(width: 10 * widthFactor),
+                          Text('OU', style: TextStyle(fontSize: 16 * widthFactor)),
+                          SizedBox(width: 10 * widthFactor),
                           SizedBox(
-                            width: 60,
+                            width: 60 * widthFactor,
                             child: Divider(color: Colors.black, thickness: 1),
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 20 * heightFactor),
                       GestureDetector(
                         onTap: () {
                           userController.clear();
@@ -261,13 +278,12 @@ class _LoginState extends State<Login> {
                             ),
                           );
                         },
-
                         child: Text(
                           'Criar Conta',
                           style: TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
-                            fontSize: 16,
+                            fontSize: 16 * widthFactor,
                           ),
                         ),
                       ),
@@ -282,6 +298,7 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
 
 class Cadastro {
   String phone;
