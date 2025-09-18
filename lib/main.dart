@@ -299,7 +299,6 @@ class _LoginState extends State<Login> {
   }
 }
 
-
 class Cadastro {
   String phone;
   String email;
@@ -330,7 +329,7 @@ class _SignupState extends State<Signup> {
   TextEditingController confirmController = TextEditingController();
 
   //conexão backend
-  Future<void> cadastrarUsuario() async {
+  Future<String?> cadastrarUsuario() async {
     final url = Uri.parse("http://$ips/adduser");
 
     final response = await http.post(
@@ -348,8 +347,11 @@ class _SignupState extends State<Signup> {
 
     if (response.statusCode == 200) {
       print("Usuário cadastrado com sucesso!");
+      return null;
     } else {
-      print("Erro ao cadastrar: ${response.body}");
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print("Erro ao cadastrar: ${data['mensagem']}");
+      return data['mensagem']; // Retorna a mensagem de erro
     }
   }
 
@@ -515,7 +517,7 @@ class _SignupState extends State<Signup> {
                             ),
                             textStyle: TextStyle(fontSize: 18),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             final novocadastro = Cadastro(
                               phone: phoneController.text,
                               email: emailController.text,
@@ -539,9 +541,16 @@ class _SignupState extends State<Signup> {
                                   content: Text('Preencha todos os campos'),
                                 ),
                               );
-                            } else {
+                              return;
+                            }
+                            String? erro = await cadastrarUsuario(); //usuario existente
+                              if (erro != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(erro)),
+                              );
+                              return;
+                            }else {
                               widget.usuarios.add(novocadastro);
-                              cadastrarUsuario();
                               phoneController.clear();
                               emailController.clear();
                               usuarioController.clear();
