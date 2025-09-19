@@ -384,8 +384,8 @@ class _SignupState extends State<Signup> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 700.0 * heightFactor,
-                  width: 400.0 * widthFactor,
+                  height: 650.0 * heightFactor,
+                  width: 340.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
@@ -1146,7 +1146,9 @@ class _ClientesInfosState extends State<ClientesInfos> {
     if (response.statusCode == 200) {
       print("Cliente cadastrado com sucesso!");
     } else {
-      print("Erro ao cadastrar: ${response.body}");
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print("Erro ao cadastrar: ${data['mensagem']}");
+      return data['mensagem']; // Retorna a mensagem de erro
     }
   }
 
@@ -1335,39 +1337,39 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   //conexão backend
   Future<void> adicionarLaudo(String fotoPath) async {
-    //final bytes = await File(fotoPath).readAsBytes();
-    //final String fotoBase64 = base64Encode(bytes);
     final url = Uri.parse("http://$ips/cadastrar");
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        //"animal": animalController.text,
-        //"dono": donoController.text,
-        //"idade": idadeController.text,
         "sexo": sexoController.text,
         "raca": racaController.text,
-        //"peso": pesoController.text,
-        //"data": dataController.text,
-        //"foto": fotoBase64,
       }),
     );
 
     if (response.statusCode == 200) {
       print("Exame cadastrado com sucesso!");
     } else {
-      print("Erro ao cadastrar: ${response.body}");
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print("Erro ao cadastrar: ${data['mensagem']}");
+      return data['mensagem'];
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('image/backgrounddp.png'),
                 fit: BoxFit.cover,
@@ -1378,184 +1380,56 @@ class _PreencherInfosState extends State<PreencherInfos> {
           SafeArea(
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 900.0,
-                  width: 400.0,
+                  height: 750.0 * heightFactor,
+                  width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
-                      SizedBox(height: 40),
+                      SizedBox(height: 40 * heightFactor),
                       Text(
                         'Início de um novo teste',
-                        style: TextStyle(fontSize: 30),
+                        style: TextStyle(fontSize: 30 * widthFactor),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 10 * heightFactor),
                       Text(
-                        'Preencha a esse questionário sobre o animal para continuar',
-                        style: TextStyle(fontSize: 14),
+                        'Preencha esse questionário sobre o animal para continuar',
+                        style: TextStyle(fontSize: 14 * widthFactor),
+                        textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 60),
+                      SizedBox(height: 60 * heightFactor),
+
                       //Textfield data
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: dataController,
-                            inputFormatters: [dataFormatter],
-                            decoration: InputDecoration(
-                              hintText: 'dd/mm/aaaa',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Nome do Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: animalController,
-                            decoration: InputDecoration(
-                              hintText: 'Nome do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Dono do Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: donoController,
-                            decoration: InputDecoration(
-                              hintText: 'Dono do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Idade do Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: idadeController,
-                            decoration: InputDecoration(
-                              hintText: 'Idade do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Sexo do Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: sexoController,
-                            decoration: InputDecoration(
-                              hintText: 'Sexo do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //Textfield Raça do Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: racaController,
-                            decoration: InputDecoration(
-                              hintText: 'Raça do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      SizedBox(height: 20),
-                      //textfield Peso do animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: (Container(
-                          height: 40,
-                          width: 380,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
-                          child: TextField(
-                            controller: pesoController,
-                            decoration: InputDecoration(
-                              hintText: 'Peso do animal',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                            ),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )),
-                      ),
-                      Spacer(),
+                      campoTexto(dataController, "dd/mm/aaaa", widthFactor, heightFactor, formatter: dataFormatter),
+
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(animalController, "Nome do animal", widthFactor, heightFactor),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(donoController, "Dono do animal", widthFactor, heightFactor),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(idadeController, "Idade do animal", widthFactor, heightFactor),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(sexoController, "Sexo do animal", widthFactor, heightFactor),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(racaController, "Raça do animal", widthFactor, heightFactor),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(pesoController, "Peso do animal", widthFactor, heightFactor),
+
+                      const Spacer(),
+
                       //botao
                       Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
+                            backgroundColor: const Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 10,
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
                             ),
-                            textStyle: TextStyle(fontSize: 18),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () async {
                             final novoLaudo = Laudo(
@@ -1578,22 +1452,22 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 pesoController.text.isEmpty ||
                                 dataController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text('Preencha todos os campos'),
                                 ),
                               );
                               return;
-                            } else if (int.tryParse(idadeController.text) ==
-                                    0 ||
+                            } else if (int.tryParse(idadeController.text) == 0 ||
                                 double.tryParse(pesoController.text) == 0 ||
                                 int.tryParse(dataController.text) == 0) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text(
                                     'Preencha os campos corretamente',
                                   ),
                                 ),
                               );
+                                  return;
                             } else {
                               final fotoPath = await Navigator.push<String?>(
                                 context,
@@ -1625,7 +1499,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               }
                             }
                           },
-                          child: Text("Confirmar"),
+                          child: const Text("Confirmar"),
                         ),
                       ),
                     ],
@@ -1638,7 +1512,33 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-} // backend
+
+  Widget campoTexto(TextEditingController controller, String hint,
+      double widthFactor, double heightFactor,
+      {TextInputFormatter? formatter}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(40 * widthFactor),
+      child: Container(
+        height: 40 * heightFactor,
+        width: 330 * widthFactor,
+        color: Colors.grey[300],
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.only(left: 12 * widthFactor),
+        child: TextField(
+          controller: controller,
+          inputFormatters: formatter != null ? [formatter] : null,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: InputBorder.none,
+            isCollapsed: true,
+          ),
+          style: TextStyle(fontSize: 20 * widthFactor),
+        ),
+      ),
+    );
+  }
+}
+ // backend
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
@@ -2045,7 +1945,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 850.0 * heightFactor,
+                  height: 880.0 * heightFactor,
                   width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
@@ -2062,7 +1962,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2079,7 +1979,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2096,7 +1996,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2113,7 +2013,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2130,7 +2030,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2147,7 +2047,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2164,7 +2064,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2181,7 +2081,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(12 * widthFactor),
                         child: Container(
                           height: 110 * heightFactor,
-                          width: 380 * widthFactor,
+                          width: 330 * widthFactor,
                           child: widget.laudo.fotoPath != null
                               ? Image.file(
                             File(widget.laudo.fotoPath!),
@@ -2196,8 +2096,8 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 120 * heightFactor,
-                          width: 380 * widthFactor,
+                          height: 100 * heightFactor,
+                          width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2217,7 +2117,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
 
                       // Botões
                       Padding(
-                        padding: EdgeInsets.all(7.0 * widthFactor),
+                        padding: EdgeInsets.all(9.0 * widthFactor),
                         child: Row(
                           children: [
                             Expanded(
@@ -2226,9 +2126,9 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   backgroundColor: Color(0xFF49D5D2),
                                   foregroundColor: Colors.black,
                                   padding: EdgeInsets.symmetric(
-                                    vertical: 4 * heightFactor,
+                                    vertical: 3 * heightFactor,
                                   ),
-                                  textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                  textStyle: TextStyle(fontSize: 13 * widthFactor),
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -2249,9 +2149,9 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   backgroundColor: Color(0xFF49D5D2),
                                   foregroundColor: Colors.black,
                                   padding: EdgeInsets.symmetric(
-                                    vertical: 4 * heightFactor,
+                                    vertical: 3 * heightFactor,
                                   ),
-                                  textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                  textStyle: TextStyle(fontSize: 13 * widthFactor),
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context,);
