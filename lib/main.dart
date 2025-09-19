@@ -5,6 +5,12 @@ import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -1920,6 +1926,115 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
     observacaoController.text = widget.laudo.observacao ?? '';
   }
 
+  //Gerar PDF
+  Future<Uint8List> generatePdf(String observacao) async {
+    final pdf = pw.Document();
+
+    pw.ImageProvider? imageProvider;
+    if (widget.laudo.fotoPath != null && File(widget.laudo.fotoPath!).existsSync()) {
+      final imageFile = File(widget.laudo.fotoPath!);
+      final imageBytes = await imageFile.readAsBytes();
+      imageProvider = pw.MemoryImage(imageBytes);
+    }
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Center(
+                child: pw.Text(
+                  'Laudo - Exame Dermatológico',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blueGrey800,
+                  ),
+                ),
+              ),
+
+              pw.SizedBox(height: 24),
+
+              pw.Text('Dados do Paciente:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Divider(),
+
+              pw.Text('Dono: ${widget.laudo.dono}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Animal: ${widget.laudo.animal}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Idade: ${widget.laudo.idade}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Sexo: ${widget.laudo.sexo}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Raça: ${widget.laudo.raca}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Peso: ${widget.laudo.peso}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('Data do Exame: ${widget.laudo.data}', style: pw.TextStyle(fontSize: 14)),
+
+              pw.SizedBox(height: 24),
+              // OBSERVAÇÕES
+              pw.Text('Observações:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Divider(),
+              pw.Text(
+                observacao.isNotEmpty ? observacao : 'Nenhuma observação registrada.',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+
+              if (imageProvider != null) ...[
+                pw.Text('Imagem do Exame:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 10),
+                pw.Center(
+                  child: pw.Image(imageProvider, height: 200, fit: pw.BoxFit.contain),
+                ),
+                pw.SizedBox(height: 24),
+              ],
+
+              pw.Spacer(),
+              pw.Text('Assinatura do(a) Veterinário(a): _______________________________', style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+
+              pw.Text('CRMV-SP 12345', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  //Salvar pdf
+  Future<void> savePdfToDownloads(Uint8List pdfBytes) async {
+    try {
+      if (Platform.isAndroid) {
+        var status = await Permission.manageExternalStorage.request();
+        if (!status.isGranted) {
+          status = await Permission.storage.request();
+          if (!status.isGranted) {
+            throw Exception("Permissão de armazenamento não concedida");
+          }
+        }
+      }
+
+      Directory? downloadsDir;
+      if (Platform.isAndroid) {
+        downloadsDir = Directory('/storage/emulated/0/Download');
+      } else {
+        downloadsDir = await getApplicationDocumentsDirectory();
+      }
+
+      final filePath = '${downloadsDir.path}/laudo_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final file = File(filePath);
+
+      await file.writeAsBytes(pdfBytes);
+
+      await OpenFile.open(file.path);
+      print('PDF salvo em: ${file.path}');
+    } catch (e) {
+      print('Erro ao salvar PDF: $e');
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -2096,7 +2211,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 100 * heightFactor,
+                          height: 130 * heightFactor,
                           width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
@@ -2114,7 +2229,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           ),
                         ),
                       ),
-
+                      Spacer(),
                       // Botões
                       Padding(
                         padding: EdgeInsets.all(9.0 * widthFactor),
@@ -2130,14 +2245,20 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   ),
                                   textStyle: TextStyle(fontSize: 13 * widthFactor),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   setState(() {
                                     widget.laudo.observacao = observacaoController.text;
+                                    });
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Baixando PDF')),
+                                      const SnackBar(content: Text('PDF gerado! Abrindo visualização')),
                                     );
-                                  });
-                                  return;
+                                    final observacao = widget.laudo.observacao ?? '';
+                                    final pdfData = await generatePdf(observacao);
+                                    await savePdfToDownloads(pdfData);
+                                    await Printing.layoutPdf(
+                                        onLayout: (PdfPageFormat format) async => pdfData,
+                                    );
+
                                 },
                                 child: const Text("Baixar PDF"),
                               ),
@@ -2162,7 +2283,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           ],
                         ),
                       )
-
                     ],
                   ),
                 ),
