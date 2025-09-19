@@ -614,7 +614,7 @@ class Laudo {
   String sexo;
   String raca;
   double peso;
-  int data;
+  String data;
   int id;
   String? observacao;
   String? fotoPath;
@@ -1439,7 +1439,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               sexo: sexoController.text,
                               raca: racaController.text,
                               peso: double.tryParse(pesoController.text) ?? 0,
-                              data: int.tryParse(dataController.text) ?? 0,
+                              data: dataController.text,
                               id: widget.cards.length + 1,
                               observacao: null,
                               fotoPath: null,
@@ -1458,8 +1458,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               );
                               return;
                             } else if (int.tryParse(idadeController.text) == 0 ||
-                                double.tryParse(pesoController.text) == 0 ||
-                                int.tryParse(dataController.text) == 0) {
+                                double.tryParse(pesoController.text) == 0)
+                                {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
