@@ -649,8 +649,44 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
 
-  void criarTeste() {
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    carregarLaudos();
+  }
+
+  void carregarLaudos() async {
+    try {
+      final laudos = await reqLaudos();
+      setState(() {
+        cards = laudos;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<Laudo>> reqLaudos() async {
+    final url = Uri.parse("http://$ips/listar");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Laudo(
+        id: json['id'],
+        animal: json['animal'],
+        dono: json['dono'],
+        idade: json['idade'],
+        sexo: json['sexo'],
+        raca: json['raca'],
+        peso: (json['peso'] as num).toDouble(),
+        data: json['data'],
+        observacao: json['observacao'],
+        fotoPath: json['fotoPath'],
+      )).toList();
+    } else {
+      throw Exception("Erro ao carregar laudos: ${response.body}");
+    }
   }
 
   @override
@@ -667,16 +703,18 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  CadastroCliente(cards: cards, cadastro: cadastro),
+              builder: (context) => CadastroCliente(cards: cards, cadastro: cadastro),
             ),
-          ).then((_) {
-            criarTeste();
+          ).then((recarregar) {
+            if (recarregar == true) { //adaptado para receber os laudos do back e carregar a pagina
+              carregarLaudos();
+            }
           });
         },
         child: Icon(Icons.add),
       ),
-      body: Stack(
+      body:
+    Stack(
         children: [
           Container(
             decoration: BoxDecoration(
@@ -720,7 +758,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                           MainAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Card: ${i + 1}',
+                                          'Exame: ${i + 1}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16 * widthFactor,
@@ -751,7 +789,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                   SizedBox(width: 10 * widthFactor),
                                   Expanded(
                                     flex: 1,
-                                    child: cards[i].fotoPath != null
+                                    child: cards[i].fotoPath != null //Ver oq o back retorna da imagem
                                         ? Image.file(
                                             File(cards[i].fotoPath!),
                                             fit: BoxFit.cover,
@@ -1044,7 +1082,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
                 ),
               ),
             );
-            Navigator.pop(context, novoLaudo);
+            Navigator.pop(context, true);
           }
         },
         child: Icon(Icons.add, size: 24 * widthFactor),
@@ -1342,31 +1380,60 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController dataController = TextEditingController();
 
   //conexão backend
-  Future<void> adicionarLaudo(String fotoPath) async {
+  Future<Laudo?> adicionarLaudo(String fotoPath) async {
     final url = Uri.parse("http://$ips/cadastrar");
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
+        //"animal": animalController.text,
+        //"dono": donoController.text,
+        //"idade": idadeController.text,
         "sexo": sexoController.text,
         "raca": racaController.text,
+        //"peso": pesoController.text,
+        //"data": dataController.text,
+        "fotoPath": fotoPath,
       }),
     );
 
     if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final int idGerado = data["id"];
+
+      final novoLaudo = Laudo(
+        id: idGerado,
+        animal: animalController.text,
+        dono: donoController.text,
+        idade: int.tryParse(idadeController.text) ?? 0,
+        sexo: sexoController.text,
+        raca: racaController.text,
+        peso: double.tryParse(pesoController.text) ?? 0,
+        data: dataController.text,
+        observacao: null,
+        fotoPath: fotoPath,
+      );
+
       print("Exame cadastrado com sucesso!");
+      return novoLaudo;
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       print("Erro ao cadastrar: ${data['mensagem']}");
-      return data['mensagem'];
+      return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
@@ -1407,20 +1474,29 @@ class _PreencherInfosState extends State<PreencherInfos> {
                       SizedBox(height: 60 * heightFactor),
 
                       //Textfield data
-                      campoTexto(dataController, "dd/mm/aaaa", widthFactor, heightFactor, formatter: dataFormatter),
+                      campoTexto(dataController, "dd/mm/aaaa", widthFactor,
+                          heightFactor, formatter: dataFormatter),
 
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(animalController, "Nome do animal", widthFactor, heightFactor),
+                      campoTexto(
+                          animalController, "Nome do animal", widthFactor,
+                          heightFactor),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(donoController, "Dono do animal", widthFactor, heightFactor),
+                      campoTexto(donoController, "Dono do animal", widthFactor,
+                          heightFactor),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(idadeController, "Idade do animal", widthFactor, heightFactor),
+                      campoTexto(
+                          idadeController, "Idade do animal", widthFactor,
+                          heightFactor),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(sexoController, "Sexo do animal", widthFactor, heightFactor),
+                      campoTexto(sexoController, "Sexo do animal", widthFactor,
+                          heightFactor),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(racaController, "Raça do animal", widthFactor, heightFactor),
+                      campoTexto(racaController, "Raça do animal", widthFactor,
+                          heightFactor),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(pesoController, "Peso do animal", widthFactor, heightFactor),
+                      campoTexto(pesoController, "Peso do animal", widthFactor,
+                          heightFactor),
 
                       const Spacer(),
 
@@ -1463,9 +1539,9 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 ),
                               );
                               return;
-                            } else if (int.tryParse(idadeController.text) == 0 ||
-                                double.tryParse(pesoController.text) == 0)
-                                {
+                            } else
+                            if (int.tryParse(idadeController.text) == 0 ||
+                                double.tryParse(pesoController.text) == 0) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -1473,35 +1549,36 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   ),
                                 ),
                               );
-                                  return;
+                              return;
                             } else {
                               final fotoPath = await Navigator.push<String?>(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Foto(
-                                    cards: [novoLaudo], // laudo temporário
-                                    cadastro: widget.cadastro,
-                                    index: 0,
-                                  ),
+                                  builder: (context) =>
+                                      Foto(
+                                        cards: [novoLaudo], // laudo temporário
+                                        cadastro: widget.cadastro,
+                                        index: 0,
+                                      ),
                                 ),
                               );
                               if (fotoPath != null && fotoPath.isNotEmpty) {
-                                novoLaudo.fotoPath = fotoPath;
+                                final novoLaudo = await adicionarLaudo(
+                                    fotoPath);
 
-                                setState(() {
-                                  widget.cards.add(novoLaudo);
-                                  if (novoLaudo.fotoPath != null) {
-                                    adicionarLaudo(novoLaudo.fotoPath!);
-                                  }
-                                  animalController.clear();
-                                  donoController.clear();
-                                  idadeController.clear();
-                                  sexoController.clear();
-                                  racaController.clear();
-                                  pesoController.clear();
-                                  dataController.clear();
-                                });
-                                Navigator.pop(context, novoLaudo);
+                                if (novoLaudo != null) {
+                                  setState(() {
+                                    widget.cards.add(novoLaudo);
+                                    animalController.clear();
+                                    donoController.clear();
+                                    idadeController.clear();
+                                    sexoController.clear();
+                                    racaController.clear();
+                                    pesoController.clear();
+                                    dataController.clear();
+                                  });
+                                  Navigator.pop(context, novoLaudo);
+                                }
                               }
                             }
                           },
@@ -1543,8 +1620,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-}
- // backend
+}// backend
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
