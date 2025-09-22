@@ -93,6 +93,11 @@ class Validar {
   Validar({required this.user, required this.senha});
 }
 
+class Ids {
+  int userid;
+  Ids({required this.userid});
+}
+
 class Login extends StatefulWidget {
   final List<Cadastro> usuarios;
   const Login({required this.usuarios, Key? key}) : super(key: key);
@@ -102,8 +107,71 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   List<Validar> validacao = [];
+  List<Ids> validarr = [];
   TextEditingController userController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    carregarIds();
+  }
+
+  void carregarIds() async {
+    try {
+      final Ids = await reqValidar();
+      setState(() {
+        validarr = Ids;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<List<Ids>> reqValidar() async {
+    final url = Uri.parse("http://$ips/verifyuser");
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      final lista = data.map((json) => Ids(userid: json['id'])).toList();
+      debugPrint(lista.toString());
+      return lista;
+    } else {
+      throw Exception("Erro ao carregar laudos: ${response.body}");
+    }
+  }
+
+  //conexão backend
+  Future<String?> Verificaruser() async {
+    final url = Uri.parse("http://$ips/verifyuser");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "usuario": userController.text,
+          "senha": senhaController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Usuário correto!");
+        return null;
+      } else {
+        debugPrint("Status: ${response.statusCode}");
+        debugPrint("Body: ${response.body}");
+
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['mensagem'] ?? "Usuário ou senha inválidos";
+      }
+    } catch (e) {
+      debugPrint("Erro na verificação: $e");
+      return "Erro de conexão com o servidor";
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -208,26 +276,8 @@ class _LoginState extends State<Login> {
                             ),
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          onPressed: () {
-                            final novoValidar = Validar(
-                              user: userController.text,
-                              senha: senhaController.text,
-                            );
-                            validacao.add(novoValidar);
-                            var usuarioValido = widget.usuarios.any(
-                              (c) =>
-                                  c.usuario == userController.text &&
-                                  c.senha == senhaController.text,
-                            );
-
-                            if (!usuarioValido) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Usuario ou senha incorretos'),
-                                ),
-                              );
-                              return;
-                            } else if (userController.text.isEmpty ||
+                          onPressed: () async {
+                            if (userController.text.isEmpty ||
                                 senhaController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -237,10 +287,16 @@ class _LoginState extends State<Login> {
                                 ),
                               );
                               return;
-                            } else if (usuarioValido) {
+                            }
+                            String? erro = await Verificaruser();
+                            if (erro != null) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(erro)));
+                              return;
+                            } else {
                               userController.clear();
                               senhaController.clear();
-
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -350,19 +406,27 @@ class _SignupState extends State<Signup> {
         "email": emailController.text,
       }),
     );
-    print(usuarioController.text);
-    print(senhaController.text);
-    print(emailController.text);
+
+    debugPrint(usuarioController.text);
+    debugPrint(senhaController.text);
+    debugPrint(emailController.text);
 
     if (response.statusCode == 200) {
-      print("Usuário cadastrado com sucesso!");
+      debugPrint("Usuário cadastrado com sucesso!");
       return null;
     } else {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      print("Erro ao cadastrar: ${data['mensagem']}");
-      return data['mensagem']; // Retorna a mensagem de erro
+      try {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final mensagem = data['mensagem'] ?? 'Erro desconhecido ao cadastrar';
+        debugPrint("Erro ao cadastrar: $mensagem");
+        return mensagem;
+      } catch (e) {
+        debugPrint("Erro ao decodificar resposta: $e");
+        return "Erro inesperado ao cadastrar";
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -622,6 +686,7 @@ class Laudo {
   double peso;
   String data;
   int id;
+  int clienteid;
   String? observacao;
   String? fotoPath;
   Laudo({
@@ -633,6 +698,7 @@ class Laudo {
     required this.peso,
     required this.data,
     required this.id,
+    required this.clienteid,
     required this.observacao,
     required this.fotoPath,
   });
@@ -662,28 +728,33 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
         cards = laudos;
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
   Future<List<Laudo>> reqLaudos() async {
-    final url = Uri.parse("http://$ips/listar");
-    final response = await http.get(url);
+    final url = Uri.parse("http://$ips/verifyexame");
+    final response = await http.post(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Laudo(
-        id: json['id'],
-        animal: json['animal'],
-        dono: json['dono'],
-        idade: json['idade'],
-        sexo: json['sexo'],
-        raca: json['raca'],
-        peso: (json['peso'] as num).toDouble(),
-        data: json['data'],
-        observacao: json['observacao'],
-        fotoPath: json['fotoPath'],
-      )).toList();
+      return data
+          .map(
+            (json) => Laudo(
+              clienteid: json['cliente_id'],
+              id: json['id'],
+              animal: json['animal'],
+              dono: json[null],
+              idade: json['idade'],
+              sexo: json['sexo'],
+              raca: json['raca'],
+              peso: (json['peso'] as num).toDouble(),
+              data: json['data'],
+              observacao: json['observacao'],
+              fotoPath: json[null], //mudar cards e flex
+            ),
+          )
+          .toList();
     } else {
       throw Exception("Erro ao carregar laudos: ${response.body}");
     }
@@ -703,18 +774,19 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CadastroCliente(cards: cards, cadastro: cadastro),
+              builder: (context) =>
+                  CadastroCliente(cards: cards, cadastro: cadastro),
             ),
           ).then((recarregar) {
-            if (recarregar == true) { //adaptado para receber os laudos do back e carregar a pagina
+            if (recarregar == true) {
+              //adaptado para receber os laudos do back e carregar a pagina
               carregarLaudos();
             }
           });
         },
         child: Icon(Icons.add),
       ),
-      body:
-    Stack(
+      body: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
@@ -789,7 +861,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                   SizedBox(width: 10 * widthFactor),
                                   Expanded(
                                     flex: 1,
-                                    child: cards[i].fotoPath != null //Ver oq o back retorna da imagem
+                                    child:
+                                        cards[i].fotoPath !=
+                                            null //Ver oq o back retorna da imagem
                                         ? Image.file(
                                             File(cards[i].fotoPath!),
                                             fit: BoxFit.cover,
@@ -1040,7 +1114,6 @@ class CadastroCliente extends StatefulWidget {
 }
 
 class _CadastroClienteState extends State<CadastroCliente> {
-
   @override
   void initState() {
     super.initState();
@@ -1051,31 +1124,34 @@ class _CadastroClienteState extends State<CadastroCliente> {
     try {
       final clientes = await reqClientes();
       setState(() {
-        final novosClientes = clientes.where((c) => !widget.cadastro.any((a) => a.id == c.id)).toList();
+        final novosClientes = clientes
+            .where((c) => !widget.cadastro.any((a) => a.id == c.id))
+            .toList();
         widget.cadastro.addAll(novosClientes);
       });
-
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
-
   Future<List<Clientes>> reqClientes() async {
-    final url = Uri.parse("http://$ips/listar");
-    final response = await http.get(url);
+    final url = Uri.parse("http://$ips/addclientes");
+    final response = await http.post(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Clientes(
-        id: json['id'],
-        nome: json['nome'],
-        nomeanimal: json['nomeanimal'],
-        telefone: json['telefone'],
-        email: json['email'],
-        endereco: json['endereco'],
-
-      )).toList();
+      return data
+          .map(
+            (json) => Clientes(
+              id: json['id'],
+              nome: json['nome'],
+              nomeanimal: json['nomeanimal'],
+              telefone: json['telefone'],
+              email: json['email'],
+              endereco: json['endereco'],
+            ),
+          )
+          .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
@@ -1101,10 +1177,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
           final recarregar = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ClientesInfos(
-                cards: widget.cards,
-                cadastro: widget.cadastro,
-              ),
+              builder: (context) =>
+                  ClientesInfos(cards: widget.cards, cadastro: widget.cadastro),
             ),
           );
 
@@ -1114,12 +1188,11 @@ class _CadastroClienteState extends State<CadastroCliente> {
             await Navigator.push<Laudo>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PreencherInfos(
-                      cards: widget.cards,
-                      cadastro: widget.cadastro,
-                      fotos: [],
-                    ),
+                builder: (context) => PreencherInfos(
+                  cards: widget.cards,
+                  cadastro: widget.cadastro,
+                  fotos: [],
+                ),
               ),
             );
             Navigator.pop(context, true);
@@ -1228,12 +1301,12 @@ class _ClientesInfosState extends State<ClientesInfos> {
     );
 
     if (response.statusCode == 200) {
-      print("Cliente cadastrado com sucesso!");
+      debugPrint("Cliente cadastrado com sucesso!");
       final data = jsonDecode(response.body);
       return data['id'];
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      print("Erro ao cadastrar: ${data['mensagem']}");
+      debugPrint("Erro ao cadastrar: ${data['mensagem']}");
       return data['mensagem']; // Retorna a mensagem de erro
     }
   }
@@ -1335,8 +1408,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                                 ),
                               );
                               return;
-                            }
-                            else {
+                            } else {
                               await adicionarCliente();
                               nomeController.clear();
                               nomeAnimalController.clear();
@@ -1389,7 +1461,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       ),
     );
   }
-}  //backend
+} //backend
 
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
@@ -1439,6 +1511,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       final int idGerado = data["id"];
 
       final novoLaudo = Laudo(
+        clienteid: 0, //arrumar
         id: idGerado,
         animal: animalController.text,
         dono: donoController.text,
@@ -1451,25 +1524,19 @@ class _PreencherInfosState extends State<PreencherInfos> {
         fotoPath: fotoPath,
       );
 
-      print("Exame cadastrado com sucesso!");
+      debugPrint("Exame cadastrado com sucesso!");
       return novoLaudo;
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      print("Erro ao cadastrar: ${data['mensagem']}");
+      debugPrint("Erro ao cadastrar: ${data['mensagem']}");
       return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
@@ -1510,29 +1577,56 @@ class _PreencherInfosState extends State<PreencherInfos> {
                       SizedBox(height: 60 * heightFactor),
 
                       //Textfield data
-                      campoTexto(dataController, "dd/mm/aaaa", widthFactor,
-                          heightFactor, formatter: dataFormatter),
+                      campoTexto(
+                        dataController,
+                        "dd/mm/aaaa",
+                        widthFactor,
+                        heightFactor,
+                        formatter: dataFormatter,
+                      ),
 
                       SizedBox(height: 15 * heightFactor),
                       campoTexto(
-                          animalController, "Nome do animal", widthFactor,
-                          heightFactor),
-                      SizedBox(height: 15 * heightFactor),
-                      campoTexto(donoController, "Dono do animal", widthFactor,
-                          heightFactor),
+                        animalController,
+                        "Nome do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
                       SizedBox(height: 15 * heightFactor),
                       campoTexto(
-                          idadeController, "Idade do animal", widthFactor,
-                          heightFactor),
+                        donoController,
+                        "Dono do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(sexoController, "Sexo do animal", widthFactor,
-                          heightFactor),
+                      campoTexto(
+                        idadeController,
+                        "Idade do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(racaController, "Raça do animal", widthFactor,
-                          heightFactor),
+                      campoTexto(
+                        sexoController,
+                        "Sexo do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
                       SizedBox(height: 15 * heightFactor),
-                      campoTexto(pesoController, "Peso do animal", widthFactor,
-                          heightFactor),
+                      campoTexto(
+                        racaController,
+                        "Raça do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
+                      SizedBox(height: 15 * heightFactor),
+                      campoTexto(
+                        pesoController,
+                        "Peso do animal",
+                        widthFactor,
+                        heightFactor,
+                      ),
 
                       const Spacer(),
 
@@ -1551,6 +1645,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           ),
                           onPressed: () async {
                             final novoLaudo = Laudo(
+                              clienteid: 0, //arrumar
                               animal: animalController.text,
                               dono: donoController.text,
                               idade: int.tryParse(idadeController.text) ?? 0,
@@ -1575,8 +1670,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 ),
                               );
                               return;
-                            } else
-                            if (int.tryParse(idadeController.text) == 0 ||
+                            } else if (int.tryParse(idadeController.text) ==
+                                    0 ||
                                 double.tryParse(pesoController.text) == 0) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -1590,17 +1685,17 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               final fotoPath = await Navigator.push<String?>(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      Foto(
-                                        cards: [novoLaudo], // laudo temporário
-                                        cadastro: widget.cadastro,
-                                        index: 0,
-                                      ),
+                                  builder: (context) => Foto(
+                                    cards: [novoLaudo], // laudo temporário
+                                    cadastro: widget.cadastro,
+                                    index: 0,
+                                  ),
                                 ),
                               );
                               if (fotoPath != null && fotoPath.isNotEmpty) {
                                 final novoLaudo = await adicionarLaudo(
-                                    fotoPath);
+                                  fotoPath,
+                                );
 
                                 if (novoLaudo != null) {
                                   setState(() {
@@ -1632,9 +1727,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
     );
   }
 
-  Widget campoTexto(TextEditingController controller, String hint,
-      double widthFactor, double heightFactor,
-      {TextInputFormatter? formatter}) {
+  Widget campoTexto(
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    TextInputFormatter? formatter,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1656,7 +1755,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-}// backend
+} // backend
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
@@ -2043,7 +2142,8 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
     final pdf = pw.Document();
 
     pw.ImageProvider? imageProvider;
-    if (widget.laudo.fotoPath != null && File(widget.laudo.fotoPath!).existsSync()) {
+    if (widget.laudo.fotoPath != null &&
+        File(widget.laudo.fotoPath!).existsSync()) {
       final imageFile = File(widget.laudo.fotoPath!);
       final imageBytes = await imageFile.readAsBytes();
       imageProvider = pw.MemoryImage(imageBytes);
@@ -2070,40 +2170,94 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
 
               pw.SizedBox(height: 24),
 
-              pw.Text('Dados do Paciente:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Dados do Paciente:',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.Divider(),
 
-              pw.Text('Dono: ${widget.laudo.dono}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Animal: ${widget.laudo.animal}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Idade: ${widget.laudo.idade}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Sexo: ${widget.laudo.sexo}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Raça: ${widget.laudo.raca}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Peso: ${widget.laudo.peso}', style: pw.TextStyle(fontSize: 14)),
-              pw.Text('Data do Exame: ${widget.laudo.data}', style: pw.TextStyle(fontSize: 14)),
+              pw.Text(
+                'Dono: ${widget.laudo.dono}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Animal: ${widget.laudo.animal}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Idade: ${widget.laudo.idade}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Sexo: ${widget.laudo.sexo}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Raça: ${widget.laudo.raca}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Peso: ${widget.laudo.peso}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Data do Exame: ${widget.laudo.data}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
 
               pw.SizedBox(height: 24),
               // OBSERVAÇÕES
-              pw.Text('Observações:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Observações:',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.Divider(),
               pw.Text(
-                observacao.isNotEmpty ? observacao : 'Nenhuma observação registrada.',
+                observacao.isNotEmpty
+                    ? observacao
+                    : 'Nenhuma observação registrada.',
                 style: pw.TextStyle(fontSize: 14),
               ),
 
               if (imageProvider != null) ...[
-                pw.Text('Imagem do Exame:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.Text(
+                  'Imagem do Exame:',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
                 pw.SizedBox(height: 10),
                 pw.Center(
-                  child: pw.Image(imageProvider, height: 200, fit: pw.BoxFit.contain),
+                  child: pw.Image(
+                    imageProvider,
+                    height: 200,
+                    fit: pw.BoxFit.contain,
+                  ),
                 ),
                 pw.SizedBox(height: 24),
               ],
 
               pw.Spacer(),
-              pw.Text('Assinatura do(a) Veterinário(a): _______________________________', style: pw.TextStyle(fontSize: 14)),
+              pw.Text(
+                'Assinatura do(a) Veterinário(a): _______________________________',
+                style: pw.TextStyle(fontSize: 14),
+              ),
               pw.SizedBox(height: 10),
 
-              pw.Text('CRMV-SP 12345', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'CRMV-SP 12345',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
             ],
           );
         },
@@ -2133,19 +2287,18 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
         downloadsDir = await getApplicationDocumentsDirectory();
       }
 
-      final filePath = '${downloadsDir.path}/laudo_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filePath =
+          '${downloadsDir.path}/laudo_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final file = File(filePath);
 
       await file.writeAsBytes(pdfBytes);
 
       await OpenFile.open(file.path);
-      print('PDF salvo em: ${file.path}');
+      debugPrint('PDF salvo em: ${file.path}');
     } catch (e) {
-      print('Erro ao salvar PDF: $e');
+      debugPrint('Erro ao salvar PDF: $e');
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -2311,9 +2464,9 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           width: 330 * widthFactor,
                           child: widget.laudo.fotoPath != null
                               ? Image.file(
-                            File(widget.laudo.fotoPath!),
-                            fit: BoxFit.fill,
-                          )
+                                  File(widget.laudo.fotoPath!),
+                                  fit: BoxFit.fill,
+                                )
                               : Container(color: Colors.grey),
                         ),
                       ),
@@ -2333,7 +2486,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                             maxLines: null,
                             decoration: const InputDecoration(
                               hintText:
-                              'Adicione observações caso seja necessário: ',
+                                  'Adicione observações caso seja necessário: ',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -2355,22 +2508,30 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   padding: EdgeInsets.symmetric(
                                     vertical: 3 * heightFactor,
                                   ),
-                                  textStyle: TextStyle(fontSize: 13 * widthFactor),
+                                  textStyle: TextStyle(
+                                    fontSize: 13 * widthFactor,
+                                  ),
                                 ),
                                 onPressed: () async {
                                   setState(() {
-                                    widget.laudo.observacao = observacaoController.text;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('PDF gerado! Abrindo visualização')),
-                                    );
-                                    final observacao = widget.laudo.observacao ?? '';
-                                    final pdfData = await generatePdf(observacao);
-                                    await savePdfToDownloads(pdfData);
-                                    await Printing.layoutPdf(
-                                        onLayout: (PdfPageFormat format) async => pdfData,
-                                    );
-
+                                    widget.laudo.observacao =
+                                        observacaoController.text;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'PDF gerado! Abrindo visualização',
+                                      ),
+                                    ),
+                                  );
+                                  final observacao =
+                                      widget.laudo.observacao ?? '';
+                                  final pdfData = await generatePdf(observacao);
+                                  await savePdfToDownloads(pdfData);
+                                  await Printing.layoutPdf(
+                                    onLayout: (PdfPageFormat format) async =>
+                                        pdfData,
+                                  );
                                 },
                                 child: const Text("Baixar PDF"),
                               ),
@@ -2384,17 +2545,19 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   padding: EdgeInsets.symmetric(
                                     vertical: 3 * heightFactor,
                                   ),
-                                  textStyle: TextStyle(fontSize: 13 * widthFactor),
+                                  textStyle: TextStyle(
+                                    fontSize: 13 * widthFactor,
+                                  ),
                                 ),
                                 onPressed: () {
-                                  Navigator.pop(context,);
+                                  Navigator.pop(context);
                                 },
                                 child: const Text("Voltar"),
                               ),
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -2406,4 +2569,3 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
     );
   }
 }
-
