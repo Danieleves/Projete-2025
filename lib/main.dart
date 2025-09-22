@@ -1017,6 +1017,7 @@ class Clientes {
   String telefone;
   String email;
   String endereco;
+  int id;
 
   Clientes({
     required this.nome,
@@ -1024,6 +1025,7 @@ class Clientes {
     required this.telefone,
     required this.email,
     required this.endereco,
+    required this.id,
   });
 }
 
@@ -1038,8 +1040,45 @@ class CadastroCliente extends StatefulWidget {
 }
 
 class _CadastroClienteState extends State<CadastroCliente> {
-  void atualizarTela() {
-    setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    carregarClientes();
+  }
+
+  void carregarClientes() async {
+    try {
+      final clientes = await reqClientes();
+      setState(() {
+        final novosClientes = clientes.where((c) => !widget.cadastro.any((a) => a.id == c.id)).toList();
+        widget.cadastro.addAll(novosClientes);
+      });
+
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+
+  Future<List<Clientes>> reqClientes() async {
+    final url = Uri.parse("http://$ips/listar");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Clientes(
+        id: json['id'],
+        nome: json['nome'],
+        nomeanimal: json['nomeanimal'],
+        telefone: json['telefone'],
+        email: json['email'],
+        endereco: json['endereco'],
+
+      )).toList();
+    } else {
+      throw Exception("Erro ao carregar clientes: ${response.body}");
+    }
   }
 
   @override
@@ -1059,27 +1098,28 @@ class _CadastroClienteState extends State<CadastroCliente> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final novoCliente = await Navigator.push<Clientes>(
+          final recarregar = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ClientesInfos(cards: widget.cards, cadastro: widget.cadastro),
+              builder: (context) => ClientesInfos(
+                cards: widget.cards,
+                cadastro: widget.cadastro,
+              ),
             ),
           );
 
-          if (novoCliente != null) {
-            setState(() {
-              widget.cadastro.add(novoCliente);
-            });
+          if (recarregar == true) {
+            carregarClientes();
 
-            final novoLaudo = await Navigator.push<Laudo>(
+            await Navigator.push<Laudo>(
               context,
               MaterialPageRoute(
-                builder: (context) => PreencherInfos(
-                  cards: widget.cards,
-                  cadastro: widget.cadastro,
-                  fotos: [],
-                ),
+                builder: (context) =>
+                    PreencherInfos(
+                      cards: widget.cards,
+                      cadastro: widget.cadastro,
+                      fotos: [],
+                    ),
               ),
             );
             Navigator.pop(context, true);
@@ -1171,7 +1211,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
   TextEditingController enderecoController = TextEditingController();
 
   //conexão backend
-  Future<void> adicionarCliente() async {
+  Future<int> adicionarCliente() async {
     final url = Uri.parse("http://$ips/clientes");
 
     final response = await http.post(
@@ -1180,7 +1220,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       body: jsonEncode({
         "usuarioid": 10,
         "nome": nomeController.text,
-        "nomeAnimal": nomeAnimalController.text,
+        "nomeanimal": nomeAnimalController.text,
         "telefone": telefoneController.text,
         "email": emailController.text,
         "endereco": enderecoController.text,
@@ -1189,6 +1229,8 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
     if (response.statusCode == 200) {
       print("Cliente cadastrado com sucesso!");
+      final data = jsonDecode(response.body);
+      return data['id'];
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       print("Erro ao cadastrar: ${data['mensagem']}");
@@ -1281,14 +1323,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          onPressed: () {
-                            final novoCliente = Clientes(
-                              nome: nomeController.text,
-                              nomeanimal: nomeAnimalController.text,
-                              telefone: telefoneController.text,
-                              email: emailController.text,
-                              endereco: enderecoController.text,
-                            );
+                          onPressed: () async {
                             if (nomeController.text.isEmpty ||
                                 nomeAnimalController.text.isEmpty ||
                                 telefoneController.text.isEmpty ||
@@ -1300,15 +1335,16 @@ class _ClientesInfosState extends State<ClientesInfos> {
                                 ),
                               );
                               return;
-                            } else {
-                              adicionarCliente();
+                            }
+                            else {
+                              await adicionarCliente();
                               nomeController.clear();
                               nomeAnimalController.clear();
                               telefoneController.clear();
                               emailController.clear();
                               enderecoController.clear();
 
-                              Navigator.pop(context, novoCliente);
+                              Navigator.pop(context, true);
                             }
                           },
                           child: Text("Confirmar"),
