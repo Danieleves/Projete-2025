@@ -87,12 +87,6 @@ class TelaInicial extends StatelessWidget {
   }
 }
 
-class Validar {
-  String user;
-  String senha;
-  Validar({required this.user, required this.senha});
-}
-
 class Ids {
   int userid;
   Ids({required this.userid});
@@ -106,7 +100,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  List<Validar> validacao = [];
   List<Ids> validarr = [];
   TextEditingController userController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
@@ -171,7 +164,6 @@ class _LoginState extends State<Login> {
       return "Erro de conexão com o servidor";
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -426,7 +418,6 @@ class _SignupState extends State<Signup> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -779,7 +770,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
             ),
           ).then((recarregar) {
             if (recarregar == true) {
-              //adaptado para receber os laudos do back e carregar a pagina
+              //adaptado para receber os laudos do backend e carregar a pagina
               carregarLaudos();
             }
           });
@@ -863,7 +854,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     flex: 1,
                                     child:
                                         cards[i].fotoPath !=
-                                            null //Ver oq o back retorna da imagem
+                                            null
                                         ? Image.file(
                                             File(cards[i].fotoPath!),
                                             fit: BoxFit.cover,
