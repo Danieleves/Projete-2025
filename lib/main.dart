@@ -26,12 +26,13 @@ var mobileFormatter = MaskTextInputFormatter(
 
 var ips = "172.20.10.2:5000";
 
+int? idVeterinario;
+
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
 }
 
 class TelaInicial extends StatelessWidget {
-  final List<Cadastro> usuarios = [];
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +74,7 @@ class TelaInicial extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Login(usuarios: usuarios),
+                      builder: (context) => Login(),
                     ),
                   );
                 },
@@ -93,8 +94,6 @@ class Ids {
 }
 
 class Login extends StatefulWidget {
-  final List<Cadastro> usuarios;
-  const Login({required this.usuarios, Key? key}) : super(key: key);
   @override
   _LoginState createState() => _LoginState();
 }
@@ -150,12 +149,16 @@ class _LoginState extends State<Login> {
       );
 
       if (response.statusCode == 200) {
-        debugPrint("Usuário correto!");
-        return null;
-      } else {
-        debugPrint("Status: ${response.statusCode}");
-        debugPrint("Body: ${response.body}");
+        final Map<String, dynamic> data = jsonDecode(response.body);
 
+        if (data.containsKey('id')) {
+          idVeterinario = data['id'];
+          debugPrint("Id do Veterinário=$idVeterinario");
+          return null;
+        } else {
+          return "Veterinário não identificado no servidor";
+        }
+      } else {
         final Map<String, dynamic> data = jsonDecode(response.body);
         return data['mensagem'] ?? "Usuário ou senha inválidos";
       }
@@ -293,7 +296,7 @@ class _LoginState extends State<Login> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      PrimeiraTela(usuarios: widget.usuarios),
+                                      PrimeiraTela(),
                                   settings: RouteSettings(name: 'PrimeiraTela'),
                                 ),
                               );
@@ -331,7 +334,7 @@ class _LoginState extends State<Login> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  Signup(usuarios: widget.usuarios),
+                                  Signup(),
                             ),
                           );
                         },
@@ -372,8 +375,6 @@ class Cadastro {
 }
 
 class Signup extends StatefulWidget {
-  final List<Cadastro> usuarios;
-  const Signup({required this.usuarios, Key? key}) : super(key: key);
   @override
   _SignupState createState() => _SignupState();
 }
@@ -404,7 +405,9 @@ class _SignupState extends State<Signup> {
     debugPrint(emailController.text);
 
     if (response.statusCode == 200) {
-      debugPrint("Usuário cadastrado com sucesso!");
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      idVeterinario = data['id'];
+      debugPrint("Id do Veterinário=$idVeterinario");
       return null;
     } else {
       try {
@@ -588,13 +591,6 @@ class _SignupState extends State<Signup> {
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
                           onPressed: () async {
-                            final novocadastro = Cadastro(
-                              phone: phoneController.text,
-                              email: emailController.text,
-                              usuario: usuarioController.text,
-                              senha: senhaController.text,
-                              confirm: confirmController.text,
-                            );
                             if (senhaController.text !=
                                 confirmController.text) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -620,7 +616,6 @@ class _SignupState extends State<Signup> {
                               ).showSnackBar(SnackBar(content: Text(erro)));
                               return;
                             } else {
-                              widget.usuarios.add(novocadastro);
                               phoneController.clear();
                               emailController.clear();
                               usuarioController.clear();
@@ -643,7 +638,7 @@ class _SignupState extends State<Signup> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Login(usuarios: []),
+                              builder: (context) => Login(),
                             ),
                           );
                         },
@@ -696,8 +691,6 @@ class Laudo {
 }
 
 class PrimeiraTela extends StatefulWidget {
-  final List<Cadastro> usuarios;
-  PrimeiraTela({required this.usuarios, Key? key}) : super(key: key);
   @override
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
@@ -725,7 +718,10 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
   Future<List<Laudo>> reqLaudos() async {
     final url = Uri.parse("http://$ips/verifyexame");
-    final response = await http.post(url);
+    final response = await http.post(url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioid": idVeterinario}),
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -852,16 +848,15 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                   SizedBox(width: 10 * widthFactor),
                                   Expanded(
                                     flex: 1,
-                                    child:
-                                        cards[i].fotoPath !=
-                                            null
-                                        ? Image.file(
-                                            File(cards[i].fotoPath!),
-                                            fit: BoxFit.cover,
-                                            height: double.infinity,
-                                          )
-                                        : Container(color: Colors.grey),
-                                  ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: AssetImage('image/dermapetbottomless.png'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
@@ -1282,7 +1277,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "usuarioid": 10,
+        "usuarioid": idVeterinario,
         "nome": nomeController.text,
         "nomeanimal": nomeAnimalController.text,
         "telefone": telefoneController.text,
@@ -1478,6 +1473,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
   TextEditingController pesoController = TextEditingController();
   TextEditingController dataController = TextEditingController();
 
+  bool _salvando = false;
+
   //conexão backend
   Future<Laudo?> adicionarLaudo(String fotoPath) async {
     final url = Uri.parse("http://$ips/cadastrar");
@@ -1486,6 +1483,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
+        "usuarioid": idVeterinario,
         //"animal": animalController.text,
         //"dono": donoController.text,
         //"idade": idadeController.text,
@@ -1493,7 +1491,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
         "raca": racaController.text,
         //"peso": pesoController.text,
         //"data": dataController.text,
-        "fotoPath": fotoPath,
+        //"fotoPath": fotoPath,
       }),
     );
 
@@ -1634,20 +1632,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          onPressed: () async {
-                            final novoLaudo = Laudo(
-                              clienteid: 0, //arrumar
-                              animal: animalController.text,
-                              dono: donoController.text,
-                              idade: int.tryParse(idadeController.text) ?? 0,
-                              sexo: sexoController.text,
-                              raca: racaController.text,
-                              peso: double.tryParse(pesoController.text) ?? 0,
-                              data: dataController.text,
-                              id: widget.cards.length + 1,
-                              observacao: null,
-                              fotoPath: null,
-                            );
+                          onPressed: _salvando ? null :() async {
+                            setState(() => _salvando = true);
                             if (animalController.text.isEmpty ||
                                 donoController.text.isEmpty ||
                                 idadeController.text.isEmpty ||
@@ -1660,6 +1646,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   content: Text('Preencha todos os campos'),
                                 ),
                               );
+                              setState(() => _salvando = false);
                               return;
                             } else if (int.tryParse(idadeController.text) ==
                                     0 ||
@@ -1671,13 +1658,14 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   ),
                                 ),
                               );
+                              setState(() => _salvando = false);
                               return;
                             } else {
                               final fotoPath = await Navigator.push<String?>(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Foto(
-                                    cards: [novoLaudo], // laudo temporário
+                                    cards: [],
                                     cadastro: widget.cadastro,
                                     index: 0,
                                   ),
@@ -1687,10 +1675,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 final novoLaudo = await adicionarLaudo(
                                   fotoPath,
                                 );
+                                setState(() => _salvando = false);
 
                                 if (novoLaudo != null) {
                                   setState(() {
-                                    widget.cards.add(novoLaudo);
                                     animalController.clear();
                                     donoController.clear();
                                     idadeController.clear();
@@ -1702,9 +1690,12 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                   Navigator.pop(context, novoLaudo);
                                 }
                               }
+                              setState(() => _salvando = false);
                             }
                           },
-                          child: const Text("Confirmar"),
+                          child: _salvando
+                              ? CircularProgressIndicator()
+                              : Text("Confirmar"),
                         ),
                       ),
                     ],
@@ -2132,14 +2123,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
   Future<Uint8List> generatePdf(String observacao) async {
     final pdf = pw.Document();
 
-    pw.ImageProvider? imageProvider;
-    if (widget.laudo.fotoPath != null &&
-        File(widget.laudo.fotoPath!).existsSync()) {
-      final imageFile = File(widget.laudo.fotoPath!);
-      final imageBytes = await imageFile.readAsBytes();
-      imageProvider = pw.MemoryImage(imageBytes);
-    }
-
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -2215,25 +2198,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                     : 'Nenhuma observação registrada.',
                 style: pw.TextStyle(fontSize: 14),
               ),
-
-              if (imageProvider != null) ...[
-                pw.Text(
-                  'Imagem do Exame:',
-                  style: pw.TextStyle(
-                    fontSize: 18,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-                pw.SizedBox(height: 10),
-                pw.Center(
-                  child: pw.Image(
-                    imageProvider,
-                    height: 200,
-                    fit: pw.BoxFit.contain,
-                  ),
-                ),
-                pw.SizedBox(height: 24),
-              ],
 
               pw.Spacer(),
               pw.Text(
@@ -2447,27 +2411,11 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ),
                       SizedBox(height: 20 * heightFactor),
 
-                      // Foto
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12 * widthFactor),
-                        child: Container(
-                          height: 110 * heightFactor,
-                          width: 330 * widthFactor,
-                          child: widget.laudo.fotoPath != null
-                              ? Image.file(
-                                  File(widget.laudo.fotoPath!),
-                                  fit: BoxFit.fill,
-                                )
-                              : Container(color: Colors.grey),
-                        ),
-                      ),
-                      SizedBox(height: 20 * heightFactor),
-
                       // Observação
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 130 * heightFactor,
+                          height: 230 * heightFactor,
                           width: 330 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
