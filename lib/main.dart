@@ -24,7 +24,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-var ips = "172.20.10.2:5000";
+const String ips = "172.20.10.2:5000";
 
 int? idVeterinario;
 
@@ -130,12 +130,12 @@ class _LoginState extends State<Login> {
       debugPrint(lista.toString());
       return lista;
     } else {
-      throw Exception("Erro ao carregar laudos: ${response.body}");
+      throw Exception("Erro ao carregar usuarios: ${response.body}");
     }
   }
 
   //conexão backend
-  Future<String?> Verificaruser() async {
+  Future<String?> verificaruser() async {
     final url = Uri.parse("http://$ips/verifyuser");
 
     try {
@@ -283,7 +283,7 @@ class _LoginState extends State<Login> {
                               );
                               return;
                             }
-                            String? erro = await Verificaruser();
+                            String? erro = await verificaruser();
                             if (erro != null) {
                               ScaffoldMessenger.of(
                                 context,
@@ -405,9 +405,6 @@ class _SignupState extends State<Signup> {
     debugPrint(emailController.text);
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      idVeterinario = data['id'];
-      debugPrint("Id do Veterinário=$idVeterinario");
       return null;
     } else {
       try {
@@ -1270,8 +1267,8 @@ class _ClientesInfosState extends State<ClientesInfos> {
   TextEditingController enderecoController = TextEditingController();
 
   //conexão backend
-  Future<int> adicionarCliente() async {
-    final url = Uri.parse("http://$ips/clientes");
+  Future<String> adicionarCliente() async {
+    final url = Uri.parse("http://$ips/addclientes");
 
     final response = await http.post(
       url,
@@ -1286,6 +1283,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       }),
     );
 
+    //arrumar snackbar
     if (response.statusCode == 200) {
       debugPrint("Cliente cadastrado com sucesso!");
       final data = jsonDecode(response.body);
@@ -1477,7 +1475,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   //conexão backend
   Future<Laudo?> adicionarLaudo(String fotoPath) async {
-    final url = Uri.parse("http://$ips/cadastrar");
+    final url = Uri.parse("http://$ips/addexame");
 
     final response = await http.post(
       url,
