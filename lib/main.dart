@@ -33,7 +33,6 @@ void main() {
 }
 
 class TelaInicial extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -73,9 +72,7 @@ class TelaInicial extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => Login(),
-                    ),
+                    MaterialPageRoute(builder: (context) => Login()),
                   );
                 },
                 child: const Text("Iniciar"),
@@ -295,8 +292,7 @@ class _LoginState extends State<Login> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      PrimeiraTela(),
+                                  builder: (context) => PrimeiraTela(),
                                   settings: RouteSettings(name: 'PrimeiraTela'),
                                 ),
                               );
@@ -332,10 +328,7 @@ class _LoginState extends State<Login> {
                           senhaController.clear();
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  Signup(),
-                            ),
+                            MaterialPageRoute(builder: (context) => Signup()),
                           );
                         },
                         child: Text(
@@ -634,9 +627,7 @@ class _SignupState extends State<Signup> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => Login(),
-                            ),
+                            MaterialPageRoute(builder: (context) => Login()),
                           );
                         },
                         child: Text(
@@ -662,25 +653,25 @@ class _SignupState extends State<Signup> {
 
 class Laudo {
   String animal;
-  String dono;
   int idade;
   String sexo;
   String raca;
   double peso;
   String data;
   int id;
+  int usuarioid;
   int clienteid;
   String? observacao;
   String? fotoPath;
   Laudo({
     required this.animal,
-    required this.dono,
     required this.idade,
     required this.sexo,
     required this.raca,
     required this.peso,
     required this.data,
     required this.id,
+    required this.usuarioid,
     required this.clienteid,
     required this.observacao,
     required this.fotoPath,
@@ -695,27 +686,34 @@ class PrimeiraTela extends StatefulWidget {
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
+  Map<int, String> clienteMap = {};
 
   @override
   void initState() {
     super.initState();
-    carregarLaudos();
+    carregarDados();
   }
 
-  void carregarLaudos() async {
+  Future<void> carregarDados() async {
     try {
+      final clientes = await reqClientes();
+      setState(() {
+        cadastro = clientes;
+        clienteMap = {for (var c in clientes) c.id: c.nome};
+      });
       final laudos = await reqLaudos();
       setState(() {
         cards = laudos;
       });
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint("Erro ao carregar dados: $e");
     }
   }
 
   Future<List<Laudo>> reqLaudos() async {
     final url = Uri.parse("http://$ips/verifyexame");
-    final response = await http.post(url,
+    final response = await http.post(
+      url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"usuarioid": idVeterinario}),
     );
@@ -725,17 +723,17 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       return data
           .map(
             (json) => Laudo(
-              clienteid: json['cliente_id'],
+              usuarioid: json['usuarioid'],
               id: json['id'],
-              animal: json['animal'],
-              dono: json[null],
-              idade: json['idade'],
-              sexo: json['sexo'],
-              raca: json['raca'],
-              peso: (json['peso'] as num).toDouble(),
-              data: json['data'],
+              animal: json['animal'] ?? '',
+              clienteid: json['clienteid'] ?? 0,
+              idade: json['idade'] ?? 0,
+              sexo: json['sexo'] ?? '',
+              raca: json['raca'] ?? '',
+              peso: (json['peso'] as num?)?.toDouble() ?? 0,
+              data: json['data'] ?? '',
               observacao: json['observacao'],
-              fotoPath: json[null], //mudar cards e flex
+              fotoPath: json['fotoPath'] ?? '',
             ),
           )
           .toList();
@@ -744,29 +742,49 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     }
   }
 
+  Future<List<Clientes>> reqClientes() async {
+    final url = Uri.parse("http://$ips/addclientes");
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data
+          .map(
+            (json) => Clientes(
+              id: json['id'],
+              nome: json['nome'] ?? '',
+              nomeanimal: json['nomeanimal'] ?? '',
+              telefone: json['telefone'] ?? '',
+              email: json['email'] ?? '',
+              endereco: json['endereco'] ?? '',
+            ),
+          )
+          .toList();
+    } else {
+      throw Exception("Erro ao carregar clientes: ${response.body}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final recarregar = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
                   CadastroCliente(cards: cards, cadastro: cadastro),
             ),
-          ).then((recarregar) {
-            if (recarregar == true) {
-              //adaptado para receber os laudos do backend e carregar a pagina
-              carregarLaudos();
-            }
-          });
+          );
+          if (recarregar == true) {
+            await carregarDados();
+          }
         },
         child: Icon(Icons.add),
       ),
@@ -792,8 +810,10 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  DetalhesLaudo(laudo: cards[i]),
+                              builder: (context) => DetalhesLaudo(
+                                laudo: cards[i],
+                                clienteMap: clienteMap,
+                              ),
                             ),
                           );
                         },
@@ -822,7 +842,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                         ),
                                         SizedBox(height: 15 * heightFactor),
                                         Text(
-                                          'Dono: ${cards[i].dono}',
+                                          'Dono: ${clienteMap[cards[i].clienteid] ?? 'Cliente Desconhecido'}',
                                           style: TextStyle(
                                             fontSize: 14 * widthFactor,
                                           ),
@@ -848,12 +868,14 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
-                                          image: AssetImage('image/dermapetbottomless.png'),
+                                          image: AssetImage(
+                                            'image/dermapetbottomless.png',
+                                          ),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -1097,6 +1119,7 @@ class CadastroCliente extends StatefulWidget {
 }
 
 class _CadastroClienteState extends State<CadastroCliente> {
+  List<Clientes> clientes = [];
   @override
   void initState() {
     super.initState();
@@ -1105,12 +1128,9 @@ class _CadastroClienteState extends State<CadastroCliente> {
 
   void carregarClientes() async {
     try {
-      final clientes = await reqClientes();
+      final novos = await reqClientes();
       setState(() {
-        final novosClientes = clientes
-            .where((c) => !widget.cadastro.any((a) => a.id == c.id))
-            .toList();
-        widget.cadastro.addAll(novosClientes);
+        clientes = novos;
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -1154,7 +1174,14 @@ class _CadastroClienteState extends State<CadastroCliente> {
         backgroundColor: Colors.transparent,
         elevation: 0.1,
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, size: 24 * widthFactor),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final recarregar = await Navigator.push(
@@ -1167,18 +1194,6 @@ class _CadastroClienteState extends State<CadastroCliente> {
 
           if (recarregar == true) {
             carregarClientes();
-
-            await Navigator.push<Laudo>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PreencherInfos(
-                  cards: widget.cards,
-                  cadastro: widget.cadastro,
-                  fotos: [],
-                ),
-              ),
-            );
-            Navigator.pop(context, true);
           }
         },
         child: Icon(Icons.add, size: 24 * widthFactor),
@@ -1198,8 +1213,24 @@ class _CadastroClienteState extends State<CadastroCliente> {
               SizedBox(height: 70 * heightFactor),
               Column(
                 children: [
-                  for (int i = 0; i < widget.cadastro.length; i++) ...[
-                    Center(
+                  for (var cliente in clientes) ...[
+                    GestureDetector(
+                      onTap: () async {
+                        final laudosDoCliente = widget.cards
+                            .where((l) => l.clienteid == cliente.id)
+                            .toList();
+
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ClienteDetalhes(
+                              cliente: cliente,
+                              laudos: laudosDoCliente,
+                              cadastro: widget.cadastro,
+                            ),
+                          ),
+                        );
+                      },
                       child: Card(
                         child: SizedBox(
                           height: 130.0 * heightFactor,
@@ -1208,28 +1239,10 @@ class _CadastroClienteState extends State<CadastroCliente> {
                             padding: EdgeInsets.all(8.0 * widthFactor),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Card: ${i + 1}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16 * widthFactor,
-                                  ),
-                                ),
-                                SizedBox(height: 10 * heightFactor),
-                                Text(
-                                  'Animal: ${widget.cadastro[i].nomeanimal}',
-                                  style: TextStyle(fontSize: 14 * widthFactor),
-                                ),
-                                Text(
-                                  'Dono: ${widget.cadastro[i].nome}',
-                                  style: TextStyle(fontSize: 14 * widthFactor),
-                                ),
-                                Text(
-                                  'Endereço: ${widget.cadastro[i].endereco}',
-                                  style: TextStyle(fontSize: 14 * widthFactor),
-                                ),
+                                Text('Animal: ${cliente.nomeanimal}'),
+                                Text('Dono: ${cliente.nome}'),
+                                Text('Endereço: ${cliente.endereco}'),
                               ],
                             ),
                           ),
@@ -1265,6 +1278,8 @@ class _ClientesInfosState extends State<ClientesInfos> {
   TextEditingController telefoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController enderecoController = TextEditingController();
+
+  bool _salvando = false;
 
   //conexão backend
   Future<String> adicionarCliente() async {
@@ -1380,30 +1395,55 @@ class _ClientesInfosState extends State<ClientesInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          onPressed: () async {
-                            if (nomeController.text.isEmpty ||
-                                nomeAnimalController.text.isEmpty ||
-                                telefoneController.text.isEmpty ||
-                                emailController.text.isEmpty ||
-                                enderecoController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Preencha todos os campos'),
-                                ),
-                              );
-                              return;
-                            } else {
-                              await adicionarCliente();
-                              nomeController.clear();
-                              nomeAnimalController.clear();
-                              telefoneController.clear();
-                              emailController.clear();
-                              enderecoController.clear();
+                          onPressed: _salvando
+                              ? null
+                              : () async {
+                                  setState(() => _salvando = true);
 
-                              Navigator.pop(context, true);
-                            }
-                          },
-                          child: Text("Confirmar"),
+                                  if (nomeController.text.isEmpty ||
+                                      nomeAnimalController.text.isEmpty ||
+                                      telefoneController.text.isEmpty ||
+                                      emailController.text.isEmpty ||
+                                      enderecoController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
+
+                                  try {
+                                    final clienteId = await adicionarCliente();
+                                    debugPrint(
+                                      "Cliente cadastrado com sucesso: $clienteId",
+                                    );
+
+                                    nomeController.clear();
+                                    nomeAnimalController.clear();
+                                    telefoneController.clear();
+                                    emailController.clear();
+                                    enderecoController.clear();
+
+                                    Navigator.pop(context, true);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao cadastrar cliente: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  setState(() => _salvando = false);
+                                },
+                          child: _salvando
+                              ? CircularProgressIndicator()
+                              : Text("Confirmar"),
                         ),
                       ),
                     ],
@@ -1451,10 +1491,12 @@ class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   final List<String> fotos;
+  final Clientes clienteSelecionado;
   PreencherInfos({
     required this.cards,
     required this.cadastro,
     required this.fotos,
+    required this.clienteSelecionado,
     Key? key,
   }) : super(key: key);
   @override
@@ -1474,49 +1516,31 @@ class _PreencherInfosState extends State<PreencherInfos> {
   bool _salvando = false;
 
   //conexão backend
-  Future<Laudo?> adicionarLaudo(String fotoPath) async {
+  Future<String> adicionarLaudo(String fotoPath) async {
     final url = Uri.parse("http://$ips/addexame");
+
+    final clienteId = widget.clienteSelecionado.id;
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "usuarioid": idVeterinario,
-        //"animal": animalController.text,
-        //"dono": donoController.text,
-        //"idade": idadeController.text,
+        "clienteid": clienteId,
         "sexo": sexoController.text,
         "raca": racaController.text,
-        //"peso": pesoController.text,
-        //"data": dataController.text,
-        //"fotoPath": fotoPath,
       }),
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       final int idGerado = data["id"];
-
-      final novoLaudo = Laudo(
-        clienteid: 0, //arrumar
-        id: idGerado,
-        animal: animalController.text,
-        dono: donoController.text,
-        idade: int.tryParse(idadeController.text) ?? 0,
-        sexo: sexoController.text,
-        raca: racaController.text,
-        peso: double.tryParse(pesoController.text) ?? 0,
-        data: dataController.text,
-        observacao: null,
-        fotoPath: fotoPath,
-      );
-
-      debugPrint("Exame cadastrado com sucesso!");
-      return novoLaudo;
+      debugPrint("Exame cadastrado com sucesso! ID: $idGerado");
+      return idGerado.toString();
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       debugPrint("Erro ao cadastrar: ${data['mensagem']}");
-      return null;
+      throw Exception("Erro ao cadastrar: ${data['mensagem']}");
     }
   }
 
@@ -1630,67 +1654,83 @@ class _PreencherInfosState extends State<PreencherInfos> {
                             ),
                             textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          onPressed: _salvando ? null :() async {
-                            setState(() => _salvando = true);
-                            if (animalController.text.isEmpty ||
-                                donoController.text.isEmpty ||
-                                idadeController.text.isEmpty ||
-                                sexoController.text.isEmpty ||
-                                racaController.text.isEmpty ||
-                                pesoController.text.isEmpty ||
-                                dataController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Preencha todos os campos'),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            } else if (int.tryParse(idadeController.text) ==
-                                    0 ||
-                                double.tryParse(pesoController.text) == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha os campos corretamente',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            } else {
-                              final fotoPath = await Navigator.push<String?>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Foto(
-                                    cards: [],
-                                    cadastro: widget.cadastro,
-                                    index: 0,
-                                  ),
-                                ),
-                              );
-                              if (fotoPath != null && fotoPath.isNotEmpty) {
-                                final novoLaudo = await adicionarLaudo(
-                                  fotoPath,
-                                );
-                                setState(() => _salvando = false);
+                          onPressed: _salvando
+                              ? null
+                              : () async {
+                                  setState(() => _salvando = true);
 
-                                if (novoLaudo != null) {
-                                  setState(() {
-                                    animalController.clear();
-                                    donoController.clear();
-                                    idadeController.clear();
-                                    sexoController.clear();
-                                    racaController.clear();
-                                    pesoController.clear();
-                                    dataController.clear();
-                                  });
-                                  Navigator.pop(context, novoLaudo);
-                                }
-                              }
-                              setState(() => _salvando = false);
-                            }
-                          },
+                                  if (animalController.text.isEmpty ||
+                                      donoController.text.isEmpty ||
+                                      idadeController.text.isEmpty ||
+                                      sexoController.text.isEmpty ||
+                                      racaController.text.isEmpty ||
+                                      pesoController.text.isEmpty ||
+                                      dataController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  } else if (int.tryParse(
+                                            idadeController.text,
+                                          ) ==
+                                          0 ||
+                                      double.tryParse(pesoController.text) ==
+                                          0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha os campos corretamente',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
+
+                                  final fotoPath =
+                                      await Navigator.push<String?>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Foto(
+                                            cards: [],
+                                            cadastro: widget.cadastro,
+                                            index: 0,
+                                          ),
+                                        ),
+                                      );
+
+                                  if (fotoPath != null && fotoPath.isNotEmpty) {
+                                    try {
+                                      await adicionarLaudo(fotoPath);
+                                      animalController.clear();
+                                      donoController.clear();
+                                      idadeController.clear();
+                                      sexoController.clear();
+                                      racaController.clear();
+                                      pesoController.clear();
+                                      dataController.clear();
+                                      Navigator.pop(context);
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Erro ao cadastrar exame: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
+
+                                  setState(() => _salvando = false);
+                                },
+
                           child: _salvando
                               ? CircularProgressIndicator()
                               : Text("Confirmar"),
@@ -1752,7 +1792,6 @@ class Foto extends StatefulWidget {
 }
 
 class _FotoState extends State<Foto> {
-  List<String> fotos = [];
   String? fotoPath;
 
   void atualizarFoto() {
@@ -2103,13 +2142,17 @@ class _AccountState extends State<Account> {
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
-  DetalhesLaudo({required this.laudo, Key? key}) : super(key: key);
+  final Map<int, String> clienteMap;
+  DetalhesLaudo({required this.laudo, required this.clienteMap, Key? key})
+    : super(key: key);
   @override
   _DetalhesLaudoState createState() => _DetalhesLaudoState();
 }
 
 class _DetalhesLaudoState extends State<DetalhesLaudo> {
   TextEditingController observacaoController = TextEditingController();
+  String get dono =>
+      widget.clienteMap[widget.laudo.clienteid] ?? 'Cliente Desconhecido';
 
   @override
   void initState() {
@@ -2151,10 +2194,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
               ),
               pw.Divider(),
 
-              pw.Text(
-                'Dono: ${widget.laudo.dono}',
-                style: pw.TextStyle(fontSize: 14),
-              ),
+              pw.Text('Dono: $dono', style: pw.TextStyle(fontSize: 14)),
               pw.Text(
                 'Animal: ${widget.laudo.animal}',
                 style: pw.TextStyle(fontSize: 14),
@@ -2300,7 +2340,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: Text(
-                            'Dono: ${widget.laudo.dono}',
+                            'Dono: $dono',
                             style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
@@ -2493,6 +2533,150 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ClienteDetalhes extends StatelessWidget {
+  final Clientes cliente;
+  final List<Laudo> laudos;
+  final List<Clientes> cadastro;
+
+  const ClienteDetalhes({
+    required this.cliente,
+    required this.laudos,
+    required this.cadastro,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final laudosDoCliente = laudos
+        .where((l) => l.clienteid == cliente.id)
+        .toList();
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('image/backgrounddp.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30 * widthFactor),
+                child: Container(
+                  width: 350 * widthFactor,
+                  height: 750 * heightFactor,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20 * heightFactor),
+                      Text(
+                        '${cliente.nome} - ${cliente.nomeanimal}',
+                        style: TextStyle(
+                          fontSize: 24 * widthFactor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 20 * heightFactor),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: laudosDoCliente.length,
+                          itemBuilder: (context, index) {
+                            final laudo = laudosDoCliente[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DetalhesLaudo(
+                                      laudo: laudo,
+                                      clienteMap: {cliente.id: cliente.nome},
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0 * widthFactor),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Exame: ${index + 1}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16 * widthFactor,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Animal: ${laudo.animal}',
+                                        style: TextStyle(
+                                          fontSize: 14 * widthFactor,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Data: ${laudo.data}',
+                                        style: TextStyle(
+                                          fontSize: 14 * widthFactor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10.0 * widthFactor),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 10 * heightFactor,
+                            ),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
+                          ),
+                          child: Text("Novo Exame"),
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PreencherInfos(
+                                  cadastro: cadastro,
+                                  cards: laudos,
+                                  fotos: [],
+                                  clienteSelecionado: cliente,
+                                ),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
                         ),
                       ),
                     ],
