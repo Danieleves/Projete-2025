@@ -119,17 +119,28 @@ class _LoginState extends State<Login> {
 
   Future<List<Ids>> reqValidar() async {
     final url = Uri.parse("http://$ips/verifyuser");
-    final response = await http.post(url);
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": userController.text,
+        "senha": senhaController.text,
+      }),
+    );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      final lista = data.map((json) => Ids(userid: json['id'])).toList();
-      debugPrint(lista.toString());
-      return lista;
+      final data = jsonDecode(response.body);
+      if (data['usuarioId'] != null) {
+        final usuario = Ids(userid: data['usuarioId']['id']);
+        return [usuario];
+      } else {
+        return [];
+      }
     } else {
       throw Exception("Erro ao carregar usuarios: ${response.body}");
     }
   }
+
 
   //conexão backend
   Future<String?> verificaruser() async {
@@ -1156,18 +1167,17 @@ class _CadastroClienteState extends State<CadastroCliente> {
       final data = jsonDecode(response.body);
       final List<dynamic> lista = data["clientes"] ?? [];
 
-      return lista
-          .map(
+      return lista.map(
             (json) => Clientes(
-          id: json['id'],
-          nome: json['nome'],
-          nomeAnimal: json['nomeAnimal'],
-          telefone: json['telefone'],
-          email: json['email'],
-          endereco: json['endereco'],
+          id: json['id'] ?? 0,
+          nome: json['nome'] ?? "",
+          nomeAnimal: json['nomeAnimal'] ?? "",
+          telefone: json['telefone'] ?? "",
+          email: json['email'] ?? "",
+          endereco: json['endereco'] ?? "",
         ),
-      )
-          .toList();
+      ).toList();
+
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
@@ -1852,9 +1862,12 @@ class _FotoState extends State<Foto> {
                           if (path != null && mounted) {
                             setState(() {
                               fotoPath = path;
-                              widget.cards[widget.index].fotoPath = path;
+                              if (widget.cards.isNotEmpty && widget.index < widget.cards.length) {
+                                widget.cards[widget.index].fotoPath = path;
+                              }
                             });
                           }
+
                         },
                         child: const Icon(
                           Icons.camera_alt,
@@ -2707,7 +2720,7 @@ class ClienteDetalhes extends StatelessWidget {
                           ),
                           child: Text("Novo Exame"),
                           onPressed: () async {
-                            Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => PreencherInfos(
