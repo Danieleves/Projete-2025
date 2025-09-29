@@ -759,7 +759,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
         return Clientes(
           id: json['id'],
           nome: json['nome'] ?? '',
-          nomeanimal: json['nomeAnimal'] ?? '',
+          nomeAnimal: json['nomeAnimal'] ?? '',
           telefone: json['telefone'] ?? '',
           email: json['email'] ?? '',
           endereco: json['endereco'] ?? '',
@@ -1098,7 +1098,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
 class Clientes {
   String nome;
-  String nomeanimal;
+  String nomeAnimal;
   String telefone;
   String email;
   String endereco;
@@ -1106,7 +1106,7 @@ class Clientes {
 
   Clientes({
     required this.nome,
-    required this.nomeanimal,
+    required this.nomeAnimal,
     required this.telefone,
     required this.email,
     required this.endereco,
@@ -1161,7 +1161,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
             (json) => Clientes(
           id: json['id'],
           nome: json['nome'],
-          nomeanimal: json['nomeAnimal'],
+          nomeAnimal: json['nomeAnimal'],
           telefone: json['telefone'],
           email: json['email'],
           endereco: json['endereco'],
@@ -1172,7 +1172,6 @@ class _CadastroClienteState extends State<CadastroCliente> {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1254,7 +1253,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Animal: ${cliente.nomeanimal}'),
+                                Text('Animal: ${cliente.nomeAnimal}'),
                                 Text('Dono: ${cliente.nome}'),
                                 Text('Endereço: ${cliente.endereco}'),
                               ],
@@ -2095,6 +2094,12 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final widthFactor = screenWidth / 360;
+    final heightFactor = screenHeight / 808;
+
     return Scaffold(
       //background
       body: Stack(
@@ -2111,35 +2116,59 @@ class _AccountState extends State<Account> {
           SafeArea(
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 400.0,
-                  width: 300.0,
+                  height: 400.0 * heightFactor,
+                  width: 300.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
                       //logo
                       Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+                        padding: EdgeInsets.only(top: 10.0 * widthFactor),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60),
+                          borderRadius: BorderRadius.circular(60 * widthFactor),
                           child: Container(
-                            height: 120,
-                            width: 120,
+                            height: 120 * heightFactor,
+                            width: 120 * widthFactor,
                             child: Icon(Icons.account_circle),
                           ),
                         ),
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 30 * heightFactor),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
-                          height: 40,
-                          width: 380,
+                          height: 40 * heightFactor,
+                          width: 380 * widthFactor,
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: Text('xx: ${widget.usuarios}'),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10.0 * widthFactor),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 10 * heightFactor,
+                            ),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
+                          ),
+                          child: Text("Sair da conta"),
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => Login(
+                                ),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
                         ),
                       ),
                     ],
@@ -2607,7 +2636,7 @@ class ClienteDetalhes extends StatelessWidget {
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
-                        '${cliente.nome} - ${cliente.nomeanimal}',
+                        '${cliente.nome} - ${cliente.nomeAnimal}',
                         style: TextStyle(
                           fontSize: 24 * widthFactor,
                           fontWeight: FontWeight.bold,
