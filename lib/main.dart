@@ -24,7 +24,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "172.20.10.2:5000";
+const String ips = "10.0.2.2:5000";
 
 int? idVeterinario;
 
@@ -138,9 +138,9 @@ class _LoginState extends State<Login> {
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json; charset=UTF-8"},
         body: jsonEncode({
-          "usuario": userController.text,
+          "email": userController.text,
           "senha": senhaController.text,
         }),
       );
@@ -148,8 +148,8 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        if (data.containsKey('id')) {
-          idVeterinario = data['id'];
+        if (data.containsKey('usuarioId') && data['usuarioId'] != null) {
+          idVeterinario = data['usuarioId']['id'];
           debugPrint("Id do Veterinário=$idVeterinario");
           return null;
         } else {
@@ -743,27 +743,33 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 
   Future<List<Clientes>> reqClientes() async {
-    final url = Uri.parse("http://$ips/addclientes");
-    final response = await http.post(url);
+    final url = Uri.parse("http://$ips/verifyclientes");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioId": idVeterinario}),
+    );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map(
-            (json) => Clientes(
-              id: json['id'],
-              nome: json['nome'] ?? '',
-              nomeanimal: json['nomeanimal'] ?? '',
-              telefone: json['telefone'] ?? '',
-              email: json['email'] ?? '',
-              endereco: json['endereco'] ?? '',
-            ),
-          )
-          .toList();
+      final data = jsonDecode(response.body);
+
+      final List<dynamic> lista = data["clientes"] ?? [];
+
+      return lista.map((json) {
+        return Clientes(
+          id: json['id'],
+          nome: json['nome'] ?? '',
+          nomeanimal: json['nomeAnimal'] ?? '',
+          telefone: json['telefone'] ?? '',
+          email: json['email'] ?? '',
+          endereco: json['endereco'] ?? '',
+        );
+      }).toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1138,27 +1144,35 @@ class _CadastroClienteState extends State<CadastroCliente> {
   }
 
   Future<List<Clientes>> reqClientes() async {
-    final url = Uri.parse("http://$ips/addclientes");
-    final response = await http.post(url);
+    final url = Uri.parse("http://$ips/verifyclientes");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioId": idVeterinario}),
+    );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
+      final data = jsonDecode(response.body);
+      final List<dynamic> lista = data["clientes"] ?? [];
+
+      return lista
           .map(
             (json) => Clientes(
-              id: json['id'],
-              nome: json['nome'],
-              nomeanimal: json['nomeanimal'],
-              telefone: json['telefone'],
-              email: json['email'],
-              endereco: json['endereco'],
-            ),
-          )
+          id: json['id'],
+          nome: json['nome'],
+          nomeanimal: json['nomeAnimal'],
+          telefone: json['telefone'],
+          email: json['email'],
+          endereco: json['endereco'],
+        ),
+      )
           .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1283,7 +1297,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
   //conexão backend
   Future<String> adicionarCliente() async {
-    final url = Uri.parse("http://$ips/addclientes");
+    final url = Uri.parse("http://$ips/clientes");
 
     final response = await http.post(
       url,
@@ -1291,24 +1305,24 @@ class _ClientesInfosState extends State<ClientesInfos> {
       body: jsonEncode({
         "usuarioid": idVeterinario,
         "nome": nomeController.text,
-        "nomeanimal": nomeAnimalController.text,
+        "nomeAnimal": nomeAnimalController.text,
         "telefone": telefoneController.text,
         "email": emailController.text,
         "endereco": enderecoController.text,
       }),
     );
 
-    //arrumar snackbar
     if (response.statusCode == 200) {
       debugPrint("Cliente cadastrado com sucesso!");
       final data = jsonDecode(response.body);
-      return data['id'];
+      return data['id'].toString();
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       debugPrint("Erro ao cadastrar: ${data['mensagem']}");
-      return data['mensagem']; // Retorna a mensagem de erro
+      return data['mensagem'] ?? "Erro desconhecido ao cadastrar";
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
