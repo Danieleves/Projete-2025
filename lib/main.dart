@@ -687,6 +687,7 @@ class Laudo {
     required this.observacao,
     required this.fotoPath,
   });
+
 }
 
 class PrimeiraTela extends StatefulWidget {
@@ -911,201 +912,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     );
   }
 }
-
-//tela com lógica de configurações
-/* class _PrimeiraTelaState extends State<PrimeiraTela> {
-  List<Laudo> cards = [];
-  List<Clientes> cadastro = [];
-  bool _tconfiguracoes = false;
-
-  void criarTeste() {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final larguraTela = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CadastroCliente(cards: cards, cadastro: cadastro),
-            ),
-          ).then((_) {
-            criarTeste();
-          });
-        },
-        child: Icon(Icons.add),
-      ),
-      body: SafeArea(child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('image/backgrounddp2.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          //alteração tela de config
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                setState(() {
-                  _tconfiguracoes = true;
-                });
-              },
-            ),
-          ),
-          ListView(
-            children: [
-              SizedBox(height: 100),
-              Column(
-                children: [
-                  for (int i = 0; i < cards.length; i++) ...[
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetalhesLaudo(laudo: cards[i]),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          child: SizedBox(
-                            height: 130.0,
-                            width: 350.0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2, // ocupa 2/3 do card
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Card: ${i + 1}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 15),
-                                        Text('Dono: ${cards[i].dono}'),
-                                        Text('Animal: ${cards[i].animal}'),
-                                        Text('Data: ${cards[i].data}'),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ), // espaçamento entre texto e imagem
-                                  Expanded(
-                                    flex: 1, // ocupa 1/3 do card
-                                    child: cards[i].fotoPath != null
-                                        ? Image.file(
-                                            File(cards[i].fotoPath!),
-                                            fit: BoxFit
-                                                .cover, // preenche o espaço
-                                            height:
-                                                double.infinity, // Adequação
-                                          )
-                                        : Container(
-                                            color: Colors.grey,
-                                          ), // placeholder
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                  ],
-                ],
-              ),
-            ],
-          ),
-
-          if (_tconfiguracoes)
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _tconfiguracoes = false;
-                      });
-                    },
-                    child: Container(
-                      height: double.infinity,
-                      width: larguraTela * 0.4,
-                      color: Colors.transparent,
-                    ),
-                  ),
-                  Container(
-                    height: double.infinity,
-                    width: larguraTela * 0.6,
-                    color: Colors.white,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'Configurações',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Expanded(child:
-                             Row(
-                                 children: [
-                                   Align(
-                                     alignment: Alignment.bottomRight,
-                                     child: IconButton(
-                                       icon: Icon(Icons.account_circle_outlined),
-                                       onPressed: () {
-                                         Navigator.push(
-                                           context,
-                                           MaterialPageRoute(
-                                             builder: (context) => Account(usuarios: widget.usuarios),
-                                           ),
-                                         );
-                                       },
-                                     ),
-                                   ),
-                                 ]
-                             )
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-        ],
-      ),
-      ),
-    );
-  }
-} */
 
 class Clientes {
   String nome;
@@ -1549,7 +1355,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "usuarioid": idVeterinario,
-        "clienteid": clienteId,
+        "cliente_id": clienteId,
         "sexo": sexoController.text,
         "raca": racaController.text,
       }),
