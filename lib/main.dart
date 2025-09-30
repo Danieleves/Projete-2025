@@ -666,6 +666,11 @@ class Laudo {
   String animal;
   int idade;
   String sexo;
+  String dono;
+  String alimentos;
+  String email;
+  String telefone;
+  String endereco;
   String raca;
   double peso;
   String data;
@@ -678,6 +683,11 @@ class Laudo {
     required this.animal,
     required this.idade,
     required this.sexo,
+    required this.dono,
+    required this.alimentos,
+    required this.email,
+    required this.telefone,
+    required this.endereco,
     required this.raca,
     required this.peso,
     required this.data,
@@ -688,6 +698,26 @@ class Laudo {
     required this.fotoPath,
   });
 
+  factory Laudo.fromJson(Map<String, dynamic> json) {
+    return Laudo(
+      id: json['exame_id'],
+      clienteid: json['cliente_id'],
+      usuarioid: json['usuario_id'],
+      dono: json['dono'] ?? '',
+      raca: json['raca'] ?? '',
+      animal: json['animal'] ?? '',
+      idade: json['idade'] ?? '',
+      sexo: json['sexo'] ?? '',
+      peso: (json['peso'] as num?)?.toDouble() ?? 0,
+      data: json['data'] ?? '',
+      alimentos: json['alimentos'],
+      telefone: json['telefone'],
+      email: json['email'],
+      endereco: json['endereco'],
+      fotoPath: json['fotoPath'] ?? '',
+      observacao: json['observacao'] ?? '',
+    );
+  }
 }
 
 class PrimeiraTela extends StatefulWidget {
@@ -695,7 +725,7 @@ class PrimeiraTela extends StatefulWidget {
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
 
-class _PrimeiraTelaState extends State<PrimeiraTela> {
+/*class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
   Map<int, String> clienteMap = {};
@@ -727,7 +757,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"usuarioid": idVeterinario}),
+      body: jsonEncode({"usuarioId": idVeterinario}),
     );
 
     if (response.statusCode == 200) {
@@ -735,7 +765,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       return data
           .map(
             (json) => Laudo(
-              usuarioid: json['usuarioid'],
+              usuarioid: json['usuarioId'],
               id: json['id'],
               animal: json['animal'] ?? '',
               clienteid: json['clienteid'] ?? 0,
@@ -752,9 +782,49 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     } else {
       throw Exception("Erro ao carregar laudos: ${response.body}");
     }
+  }*/
+
+class _PrimeiraTelaState extends State<PrimeiraTela> {
+  List<Laudo> cards = [];
+  List<Clientes> cadastro = [];
+
+  @override
+  void initState() {
+    super.initState();
+    carregarLaudos(); // só chama os laudos
   }
 
-  Future<List<Clientes>> reqClientes() async {
+  Future<void> carregarLaudos() async {
+    try {
+      final laudos = await reqLaudos();
+      setState(() {
+        cards = laudos;
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar laudos: $e");
+    }
+  }
+
+  Future<List<Laudo>> reqLaudos() async {
+    final url = Uri.parse("http://$ips/verifylaudos");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioId": idVeterinario}), // veterinário logado
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> lista = data["laudos"] ?? [];
+
+      return lista.map((json) => Laudo.fromJson(json)).toList();
+    } else {
+      throw Exception("Erro ao carregar laudos: ${response.body}");
+    }
+  }
+
+
+  /*Future<List<Clientes>> reqClientes() async {
     final url = Uri.parse("http://$ips/verifyclientes");
     final response = await http.post(
       url,
@@ -780,7 +850,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
-  }
+  }*/
 
 
   @override
@@ -801,7 +871,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
             ),
           );
           if (recarregar == true) {
-            await carregarDados();
+            await carregarLaudos();
           }
         },
         child: Icon(Icons.add),
@@ -830,7 +900,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                             MaterialPageRoute(
                               builder: (context) => DetalhesLaudo(
                                 laudo: cards[i],
-                                clienteMap: clienteMap,
+                                //clienteMap: clienteMap,
                               ),
                             ),
                           );
@@ -859,12 +929,12 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                           ),
                                         ),
                                         SizedBox(height: 15 * heightFactor),
-                                        Text(
+                                        /*Text(
                                           'Dono: ${clienteMap[cards[i].clienteid] ?? 'Cliente Desconhecido'}',
                                           style: TextStyle(
                                             fontSize: 14 * widthFactor,
                                           ),
-                                        ),
+                                        ),*/
                                         Text(
                                           'Animal: ${cards[i].animal}',
                                           style: TextStyle(
@@ -1349,23 +1419,26 @@ class _PreencherInfosState extends State<PreencherInfos> {
     final url = Uri.parse("http://$ips/addexame");
 
     final clienteId = widget.clienteSelecionado.id;
+    debugPrint("o id do cliente é: $clienteId");
+
+    final double peso = double.tryParse(pesoController.text) ?? 0;
+    debugPrint("o peso do animal é: $peso");
 
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "usuarioid": idVeterinario,
         "cliente_id": clienteId,
+        "alimentos": [],
+        "peso": peso,
         "sexo": sexoController.text,
-        "raca": racaController.text,
       }),
+
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final int idGerado = data["id"];
-      debugPrint("Exame cadastrado com sucesso! ID: $idGerado");
-      return idGerado.toString();
+      debugPrint("Exame cadastrado com sucesso!");
+      return "ok";
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       debugPrint("Erro ao cadastrar: ${data['mensagem']}");
@@ -2004,8 +2077,10 @@ class _AccountState extends State<Account> {
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
-  final Map<int, String> clienteMap;
-  DetalhesLaudo({required this.laudo, required this.clienteMap, Key? key})
+  //final Map<int, String> clienteMap;
+  DetalhesLaudo({required this.laudo,
+    //required this.clienteMap,
+  Key? key})
     : super(key: key);
   @override
   _DetalhesLaudoState createState() => _DetalhesLaudoState();
@@ -2013,8 +2088,8 @@ class DetalhesLaudo extends StatefulWidget {
 
 class _DetalhesLaudoState extends State<DetalhesLaudo> {
   TextEditingController observacaoController = TextEditingController();
-  String get dono =>
-      widget.clienteMap[widget.laudo.clienteid] ?? 'Cliente Desconhecido';
+  /*String get dono =>
+      widget.clienteMap[widget.laudo.clienteid] ?? 'Cliente Desconhecido';*/
 
   @override
   void initState() {
@@ -2056,7 +2131,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
               ),
               pw.Divider(),
 
-              pw.Text('Dono: $dono', style: pw.TextStyle(fontSize: 14)),
+              //pw.Text('Dono: $dono', style: pw.TextStyle(fontSize: 14)),
               pw.Text(
                 'Animal: ${widget.laudo.animal}',
                 style: pw.TextStyle(fontSize: 14),
@@ -2201,10 +2276,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text(
+                          /*child: Text(
                             'Dono: $dono',
                             style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
+                          ),*/
                         ),
                       ),
                       SizedBox(height: 10 * heightFactor),
@@ -2474,7 +2549,7 @@ class ClienteDetalhes extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder: (_) => DetalhesLaudo(
                                       laudo: laudo,
-                                      clienteMap: {cliente.id: cliente.nome},
+                                      //clienteMap: {cliente.id: cliente.nome},
                                     ),
                                   ),
                                 );
