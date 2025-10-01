@@ -664,14 +664,12 @@ class _SignupState extends State<Signup> {
 
 class Laudo {
   String animal;
-  int idade;
   String sexo;
   String dono;
   String alimentos;
   String email;
   String telefone;
   String endereco;
-  String raca;
   double peso;
   String data;
   int id;
@@ -679,16 +677,15 @@ class Laudo {
   int clienteid;
   String? observacao;
   String? fotoPath;
+
   Laudo({
     required this.animal,
-    required this.idade,
     required this.sexo,
     required this.dono,
     required this.alimentos,
     required this.email,
     required this.telefone,
     required this.endereco,
-    required this.raca,
     required this.peso,
     required this.data,
     required this.id,
@@ -698,91 +695,31 @@ class Laudo {
     required this.fotoPath,
   });
 
-  factory Laudo.fromJson(Map<String, dynamic> json) {
+  factory Laudo.fromJson(Map<String, dynamic> json, {Clientes? cliente}) {
     return Laudo(
-      id: json['exame_id'],
-      clienteid: json['cliente_id'],
-      usuarioid: json['usuario_id'],
-      dono: json['dono'] ?? '',
-      raca: json['raca'] ?? '',
-      animal: json['animal'] ?? '',
-      idade: json['idade'] ?? '',
-      sexo: json['sexo'] ?? '',
-      peso: (json['peso'] as num?)?.toDouble() ?? 0,
+      id: json['id'] ?? 0,
+      clienteid: json['cliente_id'] ?? 0,
+      usuarioid: cliente?.usuarioid ?? 0,
+      dono: cliente?.nome ?? 'Desconhecido',
+      animal: cliente?.nomeAnimal ?? 'Não informado',
+      sexo: json['sexo'] ?? 'Não informado',
+      peso: (json['peso'] is num) ? (json['peso'] as num).toDouble() : 0.0,
       data: json['data'] ?? '',
-      alimentos: json['alimentos'],
-      telefone: json['telefone'],
-      email: json['email'],
-      endereco: json['endereco'],
+      alimentos: json['alimentos'] ?? '',
+      telefone: cliente?.telefone ?? 'Não informado',
+      email: cliente?.email ?? 'Não informado',
+      endereco: cliente?.endereco ?? 'Não informado',
       fotoPath: json['fotoPath'] ?? '',
       observacao: json['observacao'] ?? '',
     );
   }
+
 }
 
 class PrimeiraTela extends StatefulWidget {
   @override
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
-
-/*class _PrimeiraTelaState extends State<PrimeiraTela> {
-  List<Laudo> cards = [];
-  List<Clientes> cadastro = [];
-  Map<int, String> clienteMap = {};
-
-  @override
-  void initState() {
-    super.initState();
-    carregarDados();
-  }
-
-  Future<void> carregarDados() async {
-    try {
-      final clientes = await reqClientes();
-      setState(() {
-        cadastro = clientes;
-        clienteMap = {for (var c in clientes) c.id: c.nome};
-      });
-      final laudos = await reqLaudos();
-      setState(() {
-        cards = laudos;
-      });
-    } catch (e) {
-      debugPrint("Erro ao carregar dados: $e");
-    }
-  }
-
-  Future<List<Laudo>> reqLaudos() async {
-    final url = Uri.parse("http://$ips/verifyexame");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"usuarioId": idVeterinario}),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map(
-            (json) => Laudo(
-              usuarioid: json['usuarioId'],
-              id: json['id'],
-              animal: json['animal'] ?? '',
-              clienteid: json['clienteid'] ?? 0,
-              idade: json['idade'] ?? 0,
-              sexo: json['sexo'] ?? '',
-              raca: json['raca'] ?? '',
-              peso: (json['peso'] as num?)?.toDouble() ?? 0,
-              data: json['data'] ?? '',
-              observacao: json['observacao'],
-              fotoPath: json['fotoPath'] ?? '',
-            ),
-          )
-          .toList();
-    } else {
-      throw Exception("Erro ao carregar laudos: ${response.body}");
-    }
-  }*/
 
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
@@ -801,7 +738,25 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
       for (var cliente in clientes) {
         final exames = await reqExames(cliente.id);
-        todosLaudos.addAll(exames);
+        final examesCompletos = exames.map((e) {
+          return Laudo(
+            id: e.id,
+            clienteid: e.clienteid,
+            usuarioid: e.usuarioid,
+            animal: cliente.nomeAnimal.isNotEmpty ? cliente.nomeAnimal : "Não informado",
+            dono: cliente.nome.isNotEmpty ? cliente.nome : "Desconhecido",
+            sexo: e.sexo.isNotEmpty ? e.sexo : "Não informado",
+            peso: e.peso,
+            data: e.data,
+            alimentos: e.alimentos,
+            telefone: cliente.telefone.isNotEmpty ? cliente.telefone : "Não informado",
+            email: cliente.email.isNotEmpty ? cliente.email : "Não informado",
+            endereco: cliente.endereco.isNotEmpty ? cliente.endereco : "Não informado",
+            fotoPath: e.fotoPath,
+            observacao: e.observacao,
+          );
+        }).toList();
+        todosLaudos.addAll(examesCompletos);
       }
 
       setState(() {
@@ -811,6 +766,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       debugPrint("Erro ao carregar laudos: $e");
     }
   }
+
 
   Future<List<Clientes>> reqClientes() async {
     final url = Uri.parse("http://$ips/verifyclientes");
@@ -842,17 +798,20 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"clienteId": clienteId}), // agora alinhado com backend
+      body: jsonEncode({"clienteId": clienteId}),
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List<dynamic> lista = data["exames"] ?? [];
-      return lista.map((json) => Laudo.fromJson(json)).toList();
+      return lista
+          .map((json) => Laudo.fromJson(json as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception("Erro ao carregar exames: ${response.body}");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -930,24 +889,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                           ),
                                         ),
                                         SizedBox(height: 15 * heightFactor),
-                                        /*Text(
-                                          'Dono: ${clienteMap[cards[i].clienteid] ?? 'Cliente Desconhecido'}',
-                                          style: TextStyle(
-                                            fontSize: 14 * widthFactor,
-                                          ),
-                                        ),*/
-                                        Text(
-                                          'Animal: ${cards[i].animal}',
-                                          style: TextStyle(
-                                            fontSize: 14 * widthFactor,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Data: ${cards[i].data}',
-                                          style: TextStyle(
-                                            fontSize: 14 * widthFactor,
-                                          ),
-                                        ),
+                                        Text('Animal: ${cards[i].animal}'),
+                                        Text('Dono: ${cards[i].dono}'),
+                                        Text('Data: ${cards[i].data}'),
                                       ],
                                     ),
                                   ),
@@ -2092,8 +2036,6 @@ class DetalhesLaudo extends StatefulWidget {
 
 class _DetalhesLaudoState extends State<DetalhesLaudo> {
   TextEditingController observacaoController = TextEditingController();
-  /*String get dono =>
-      widget.clienteMap[widget.laudo.clienteid] ?? 'Cliente Desconhecido';*/
 
   @override
   void initState() {
@@ -2141,15 +2083,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 style: pw.TextStyle(fontSize: 14),
               ),
               pw.Text(
-                'Idade: ${widget.laudo.idade}',
-                style: pw.TextStyle(fontSize: 14),
-              ),
-              pw.Text(
                 'Sexo: ${widget.laudo.sexo}',
-                style: pw.TextStyle(fontSize: 14),
-              ),
-              pw.Text(
-                'Raça: ${widget.laudo.raca}',
                 style: pw.TextStyle(fontSize: 14),
               ),
               pw.Text(
@@ -2280,10 +2214,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
-                          /*child: Text(
-                            'Dono: $dono',
+                          child: Text(
+                            'Animal: ${widget.laudo.dono}',
                             style: TextStyle(fontSize: 15 * widthFactor),
-                          ),*/
+                          ),
                         ),
                       ),
                       SizedBox(height: 10 * heightFactor),
@@ -2305,23 +2239,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ),
                       SizedBox(height: 10 * heightFactor),
 
-                      // Idade
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 330 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text(
-                            'Idade do animal: ${widget.laudo.idade}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
-
                       // Sexo
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
@@ -2333,23 +2250,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: Text(
                             'Sexo do animal: ${widget.laudo.sexo}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
-
-                      // Raça
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 330 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text(
-                            'Raça do animal: ${widget.laudo.raca}',
                             style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
