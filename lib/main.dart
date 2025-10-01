@@ -11,6 +11,7 @@ import 'package:printing/printing.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:image_picker/image_picker.dart';
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -140,7 +141,6 @@ class _LoginState extends State<Login> {
       throw Exception("Erro ao carregar usuarios: ${response.body}");
     }
   }
-
 
   //conexão backend
   Future<String?> verificaruser() async {
@@ -713,7 +713,6 @@ class Laudo {
       observacao: json['observacao'] ?? '',
     );
   }
-
 }
 
 class PrimeiraTela extends StatefulWidget {
@@ -743,15 +742,21 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
             id: e.id,
             clienteid: e.clienteid,
             usuarioid: e.usuarioid,
-            animal: cliente.nomeAnimal.isNotEmpty ? cliente.nomeAnimal : "Não informado",
+            animal: cliente.nomeAnimal.isNotEmpty
+                ? cliente.nomeAnimal
+                : "Não informado",
             dono: cliente.nome.isNotEmpty ? cliente.nome : "Desconhecido",
             sexo: e.sexo.isNotEmpty ? e.sexo : "Não informado",
             peso: e.peso,
             data: e.data,
             alimentos: e.alimentos,
-            telefone: cliente.telefone.isNotEmpty ? cliente.telefone : "Não informado",
+            telefone: cliente.telefone.isNotEmpty
+                ? cliente.telefone
+                : "Não informado",
             email: cliente.email.isNotEmpty ? cliente.email : "Não informado",
-            endereco: cliente.endereco.isNotEmpty ? cliente.endereco : "Não informado",
+            endereco: cliente.endereco.isNotEmpty
+                ? cliente.endereco
+                : "Não informado",
             fotoPath: e.fotoPath,
             observacao: e.observacao,
           );
@@ -767,7 +772,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     }
   }
 
-
   Future<List<Clientes>> reqClientes() async {
     final url = Uri.parse("http://$ips/verifyclientes");
     final response = await http.post(
@@ -779,15 +783,19 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List<dynamic> lista = data["clientes"] ?? [];
-      return lista.map((json) => Clientes(
-        id: json['id'],
-        usuarioid: json['usuario_id'],
-        nome: json['nome'] ?? "",
-        nomeAnimal: json['nome_animal'] ?? "",
-        telefone: json['telefone'] ?? "",
-        email: json['email'] ?? "",
-        endereco: json['endereco'] ?? "",
-      )).toList();
+      return lista
+          .map(
+            (json) => Clientes(
+              id: json['id'],
+              usuarioid: json['usuario_id'],
+              nome: json['nome'] ?? "",
+              nomeAnimal: json['nome_animal'] ?? "",
+              telefone: json['telefone'] ?? "",
+              email: json['email'] ?? "",
+              endereco: json['endereco'] ?? "",
+            ),
+          )
+          .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
@@ -811,7 +819,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       throw Exception("Erro ao carregar exames: ${response.body}");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -877,9 +884,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     flex: 2,
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       mainAxisAlignment:
-                                      MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Exame: ${i + 1}',
@@ -952,7 +959,7 @@ class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   CadastroCliente({Key? key, required this.cards, required this.cadastro})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _CadastroClienteState createState() => _CadastroClienteState();
@@ -990,18 +997,19 @@ class _CadastroClienteState extends State<CadastroCliente> {
       final data = jsonDecode(response.body);
       final List<dynamic> lista = data["clientes"] ?? [];
 
-      return lista.map(
+      return lista
+          .map(
             (json) => Clientes(
-          id: json['id'] ?? 0,
-          usuarioid:json['usuario_id'],
-          nome: json['nome'] ?? "",
-          nomeAnimal: json['nome_animal'] ?? "",
-          telefone: json['telefone'] ?? "",
-          email: json['email'] ?? "",
-          endereco: json['endereco'] ?? "",
-        ),
-      ).toList();
-
+              id: json['id'] ?? 0,
+              usuarioid: json['usuario_id'],
+              nome: json['nome'] ?? "",
+              nomeAnimal: json['nome_animal'] ?? "",
+              telefone: json['telefone'] ?? "",
+              email: json['email'] ?? "",
+              endereco: json['endereco'] ?? "",
+            ),
+          )
+          .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
@@ -1112,7 +1120,7 @@ class ClientesInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   ClientesInfos({required this.cards, required this.cadastro, Key? key})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _ClientesInfosState createState() => _ClientesInfosState();
@@ -1155,7 +1163,6 @@ class _ClientesInfosState extends State<ClientesInfos> {
       return data['mensagem'] ?? "Erro desconhecido ao cadastrar";
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1245,49 +1252,49 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                            setState(() => _salvando = true);
+                                  setState(() => _salvando = true);
 
-                            if (nomeController.text.isEmpty ||
-                                nomeAnimalController.text.isEmpty ||
-                                telefoneController.text.isEmpty ||
-                                emailController.text.isEmpty ||
-                                enderecoController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            }
+                                  if (nomeController.text.isEmpty ||
+                                      nomeAnimalController.text.isEmpty ||
+                                      telefoneController.text.isEmpty ||
+                                      emailController.text.isEmpty ||
+                                      enderecoController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
 
-                            try {
-                              final clienteId = await adicionarCliente();
-                              debugPrint(
-                                "Cliente cadastrado com sucesso: $clienteId",
-                              );
+                                  try {
+                                    final clienteId = await adicionarCliente();
+                                    debugPrint(
+                                      "Cliente cadastrado com sucesso: $clienteId",
+                                    );
 
-                              nomeController.clear();
-                              nomeAnimalController.clear();
-                              telefoneController.clear();
-                              emailController.clear();
-                              enderecoController.clear();
+                                    nomeController.clear();
+                                    nomeAnimalController.clear();
+                                    telefoneController.clear();
+                                    emailController.clear();
+                                    enderecoController.clear();
 
-                              Navigator.pop(context, true);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Erro ao cadastrar cliente: $e',
-                                  ),
-                                ),
-                              );
-                            }
+                                    Navigator.pop(context, true);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao cadastrar cliente: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
 
-                            setState(() => _salvando = false);
-                          },
+                                  setState(() => _salvando = false);
+                                },
                           child: _salvando
                               ? CircularProgressIndicator()
                               : Text("Confirmar"),
@@ -1305,12 +1312,12 @@ class _ClientesInfosState extends State<ClientesInfos> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      String hint,
-      double widthFactor,
-      double heightFactor, {
-        List<TextInputFormatter>? inputFormatters,
-      }) {
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1381,7 +1388,6 @@ class _PreencherInfosState extends State<PreencherInfos> {
         "peso": peso,
         "sexo": sexoController.text,
       }),
-
     );
 
     if (response.statusCode == 200) {
@@ -1507,79 +1513,79 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                            setState(() => _salvando = true);
+                                  setState(() => _salvando = true);
 
-                            if (animalController.text.isEmpty ||
-                                donoController.text.isEmpty ||
-                                idadeController.text.isEmpty ||
-                                sexoController.text.isEmpty ||
-                                racaController.text.isEmpty ||
-                                pesoController.text.isEmpty ||
-                                dataController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            } else if (int.tryParse(
-                              idadeController.text,
-                            ) ==
-                                0 ||
-                                double.tryParse(pesoController.text) ==
-                                    0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha os campos corretamente',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            }
+                                  if (animalController.text.isEmpty ||
+                                      donoController.text.isEmpty ||
+                                      idadeController.text.isEmpty ||
+                                      sexoController.text.isEmpty ||
+                                      racaController.text.isEmpty ||
+                                      pesoController.text.isEmpty ||
+                                      dataController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  } else if (int.tryParse(
+                                            idadeController.text,
+                                          ) ==
+                                          0 ||
+                                      double.tryParse(pesoController.text) ==
+                                          0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha os campos corretamente',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
 
-                            final fotoPath =
-                            await Navigator.push<String?>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Foto(
-                                  cards: [],
-                                  cadastro: widget.cadastro,
-                                  index: 0,
-                                ),
-                              ),
-                            );
+                                  final fotoPath =
+                                      await Navigator.push<String?>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Foto(
+                                            cards: [],
+                                            cadastro: widget.cadastro,
+                                            index: 0,
+                                          ),
+                                        ),
+                                      );
 
-                            if (fotoPath != null && fotoPath.isNotEmpty) {
-                              try {
-                                await adicionarLaudo(fotoPath);
-                                animalController.clear();
-                                donoController.clear();
-                                idadeController.clear();
-                                sexoController.clear();
-                                racaController.clear();
-                                pesoController.clear();
-                                dataController.clear();
-                                Navigator.pop(context);
-                              } catch (e) {
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Erro ao cadastrar exame: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
+                                  if (fotoPath != null && fotoPath.isNotEmpty) {
+                                    try {
+                                      await adicionarLaudo(fotoPath);
+                                      animalController.clear();
+                                      donoController.clear();
+                                      idadeController.clear();
+                                      sexoController.clear();
+                                      racaController.clear();
+                                      pesoController.clear();
+                                      dataController.clear();
+                                      Navigator.pop(context);
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Erro ao cadastrar exame: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
 
-                            setState(() => _salvando = false);
-                          },
+                                  setState(() => _salvando = false);
+                                },
 
                           child: _salvando
                               ? CircularProgressIndicator()
@@ -1598,12 +1604,12 @@ class _PreencherInfosState extends State<PreencherInfos> {
   }
 
   Widget campoTexto(
-      TextEditingController controller,
-      String hint,
-      double widthFactor,
-      double heightFactor, {
-        TextInputFormatter? formatter,
-      }) {
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    TextInputFormatter? formatter,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1648,6 +1654,20 @@ class _FotoState extends State<Foto> {
     setState(() {});
   }
 
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> pegarDaGaleria() async {
+    final XFile? foto = await _picker.pickImage(source: ImageSource.gallery);
+    if (foto != null && mounted) {
+      setState(() {
+        fotoPath = foto.path;
+        if (widget.cards.isNotEmpty && widget.index < widget.cards.length) {
+          widget.cards[widget.index].fotoPath = foto.path;
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -1679,22 +1699,46 @@ class _FotoState extends State<Foto> {
                     children: [
                       SizedBox(height: 50 * heightFactor),
                       ElevatedButton(
-                        onPressed: () async {
-                          final path = await Navigator.push<String?>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const CapturaCamera(),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (_) => Wrap(
+                              children: [
+                                ListTile(
+                                  leading: Icon(Icons.camera_alt),
+                                  title: Text('Tirar foto'),
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    final path = await Navigator.push<String?>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const CapturaCamera(),
+                                      ),
+                                    );
+                                    if (path != null && mounted) {
+                                      setState(() {
+                                        fotoPath = path;
+                                        if (widget.cards.isNotEmpty &&
+                                            widget.index <
+                                                widget.cards.length) {
+                                          widget.cards[widget.index].fotoPath =
+                                              path;
+                                        }
+                                      });
+                                    }
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.photo_library),
+                                  title: Text('Escolher da galeria'),
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    await pegarDaGaleria();
+                                  },
+                                ),
+                              ],
                             ),
                           );
-                          if (path != null && mounted) {
-                            setState(() {
-                              fotoPath = path;
-                              if (widget.cards.isNotEmpty && widget.index < widget.cards.length) {
-                                widget.cards[widget.index].fotoPath = path;
-                              }
-                            });
-                          }
-
                         },
                         child: const Icon(
                           Icons.camera_alt,
@@ -1797,7 +1841,7 @@ class _CapturaCameraState extends State<CapturaCamera>
     try {
       final cameras = await availableCameras();
       final back = cameras.firstWhere(
-            (c) => c.lensDirection == CameraLensDirection.back,
+        (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
 
@@ -1862,63 +1906,63 @@ class _CapturaCameraState extends State<CapturaCamera>
       body: controller == null
           ? const Center(child: CircularProgressIndicator())
           : FutureBuilder<void>(
-        future: _initFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Stack(
-              children: [
-                Center(child: CameraPreview(controller)),
-                Positioned(
-                  bottom: 32 * heightFactor,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: EdgeInsets.all(18 * widthFactor),
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                      ),
-                      onPressed: () async {
-                        try {
-                          await _initFuture;
-                          final file = await controller.takePicture();
-                          if (!mounted) return;
-                          Navigator.pop(context, file.path);
-                        } catch (erro) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Falha ao tirar foto: $erro'),
+              future: _initFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Stack(
+                    children: [
+                      Center(child: CameraPreview(controller)),
+                      Positioned(
+                        bottom: 32 * heightFactor,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: EdgeInsets.all(18 * widthFactor),
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
                             ),
-                          );
-                        }
-                      },
-                      child: Icon(
-                        Icons.camera_alt,
-                        size: 32 * widthFactor,
+                            onPressed: () async {
+                              try {
+                                await _initFuture;
+                                final file = await controller.takePicture();
+                                if (!mounted) return;
+                                Navigator.pop(context, file.path);
+                              } catch (erro) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Falha ao tirar foto: $erro'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 32 * widthFactor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro: ${snapshot.error}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16 * widthFactor,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Erro: ${snapshot.error}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16 * widthFactor,
-                ),
-              ),
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
     );
   }
 }
@@ -1934,7 +1978,6 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final widthFactor = screenWidth / 360;
@@ -2002,10 +2045,7 @@ class _AccountState extends State<Account> {
                           onPressed: () async {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => Login(
-                                ),
-                              ),
+                              MaterialPageRoute(builder: (_) => Login()),
                             );
                             Navigator.pop(context);
                           },
@@ -2026,10 +2066,11 @@ class _AccountState extends State<Account> {
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
   //final Map<int, String> clienteMap;
-  DetalhesLaudo({required this.laudo,
+  DetalhesLaudo({
+    required this.laudo,
     //required this.clienteMap,
-    Key? key})
-      : super(key: key);
+    Key? key,
+  }) : super(key: key);
   @override
   _DetalhesLaudoState createState() => _DetalhesLaudoState();
 }
@@ -2304,7 +2345,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                             maxLines: null,
                             decoration: const InputDecoration(
                               hintText:
-                              'Adicione observações caso seja necessário: ',
+                                  'Adicione observações caso seja necessário: ',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -2348,7 +2389,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   await savePdfToDownloads(pdfData);
                                   await Printing.layoutPdf(
                                     onLayout: (PdfPageFormat format) async =>
-                                    pdfData,
+                                        pdfData,
                                   );
                                 },
                                 child: const Text("Baixar PDF"),
@@ -2431,7 +2472,6 @@ class ClienteDetalhes extends StatelessWidget {
                   height: 750 * heightFactor,
                   color: Colors.white,
                   child: Column(
-
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
@@ -2452,9 +2492,7 @@ class ClienteDetalhes extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => DetalhesLaudo(
-                                      laudo: laudo,
-                                    ),
+                                    builder: (_) => DetalhesLaudo(laudo: laudo),
                                   ),
                                 );
                               },
@@ -2463,7 +2501,7 @@ class ClienteDetalhes extends StatelessWidget {
                                   padding: EdgeInsets.all(8.0 * widthFactor),
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Exame: ${index + 1}',
