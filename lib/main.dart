@@ -660,7 +660,7 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-} //backend
+}
 
 class Laudo {
   String animal;
@@ -1339,7 +1339,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       ),
     );
   }
-} //backend
+}
 
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
@@ -1631,7 +1631,47 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-} // backend
+}
+
+class Box {
+  final int? x1;
+  final int? y1;
+  final int? x2;
+  final int? y2;
+  final int? veri;
+  String name;
+
+  Box({
+    required this.x1,
+    required this.y1,
+    required this.x2,
+    required this.y2,
+    required this.veri,
+    this.name = "Sem nome",
+  });
+
+  factory Box.fromJson(Map<String, dynamic> json) {
+    return Box(
+      x1: json["x1"],
+      y1: json["y1"],
+      x2: json["x2"],
+      y2: json["y2"],
+      veri: json["veri"],
+      name: json["name"] ?? "Sem nome",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "x1": x1,
+      "y1": y1,
+      "x2": x2,
+      "y2": y2,
+      "veri": veri,
+      "name": name,
+    };
+  }
+}
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
@@ -1649,9 +1689,13 @@ class Foto extends StatefulWidget {
 
 class _FotoState extends State<Foto> {
   String? fotoPath;
+  Uint8List? imageBytes;
+  List<Box> boxes = [];
+  bool confirm = false;
 
   void atualizarFoto() {
     setState(() {});
+    confirm = true;
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -1667,6 +1711,70 @@ class _FotoState extends State<Foto> {
       });
     }
   }
+
+  Future<void> processarImagem() async {
+    if (fotoPath == null) return;
+
+    try {
+      final fileBytes = await File(fotoPath!).readAsBytes();
+      String base64Image = base64Encode(fileBytes);
+
+      var postUrl = Uri.parse('http://$ips/process');
+      var postResponse = await http.post(
+        postUrl,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"imagem": base64Image}),
+      );
+
+      if (postResponse.statusCode == 200) {
+        var data = jsonDecode(postResponse.body);
+
+        String receivedBase64 = data['img'];
+        List<dynamic> boxesJson = data['boxes'];
+
+        setState(() {
+          imageBytes = base64Decode(receivedBase64);
+          boxes = boxesJson.map((b) => Box.fromJson(b)).toList();
+        });
+      } else {
+        debugPrint("Erro ao processar: ${postResponse.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("Erro ao processar: $e");
+    }
+  }
+
+  void _onBoxTap(int index) async {
+    final controller = TextEditingController(text: boxes[index].name);
+
+    String? newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Nomear área"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Digite o nome"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text("Salvar"),
+          ),
+        ],
+      ),
+    );
+
+    if (newName != null && newName.isNotEmpty) {
+      setState(() {
+        boxes[index].name = newName;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1757,7 +1865,44 @@ class _FotoState extends State<Foto> {
                             border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: Image.file(File(fotoPath!), fit: BoxFit.cover),
+                          child: imageBytes != null
+                              ? Stack(
+                            children: [
+                              Image.memory(imageBytes!, fit: BoxFit.cover),
+                              ...boxes.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                Box box = entry.value;
+
+                                return Positioned(
+                                  left: box.x1!.toDouble(),
+                                  top: box.y1!.toDouble(),
+                                  child: GestureDetector(
+                                    onTap: () => _onBoxTap(index),
+                                    child: Container(
+                                      width: (box.x2! - box.x1!).toDouble(),
+                                      height: (box.y2! - box.y1!).toDouble(),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.red, width: 2),
+                                        color: Colors.red.withValues(alpha: 0.1),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Text(
+                                          box.name,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                            backgroundColor: Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          )
+                              : Image.file(File(fotoPath!), fit: BoxFit.cover)
                         )
                       else
                         Container(
@@ -1779,32 +1924,70 @@ class _FotoState extends State<Foto> {
                       const Spacer(),
                       Padding(
                         padding: EdgeInsets.all(10.0 * widthFactor),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF49D5D2),
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 40 * widthFactor,
-                              vertical: 10 * heightFactor,
-                            ),
-                            textStyle: TextStyle(fontSize: 18 * widthFactor),
-                          ),
-                          onPressed: () {
-                            if (fotoPath != null) {
-                              Navigator.pop(context, fotoPath);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Uma foto precisa ser anexada para dar andamento ao exame",
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF49D5D2),
+                                      foregroundColor: Colors.black,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 40 * widthFactor,
+                                        vertical: 10 * heightFactor,
+                                      ),
+                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                    ),
+                                    onPressed: () async {
+                                      if (fotoPath != null) {
+                                         await processarImagem();
+                                        confirm = true;
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text("Enviar"),
                                   ),
                                 ),
-                              );
-                              return;
-                            }
-                          },
-                          child: const Text("Confirmar"),
-                        ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF49D5D2),
+                                      foregroundColor: Colors.black,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 40 * widthFactor,
+                                        vertical: 10 * heightFactor,
+                                      ),
+                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
+                                    ),
+                                    onPressed: () {
+                                      if (fotoPath != null && confirm == true) {
+                                        confirm = false;
+                                        Navigator.pop(context, fotoPath);
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text("Finalizar"),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+
                       ),
                     ],
                   ),
