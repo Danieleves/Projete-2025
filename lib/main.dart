@@ -828,6 +828,25 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Laudos'),
+        backgroundColor: Colors.transparent,
+        elevation: 0.1,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, size: 24 * widthFactor),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    Account(),
+              ),
+            );
+          },
+        ),
+      ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final recarregar = await Navigator.push(
@@ -867,15 +886,14 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                             MaterialPageRoute(
                               builder: (context) => DetalhesLaudo(
                                 laudo: cards[i],
-                                //clienteMap: clienteMap,
                               ),
                             ),
                           );
                         },
                         child: Card(
                           child: SizedBox(
-                            height: 130.0 * heightFactor,
-                            width: 330.0 * widthFactor,
+                            height: 120.0 * heightFactor,
+                            width: 310.0 * widthFactor,
                             child: Padding(
                               padding: EdgeInsets.all(8.0 * widthFactor),
                               child: Row(
@@ -1050,6 +1068,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
           if (recarregar == true) {
             carregarClientes();
           }
+          Navigator.pop(context, true);
         },
         child: Icon(Icons.add, size: 24 * widthFactor),
       ),
@@ -1088,8 +1107,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
                       },
                       child: Card(
                         child: SizedBox(
-                          height: 130.0 * heightFactor,
-                          width: 350.0 * widthFactor,
+                          height: 120.0 * heightFactor,
+                          width: 310.0 * widthFactor,
                           child: Padding(
                             padding: EdgeInsets.all(8.0 * widthFactor),
                             child: Column(
@@ -2151,9 +2170,8 @@ class _CapturaCameraState extends State<CapturaCamera>
 }
 
 class Account extends StatefulWidget {
-  final List<Cadastro> usuarios;
-
-  Account({required this.usuarios, Key? key}) : super(key: key);
+  /*final List<Cadastro> usuarios;
+  Account({required this.usuarios, Key? key}) : super(key: key);*/
   @override
   _AccountState createState() => _AccountState();
 }
@@ -2206,18 +2224,29 @@ class _AccountState extends State<Account> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 380 * widthFactor,
-                          color: Colors.grey[300],
+                          width: 280 * widthFactor,
+                          color: Colors.grey[800],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text('xx: ${widget.usuarios}'),
+                          child: Text('Usuário: '),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
+                        child: Container(
+                          height: 40 * heightFactor,
+                          width: 280 * widthFactor,
+                          color: Colors.grey[800],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text('Senha: '),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
+                            backgroundColor: Colors.red[200],
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
                               vertical: 10 * heightFactor,
@@ -2230,7 +2259,6 @@ class _AccountState extends State<Account> {
                               context,
                               MaterialPageRoute(builder: (_) => Login()),
                             );
-                            Navigator.pop(context);
                           },
                         ),
                       ),
@@ -2652,13 +2680,13 @@ class ClienteDetalhes extends StatelessWidget {
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
                   width: 350 * widthFactor,
-                  height: 750 * heightFactor,
+                  height: 650 * heightFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
-                        '$cliente.nome',
+                        '$laudos.nome',
                         style: TextStyle(
                           fontSize: 24 * widthFactor,
                           fontWeight: FontWeight.bold,
@@ -2680,6 +2708,9 @@ class ClienteDetalhes extends StatelessWidget {
                                 );
                               },
                               child: Card(
+                                child: SizedBox(
+                                  height: 120.0 * heightFactor,
+                                  width: 310.0 * widthFactor,
                                 child: Padding(
                                   padding: EdgeInsets.all(8.0 * widthFactor),
                                   child: Column(
@@ -2708,6 +2739,7 @@ class ClienteDetalhes extends StatelessWidget {
                                     ],
                                   ),
                                 ),
+                              ),
                               ),
                             );
                           },
