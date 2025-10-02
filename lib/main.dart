@@ -1711,6 +1711,7 @@ class _FotoState extends State<Foto> {
   Uint8List? imageBytes;
   List<Box> boxes = [];
   bool confirm = false;
+  bool _salvando = false;
 
   void atualizarFoto() {
     setState(() {});
@@ -1959,19 +1960,26 @@ class _FotoState extends State<Foto> {
                                       ),
                                       textStyle: TextStyle(fontSize: 18 * widthFactor),
                                     ),
-                                    onPressed: () async {
+                                    onPressed: _salvando
+                                        ? null
+                                        : () async {
                                       if (fotoPath != null) {
                                         await processarImagem();
                                         confirm = true;
+                                        setState(() => _salvando = true);
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
                                             content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
                                           ),
                                         );
+                                        setState(() => _salvando = false);
+                                        return;
                                       }
                                     },
-                                    child: const Text("Enviar"),
+                                    child: _salvando
+                                        ? CircularProgressIndicator()
+                                        : Text("Confirmar"),
                                   ),
                                 ),
                               ),
@@ -1988,9 +1996,12 @@ class _FotoState extends State<Foto> {
                                       ),
                                       textStyle: TextStyle(fontSize: 18 * widthFactor),
                                     ),
-                                    onPressed: () {
+                                    onPressed: _salvando
+                                        ? null
+                                        : () async {
                                       if (fotoPath != null && confirm == true) {
                                         confirm = false;
+                                        setState(() => _salvando = true);
                                         Navigator.pop(context, fotoPath);
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -1998,9 +2009,13 @@ class _FotoState extends State<Foto> {
                                             content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
                                           ),
                                         );
+                                        setState(() => _salvando = false);
+                                        return;
                                       }
                                     },
-                                    child: const Text("Finalizar"),
+                                    child: _salvando
+                                        ? CircularProgressIndicator()
+                                        : Text("Finalizar"),
                                   ),
                                 ),
                               ),
