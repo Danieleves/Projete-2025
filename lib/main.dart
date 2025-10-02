@@ -11,7 +11,6 @@ import 'package:printing/printing.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
-import 'package:image_picker/image_picker.dart';
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -142,6 +141,7 @@ class _LoginState extends State<Login> {
     }
   }
 
+
   //conexão backend
   Future<String?> verificaruser() async {
     final url = Uri.parse("http://$ips/verifyuser");
@@ -159,8 +159,8 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        if (data.containsKey('id') && data['id'] != null) {
-          idVeterinario = data['id'];
+        if (data.containsKey('usuarioId') && data['usuarioId'] != null) {
+          idVeterinario = data['usuarioId']['id'];
           debugPrint("Id do Veterinário=$idVeterinario");
           return null;
         } else {
@@ -660,16 +660,18 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-}
+} //backend
 
 class Laudo {
   String animal;
+  int idade;
   String sexo;
   String dono;
   String alimentos;
   String email;
   String telefone;
   String endereco;
+  String raca;
   double peso;
   String data;
   int id;
@@ -677,15 +679,16 @@ class Laudo {
   int clienteid;
   String? observacao;
   String? fotoPath;
-
   Laudo({
     required this.animal,
+    required this.idade,
     required this.sexo,
     required this.dono,
     required this.alimentos,
     required this.email,
     required this.telefone,
     required this.endereco,
+    required this.raca,
     required this.peso,
     required this.data,
     required this.id,
@@ -695,20 +698,22 @@ class Laudo {
     required this.fotoPath,
   });
 
-  factory Laudo.fromJson(Map<String, dynamic> json, {Clientes? cliente}) {
+  factory Laudo.fromJson(Map<String, dynamic> json) {
     return Laudo(
-      id: json['id'] ?? 0,
-      clienteid: json['cliente_id'] ?? 0,
-      usuarioid: cliente?.usuarioid ?? 0,
-      dono: cliente?.nome ?? 'Desconhecido',
-      animal: cliente?.nomeAnimal ?? 'Não informado',
-      sexo: json['sexo'] ?? 'Não informado',
-      peso: (json['peso'] is num) ? (json['peso'] as num).toDouble() : 0.0,
+      id: json['exame_id'],
+      clienteid: json['cliente_id'],
+      usuarioid: json['usuario_id'],
+      dono: json['dono'] ?? '',
+      raca: json['raca'] ?? '',
+      animal: json['animal'] ?? '',
+      idade: json['idade'] ?? '',
+      sexo: json['sexo'] ?? '',
+      peso: (json['peso'] as num?)?.toDouble() ?? 0,
       data: json['data'] ?? '',
-      alimentos: json['alimentos'] ?? '',
-      telefone: cliente?.telefone ?? 'Não informado',
-      email: cliente?.email ?? 'Não informado',
-      endereco: cliente?.endereco ?? 'Não informado',
+      alimentos: json['alimentos'],
+      telefone: json['telefone'],
+      email: json['email'],
+      endereco: json['endereco'],
       fotoPath: json['fotoPath'] ?? '',
       observacao: json['observacao'] ?? '',
     );
@@ -720,6 +725,65 @@ class PrimeiraTela extends StatefulWidget {
   _PrimeiraTelaState createState() => _PrimeiraTelaState();
 }
 
+/*class _PrimeiraTelaState extends State<PrimeiraTela> {
+  List<Laudo> cards = [];
+  List<Clientes> cadastro = [];
+  Map<int, String> clienteMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    carregarDados();
+  }
+
+  Future<void> carregarDados() async {
+    try {
+      final clientes = await reqClientes();
+      setState(() {
+        cadastro = clientes;
+        clienteMap = {for (var c in clientes) c.id: c.nome};
+      });
+      final laudos = await reqLaudos();
+      setState(() {
+        cards = laudos;
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar dados: $e");
+    }
+  }
+
+  Future<List<Laudo>> reqLaudos() async {
+    final url = Uri.parse("http://$ips/verifyexame");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioId": idVeterinario}),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data
+          .map(
+            (json) => Laudo(
+              usuarioid: json['usuarioId'],
+              id: json['id'],
+              animal: json['animal'] ?? '',
+              clienteid: json['clienteid'] ?? 0,
+              idade: json['idade'] ?? 0,
+              sexo: json['sexo'] ?? '',
+              raca: json['raca'] ?? '',
+              peso: (json['peso'] as num?)?.toDouble() ?? 0,
+              data: json['data'] ?? '',
+              observacao: json['observacao'],
+              fotoPath: json['fotoPath'] ?? '',
+            ),
+          )
+          .toList();
+    } else {
+      throw Exception("Erro ao carregar laudos: ${response.body}");
+    }
+  }*/
+
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
@@ -727,52 +791,40 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   @override
   void initState() {
     super.initState();
-    carregarLaudos();
+    carregarLaudos(); // só chama os laudos
   }
 
   Future<void> carregarLaudos() async {
     try {
-      final clientes = await reqClientes();
-      List<Laudo> todosLaudos = [];
-
-      for (var cliente in clientes) {
-        final exames = await reqExames(cliente.id);
-        final examesCompletos = exames.map((e) {
-          return Laudo(
-            id: e.id,
-            clienteid: e.clienteid,
-            usuarioid: e.usuarioid,
-            animal: cliente.nomeAnimal.isNotEmpty
-                ? cliente.nomeAnimal
-                : "Não informado",
-            dono: cliente.nome.isNotEmpty ? cliente.nome : "Desconhecido",
-            sexo: e.sexo.isNotEmpty ? e.sexo : "Não informado",
-            peso: e.peso,
-            data: e.data,
-            alimentos: e.alimentos,
-            telefone: cliente.telefone.isNotEmpty
-                ? cliente.telefone
-                : "Não informado",
-            email: cliente.email.isNotEmpty ? cliente.email : "Não informado",
-            endereco: cliente.endereco.isNotEmpty
-                ? cliente.endereco
-                : "Não informado",
-            fotoPath: e.fotoPath,
-            observacao: e.observacao,
-          );
-        }).toList();
-        todosLaudos.addAll(examesCompletos);
-      }
-
+      final laudos = await reqLaudos();
       setState(() {
-        cards = todosLaudos;
+        cards = laudos;
       });
     } catch (e) {
       debugPrint("Erro ao carregar laudos: $e");
     }
   }
 
-  Future<List<Clientes>> reqClientes() async {
+  Future<List<Laudo>> reqLaudos() async {
+    final url = Uri.parse("http://$ips/verifylaudos");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"usuarioId": idVeterinario}), // veterinário logado
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> lista = data["laudos"] ?? [];
+
+      return lista.map((json) => Laudo.fromJson(json)).toList();
+    } else {
+      throw Exception("Erro ao carregar laudos: ${response.body}");
+    }
+  }
+
+
+  /*Future<List<Clientes>> reqClientes() async {
     final url = Uri.parse("http://$ips/verifyclientes");
     final response = await http.post(
       url,
@@ -782,43 +834,24 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+
       final List<dynamic> lista = data["clientes"] ?? [];
-      return lista
-          .map(
-            (json) => Clientes(
-              id: json['id'],
-              usuarioid: json['usuario_id'],
-              nome: json['nome'] ?? "",
-              nomeAnimal: json['nome_animal'] ?? "",
-              telefone: json['telefone'] ?? "",
-              email: json['email'] ?? "",
-              endereco: json['endereco'] ?? "",
-            ),
-          )
-          .toList();
+
+      return lista.map((json) {
+        return Clientes(
+          id: json['id'],
+          nome: json['nome'] ?? '',
+          nomeAnimal: json['nomeAnimal'] ?? '',
+          telefone: json['telefone'] ?? '',
+          email: json['email'] ?? '',
+          endereco: json['endereco'] ?? '',
+        );
+      }).toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
-  }
+  }*/
 
-  Future<List<Laudo>> reqExames(int clienteId) async {
-    final url = Uri.parse("http://$ips/verifyexame");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"clienteId": clienteId}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> lista = data["exames"] ?? [];
-      return lista
-          .map((json) => Laudo.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      throw Exception("Erro ao carregar exames: ${response.body}");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -896,9 +929,24 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                           ),
                                         ),
                                         SizedBox(height: 15 * heightFactor),
-                                        Text('Animal: ${cards[i].animal}'),
-                                        Text('Dono: ${cards[i].dono}'),
-                                        Text('Data: ${cards[i].data}'),
+                                        /*Text(
+                                          'Dono: ${clienteMap[cards[i].clienteid] ?? 'Cliente Desconhecido'}',
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
+                                        ),*/
+                                        Text(
+                                          'Animal: ${cards[i].animal}',
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Data: ${cards[i].data}',
+                                          style: TextStyle(
+                                            fontSize: 14 * widthFactor,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -942,7 +990,6 @@ class Clientes {
   String email;
   String endereco;
   int id;
-  int usuarioid;
 
   Clientes({
     required this.nome,
@@ -951,7 +998,6 @@ class Clientes {
     required this.email,
     required this.endereco,
     required this.id,
-    required this.usuarioid,
   });
 }
 
@@ -997,19 +1043,17 @@ class _CadastroClienteState extends State<CadastroCliente> {
       final data = jsonDecode(response.body);
       final List<dynamic> lista = data["clientes"] ?? [];
 
-      return lista
-          .map(
+      return lista.map(
             (json) => Clientes(
-              id: json['id'] ?? 0,
-              usuarioid: json['usuario_id'],
-              nome: json['nome'] ?? "",
-              nomeAnimal: json['nome_animal'] ?? "",
-              telefone: json['telefone'] ?? "",
-              email: json['email'] ?? "",
-              endereco: json['endereco'] ?? "",
-            ),
-          )
-          .toList();
+          id: json['id'] ?? 0,
+          nome: json['nome'] ?? "",
+          nomeAnimal: json['nomeAnimal'] ?? "",
+          telefone: json['telefone'] ?? "",
+          email: json['email'] ?? "",
+          endereco: json['endereco'] ?? "",
+        ),
+      ).toList();
+
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
     }
@@ -1138,7 +1182,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
 
   //conexão backend
   Future<String> adicionarCliente() async {
-    final url = Uri.parse("http://$ips/addclientes");
+    final url = Uri.parse("http://$ips/clientes");
 
     final response = await http.post(
       url,
@@ -1146,7 +1190,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       body: jsonEncode({
         "usuarioid": idVeterinario,
         "nome": nomeController.text,
-        "nomeanimal": nomeAnimalController.text,
+        "nomeAnimal": nomeAnimalController.text,
         "telefone": telefoneController.text,
         "email": emailController.text,
         "endereco": enderecoController.text,
@@ -1163,6 +1207,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       return data['mensagem'] ?? "Erro desconhecido ao cadastrar";
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1339,7 +1384,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       ),
     );
   }
-}
+} //backend
 
 class PreencherInfos extends StatefulWidget {
   final List<Laudo> cards;
@@ -1388,6 +1433,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
         "peso": peso,
         "sexo": sexoController.text,
       }),
+
     );
 
     if (response.statusCode == 200) {
@@ -1631,47 +1677,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
       ),
     );
   }
-}
-
-class Box {
-  final int? x1;
-  final int? y1;
-  final int? x2;
-  final int? y2;
-  final int? veri;
-  String name;
-
-  Box({
-    required this.x1,
-    required this.y1,
-    required this.x2,
-    required this.y2,
-    required this.veri,
-    this.name = "Sem nome",
-  });
-
-  factory Box.fromJson(Map<String, dynamic> json) {
-    return Box(
-      x1: json["x1"],
-      y1: json["y1"],
-      x2: json["x2"],
-      y2: json["y2"],
-      veri: json["veri"],
-      name: json["name"] ?? "Sem nome",
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "x1": x1,
-      "y1": y1,
-      "x2": x2,
-      "y2": y2,
-      "veri": veri,
-      "name": name,
-    };
-  }
-}
+} // backend
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
@@ -1689,92 +1695,10 @@ class Foto extends StatefulWidget {
 
 class _FotoState extends State<Foto> {
   String? fotoPath;
-  Uint8List? imageBytes;
-  List<Box> boxes = [];
-  bool confirm = false;
 
   void atualizarFoto() {
     setState(() {});
-    confirm = true;
   }
-
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> pegarDaGaleria() async {
-    final XFile? foto = await _picker.pickImage(source: ImageSource.gallery);
-    if (foto != null && mounted) {
-      setState(() {
-        fotoPath = foto.path;
-        if (widget.cards.isNotEmpty && widget.index < widget.cards.length) {
-          widget.cards[widget.index].fotoPath = foto.path;
-        }
-      });
-    }
-  }
-
-  Future<void> processarImagem() async {
-    if (fotoPath == null) return;
-
-    try {
-      final fileBytes = await File(fotoPath!).readAsBytes();
-      String base64Image = base64Encode(fileBytes);
-
-      var postUrl = Uri.parse('http://$ips/process');
-      var postResponse = await http.post(
-        postUrl,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"imagem": base64Image}),
-      );
-
-      if (postResponse.statusCode == 200) {
-        var data = jsonDecode(postResponse.body);
-
-        String receivedBase64 = data['img'];
-        List<dynamic> boxesJson = data['boxes'];
-
-        setState(() {
-          imageBytes = base64Decode(receivedBase64);
-          boxes = boxesJson.map((b) => Box.fromJson(b)).toList();
-        });
-      } else {
-        debugPrint("Erro ao processar: ${postResponse.statusCode}");
-      }
-    } catch (e) {
-      debugPrint("Erro ao processar: $e");
-    }
-  }
-
-  void _onBoxTap(int index) async {
-    final controller = TextEditingController(text: boxes[index].name);
-
-    String? newName = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Nomear área"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Digite o nome"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text("Salvar"),
-          ),
-        ],
-      ),
-    );
-
-    if (newName != null && newName.isNotEmpty) {
-      setState(() {
-        boxes[index].name = newName;
-      });
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1807,46 +1731,22 @@ class _FotoState extends State<Foto> {
                     children: [
                       SizedBox(height: 50 * heightFactor),
                       ElevatedButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (_) => Wrap(
-                              children: [
-                                ListTile(
-                                  leading: Icon(Icons.camera_alt),
-                                  title: Text('Tirar foto'),
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    final path = await Navigator.push<String?>(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const CapturaCamera(),
-                                      ),
-                                    );
-                                    if (path != null && mounted) {
-                                      setState(() {
-                                        fotoPath = path;
-                                        if (widget.cards.isNotEmpty &&
-                                            widget.index <
-                                                widget.cards.length) {
-                                          widget.cards[widget.index].fotoPath =
-                                              path;
-                                        }
-                                      });
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: Icon(Icons.photo_library),
-                                  title: Text('Escolher da galeria'),
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await pegarDaGaleria();
-                                  },
-                                ),
-                              ],
+                        onPressed: () async {
+                          final path = await Navigator.push<String?>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CapturaCamera(),
                             ),
                           );
+                          if (path != null && mounted) {
+                            setState(() {
+                              fotoPath = path;
+                              if (widget.cards.isNotEmpty && widget.index < widget.cards.length) {
+                                widget.cards[widget.index].fotoPath = path;
+                              }
+                            });
+                          }
+
                         },
                         child: const Icon(
                           Icons.camera_alt,
@@ -1865,44 +1765,7 @@ class _FotoState extends State<Foto> {
                             border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: imageBytes != null
-                              ? Stack(
-                            children: [
-                              Image.memory(imageBytes!, fit: BoxFit.cover),
-                              ...boxes.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                Box box = entry.value;
-
-                                return Positioned(
-                                  left: box.x1!.toDouble(),
-                                  top: box.y1!.toDouble(),
-                                  child: GestureDetector(
-                                    onTap: () => _onBoxTap(index),
-                                    child: Container(
-                                      width: (box.x2! - box.x1!).toDouble(),
-                                      height: (box.y2! - box.y1!).toDouble(),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.red, width: 2),
-                                        color: Colors.red.withValues(alpha: 0.1),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          box.name,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
-                                            backgroundColor: Colors.white70,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          )
-                              : Image.file(File(fotoPath!), fit: BoxFit.cover)
+                          child: Image.file(File(fotoPath!), fit: BoxFit.cover),
                         )
                       else
                         Container(
@@ -1924,70 +1787,32 @@ class _FotoState extends State<Foto> {
                       const Spacer(),
                       Padding(
                         padding: EdgeInsets.all(10.0 * widthFactor),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF49D5D2),
-                                      foregroundColor: Colors.black,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 40 * widthFactor,
-                                        vertical: 10 * heightFactor,
-                                      ),
-                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
-                                    ),
-                                    onPressed: () async {
-                                      if (fotoPath != null) {
-                                         await processarImagem();
-                                        confirm = true;
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: const Text("Enviar"),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF49D5D2),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 40 * widthFactor,
+                              vertical: 10 * heightFactor,
+                            ),
+                            textStyle: TextStyle(fontSize: 18 * widthFactor),
+                          ),
+                          onPressed: () {
+                            if (fotoPath != null) {
+                              Navigator.pop(context, fotoPath);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Uma foto precisa ser anexada para dar andamento ao exame",
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF49D5D2),
-                                      foregroundColor: Colors.black,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 40 * widthFactor,
-                                        vertical: 10 * heightFactor,
-                                      ),
-                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
-                                    ),
-                                    onPressed: () {
-                                      if (fotoPath != null && confirm == true) {
-                                        confirm = false;
-                                        Navigator.pop(context, fotoPath);
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: const Text("Finalizar"),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-
+                              );
+                              return;
+                            }
+                          },
+                          child: const Text("Confirmar"),
+                        ),
                       ),
                     ],
                   ),
@@ -2161,6 +1986,7 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final widthFactor = screenWidth / 360;
@@ -2228,7 +2054,10 @@ class _AccountState extends State<Account> {
                           onPressed: () async {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => Login()),
+                              MaterialPageRoute(
+                                builder: (_) => Login(
+                                ),
+                              ),
                             );
                             Navigator.pop(context);
                           },
@@ -2249,17 +2078,18 @@ class _AccountState extends State<Account> {
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
   //final Map<int, String> clienteMap;
-  DetalhesLaudo({
-    required this.laudo,
+  DetalhesLaudo({required this.laudo,
     //required this.clienteMap,
-    Key? key,
-  }) : super(key: key);
+  Key? key})
+    : super(key: key);
   @override
   _DetalhesLaudoState createState() => _DetalhesLaudoState();
 }
 
 class _DetalhesLaudoState extends State<DetalhesLaudo> {
   TextEditingController observacaoController = TextEditingController();
+  /*String get dono =>
+      widget.clienteMap[widget.laudo.clienteid] ?? 'Cliente Desconhecido';*/
 
   @override
   void initState() {
@@ -2307,7 +2137,15 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 style: pw.TextStyle(fontSize: 14),
               ),
               pw.Text(
+                'Idade: ${widget.laudo.idade}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
                 'Sexo: ${widget.laudo.sexo}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.Text(
+                'Raça: ${widget.laudo.raca}',
                 style: pw.TextStyle(fontSize: 14),
               ),
               pw.Text(
@@ -2438,10 +2276,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text(
-                            'Animal: ${widget.laudo.dono}',
+                          /*child: Text(
+                            'Dono: $dono',
                             style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
+                          ),*/
                         ),
                       ),
                       SizedBox(height: 10 * heightFactor),
@@ -2463,6 +2301,23 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ),
                       SizedBox(height: 10 * heightFactor),
 
+                      // Idade
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
+                        child: Container(
+                          height: 40 * heightFactor,
+                          width: 330 * widthFactor,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Idade do animal: ${widget.laudo.idade}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10 * heightFactor),
+
                       // Sexo
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
@@ -2474,6 +2329,23 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                           padding: EdgeInsets.only(left: 12 * widthFactor),
                           child: Text(
                             'Sexo do animal: ${widget.laudo.sexo}',
+                            style: TextStyle(fontSize: 15 * widthFactor),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10 * heightFactor),
+
+                      // Raça
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40 * widthFactor),
+                        child: Container(
+                          height: 40 * heightFactor,
+                          width: 330 * widthFactor,
+                          color: Colors.grey[300],
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          child: Text(
+                            'Raça do animal: ${widget.laudo.raca}',
                             style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
@@ -2658,7 +2530,7 @@ class ClienteDetalhes extends StatelessWidget {
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
-                        '$cliente.nome',
+                        '${cliente.nome} - ${cliente.nomeAnimal}',
                         style: TextStyle(
                           fontSize: 24 * widthFactor,
                           fontWeight: FontWeight.bold,
@@ -2675,7 +2547,10 @@ class ClienteDetalhes extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => DetalhesLaudo(laudo: laudo),
+                                    builder: (_) => DetalhesLaudo(
+                                      laudo: laudo,
+                                      //clienteMap: {cliente.id: cliente.nome},
+                                    ),
                                   ),
                                 );
                               },
