@@ -828,25 +828,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Laudos'),
-        backgroundColor: Colors.transparent,
-        elevation: 0.1,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: 24 * widthFactor),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    Account(),
-              ),
-            );
-          },
-        ),
-      ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final recarregar = await Navigator.push(
@@ -886,14 +867,15 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                             MaterialPageRoute(
                               builder: (context) => DetalhesLaudo(
                                 laudo: cards[i],
+                                //clienteMap: clienteMap,
                               ),
                             ),
                           );
                         },
                         child: Card(
                           child: SizedBox(
-                            height: 120.0 * heightFactor,
-                            width: 310.0 * widthFactor,
+                            height: 130.0 * heightFactor,
+                            width: 330.0 * widthFactor,
                             child: Padding(
                               padding: EdgeInsets.all(8.0 * widthFactor),
                               child: Row(
@@ -1068,7 +1050,6 @@ class _CadastroClienteState extends State<CadastroCliente> {
           if (recarregar == true) {
             carregarClientes();
           }
-          Navigator.pop(context, true);
         },
         child: Icon(Icons.add, size: 24 * widthFactor),
       ),
@@ -1107,8 +1088,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
                       },
                       child: Card(
                         child: SizedBox(
-                          height: 120.0 * heightFactor,
-                          width: 310.0 * widthFactor,
+                          height: 130.0 * heightFactor,
+                          width: 350.0 * widthFactor,
                           child: Padding(
                             padding: EdgeInsets.all(8.0 * widthFactor),
                             child: Column(
@@ -1389,7 +1370,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
   bool _salvando = false;
 
   //conexão backend
-  Future<String> adicionarLaudo(String fotoPath) async {
+  Future<String> adicionarLaudo(List<Box> boxes) async {
     final url = Uri.parse("http://$ips/addexame");
 
     final clienteId = widget.clienteSelecionado.id;
@@ -1398,12 +1379,16 @@ class _PreencherInfosState extends State<PreencherInfos> {
     final double peso = double.tryParse(pesoController.text) ?? 0;
     debugPrint("o peso do animal é: $peso");
 
+    final List<Map<String, dynamic>> boxesjson = boxes
+        .map((box) => {"name": box.name, "veri": box.veri})
+        .toList();
+
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "cliente_id": clienteId,
-        "alimentos": [],
+        "alimentos": boxesjson,
         "peso": peso,
         "sexo": sexoController.text,
       }),
@@ -1567,8 +1552,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
                               return;
                             }
 
-                            final fotoPath =
-                            await Navigator.push<String?>(
+                            final result =
+                            await Navigator.push<
+                                Map<String?, dynamic>
+                            >(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Foto(
@@ -1578,10 +1565,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                 ),
                               ),
                             );
+                            if (result != null) {
+                              final boxes = result['boxes'] as List<Box>;
+                            }
 
-                            if (fotoPath != null && fotoPath.isNotEmpty) {
+                            if (result != null) {
                               try {
-                                await adicionarLaudo(fotoPath);
+                                await adicionarLaudo(result['boxes']);
                                 animalController.clear();
                                 donoController.clear();
                                 idadeController.clear();
@@ -1681,20 +1671,14 @@ class Box {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      "x1": x1,
-      "y1": y1,
-      "x2": x2,
-      "y2": y2,
-      "veri": veri,
-      "name": name,
-    };
+    return {"x1": x1, "y1": y1, "x2": x2, "y2": y2, "veri": veri, "name": name};
   }
 }
 
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
+
   final int index;
   const Foto({
     required this.cards,
@@ -1707,11 +1691,10 @@ class Foto extends StatefulWidget {
 }
 
 class _FotoState extends State<Foto> {
+  List<Box> boxes = [];
   String? fotoPath;
   Uint8List? imageBytes;
-  List<Box> boxes = [];
   bool confirm = false;
-  bool _salvando = false;
 
   void atualizarFoto() {
     setState(() {});
@@ -1739,11 +1722,11 @@ class _FotoState extends State<Foto> {
       final fileBytes = await File(fotoPath!).readAsBytes();
       String base64Image = base64Encode(fileBytes);
 
-      var postUrl = Uri.parse('http://$ips/process');
+      var postUrl = Uri.parse('http://$ips/imageProces');
       var postResponse = await http.post(
         postUrl,
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"imagem": base64Image}),
+        body: jsonEncode({"img": base64Image}),
       );
 
       if (postResponse.statusCode == 200) {
@@ -1795,7 +1778,6 @@ class _FotoState extends State<Foto> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -1803,6 +1785,13 @@ class _FotoState extends State<Foto> {
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
+
+    final originalWidth = 640.0; // tamanho original que o YOLO usou
+    final originalHeight = 640.0;
+    final displayedWidth = 280 * widthFactor;
+    final displayedHeight = 280 * heightFactor;
+    final scaleX = displayedWidth / originalWidth;
+    final scaleY = displayedHeight / originalHeight;
 
     return Scaffold(
       body: Stack(
@@ -1876,53 +1865,63 @@ class _FotoState extends State<Foto> {
                       SizedBox(height: 130 * heightFactor),
                       if (fotoPath != null)
                         Container(
-                            width: 280 * widthFactor,
-                            height: 280 * heightFactor,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                20 * widthFactor,
-                              ),
-                              border: Border.all(color: Colors.black),
+                          width: 280 * widthFactor,
+                          height: 280 * heightFactor,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              20 * widthFactor,
                             ),
-                            clipBehavior: Clip.antiAlias,
-                            child: imageBytes != null
-                                ? Stack(
-                              children: [
-                                Image.memory(imageBytes!, fit: BoxFit.cover),
-                                ...boxes.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  Box box = entry.value;
+                            border: Border.all(color: Colors.black),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: imageBytes != null
+                              ? Stack(
+                            children: [
+                              Image.memory(
+                                imageBytes!,
+                                fit: BoxFit.cover,
+                              ),
+                              ...boxes.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                Box box = entry.value;
 
-                                  return Positioned(
-                                    left: box.x1!.toDouble(),
-                                    top: box.y1!.toDouble(),
-                                    child: GestureDetector(
-                                      onTap: () => _onBoxTap(index),
-                                      child: Container(
-                                        width: (box.x2! - box.x1!).toDouble(),
-                                        height: (box.y2! - box.y1!).toDouble(),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.red, width: 2),
-                                          color: Colors.red.withValues(alpha: 0.1),
+                                return Positioned(
+                                  left: box.x1! * scaleX,
+                                  top: box.y1! * scaleY,
+                                  child: GestureDetector(
+                                    onTap: () => _onBoxTap(index),
+                                    child: Container(
+                                      width: (box.x2! - box.x1!) * scaleX,
+                                      height:
+                                      (box.y2! - box.y1!) * scaleY,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.red,
+                                          width: 2,
                                         ),
-                                        child: Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Text(
-                                            box.name,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black,
-                                              backgroundColor: Colors.white70,
-                                            ),
+                                        color: Colors.red.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Text(
+                                          box.name,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                            backgroundColor:
+                                            Colors.white70,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                }),
-                              ],
-                            )
-                                : Image.file(File(fotoPath!), fit: BoxFit.cover)
+                                  ),
+                                );
+                              }),
+                            ],
+                          )
+                              : Image.file(File(fotoPath!), fit: BoxFit.cover),
                         )
                       else
                         Container(
@@ -1943,85 +1942,86 @@ class _FotoState extends State<Foto> {
                         ),
                       const Spacer(),
                       Padding(
-                          padding: EdgeInsets.all(10.0 * widthFactor),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF49D5D2),
-                                      foregroundColor: Colors.black,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 40 * widthFactor,
-                                        vertical: 10 * heightFactor,
-                                      ),
-                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
+                        padding: EdgeInsets.all(10.0 * widthFactor),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 5 * widthFactor,
+                                ),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF49D5D2),
+                                    foregroundColor: Colors.black,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 40 * widthFactor,
+                                      vertical: 10 * heightFactor,
                                     ),
-                                    onPressed: _salvando
-                                        ? null
-                                        : () async {
-                                      if (fotoPath != null) {
-                                        await processarImagem();
-                                        confirm = true;
-                                        setState(() => _salvando = true);
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
-                                          ),
-                                        );
-                                        setState(() => _salvando = false);
-                                        return;
-                                      }
-                                    },
-                                    child: _salvando
-                                        ? CircularProgressIndicator()
-                                        : Text("Confirmar"),
+                                    textStyle: TextStyle(
+                                      fontSize: 18 * widthFactor,
+                                    ),
                                   ),
+                                  onPressed: () async {
+                                    if (fotoPath != null) {
+                                      await processarImagem();
+                                      confirm = true;
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Uma foto precisa ser anexada para dar andamento ao exame",
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text("Enviar"),
                                 ),
                               ),
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5 * widthFactor),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF49D5D2),
-                                      foregroundColor: Colors.black,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 40 * widthFactor,
-                                        vertical: 10 * heightFactor,
-                                      ),
-                                      textStyle: TextStyle(fontSize: 18 * widthFactor),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 5 * widthFactor,
+                                ),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF49D5D2),
+                                    foregroundColor: Colors.black,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 40 * widthFactor,
+                                      vertical: 10 * heightFactor,
                                     ),
-                                    onPressed: _salvando
-                                        ? null
-                                        : () async {
-                                      if (fotoPath != null && confirm == true) {
-                                        confirm = false;
-                                        setState(() => _salvando = true);
-                                        Navigator.pop(context, fotoPath);
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Uma foto precisa ser anexada para dar andamento ao exame"),
-                                          ),
-                                        );
-                                        setState(() => _salvando = false);
-                                        return;
-                                      }
-                                    },
-                                    child: _salvando
-                                        ? CircularProgressIndicator()
-                                        : Text("Finalizar"),
+                                    textStyle: TextStyle(
+                                      fontSize: 18 * widthFactor,
+                                    ),
                                   ),
+                                  onPressed: () {
+                                    if (fotoPath != null && confirm == true) {
+                                      confirm = false;
+                                      Navigator.pop(context, {'boxes': boxes});
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Uma foto precisa ser anexada para dar andamento ao exame",
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text("Finalizar"),
                                 ),
                               ),
-                            ],
-                          )
-
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -2185,8 +2185,9 @@ class _CapturaCameraState extends State<CapturaCamera>
 }
 
 class Account extends StatefulWidget {
-  /*final List<Cadastro> usuarios;
-  Account({required this.usuarios, Key? key}) : super(key: key);*/
+  final List<Cadastro> usuarios;
+
+  Account({required this.usuarios, Key? key}) : super(key: key);
   @override
   _AccountState createState() => _AccountState();
 }
@@ -2239,29 +2240,18 @@ class _AccountState extends State<Account> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 280 * widthFactor,
-                          color: Colors.grey[800],
+                          width: 380 * widthFactor,
+                          color: Colors.grey[300],
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text('Usuário: '),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 280 * widthFactor,
-                          color: Colors.grey[800],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text('Senha: '),
+                          child: Text('xx: ${widget.usuarios}'),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(10.0 * widthFactor),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[200],
+                            backgroundColor: Color(0xFF49D5D2),
                             foregroundColor: Colors.black,
                             padding: EdgeInsets.symmetric(
                               vertical: 10 * heightFactor,
@@ -2274,6 +2264,7 @@ class _AccountState extends State<Account> {
                               context,
                               MaterialPageRoute(builder: (_) => Login()),
                             );
+                            Navigator.pop(context);
                           },
                         ),
                       ),
@@ -2313,7 +2304,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
   //Gerar PDF
   Future<Uint8List> generatePdf(String observacao) async {
     final pdf = pw.Document();
-
+    List<dynamic> ali = jsonDecode(widget.laudo.alimentos);
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -2361,6 +2352,17 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 'Data do Exame: ${widget.laudo.data}',
                 style: pw.TextStyle(fontSize: 14),
               ),
+
+              pw.Text("Exame:", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 8),
+              ...ali.map((e) {
+                final nome = e['name'];
+                final veri = e['veri'] == 1 ? "Não contem." : "Contem.";
+                return pw.Text(
+                  "- $nome : $veri",
+                  style: pw.TextStyle(fontSize: 14),
+                );
+              }).toList(),
 
               pw.SizedBox(height: 24),
               // OBSERVAÇÕES
@@ -2695,13 +2697,13 @@ class ClienteDetalhes extends StatelessWidget {
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
                   width: 350 * widthFactor,
-                  height: 650 * heightFactor,
+                  height: 750 * heightFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
-                        '$laudos.nome',
+                        '$cliente.nome',
                         style: TextStyle(
                           fontSize: 24 * widthFactor,
                           fontWeight: FontWeight.bold,
@@ -2723,9 +2725,6 @@ class ClienteDetalhes extends StatelessWidget {
                                 );
                               },
                               child: Card(
-                                child: SizedBox(
-                                  height: 120.0 * heightFactor,
-                                  width: 310.0 * widthFactor,
                                 child: Padding(
                                   padding: EdgeInsets.all(8.0 * widthFactor),
                                   child: Column(
@@ -2754,7 +2753,6 @@ class ClienteDetalhes extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              ),
                               ),
                             );
                           },
@@ -2799,3 +2797,4 @@ class ClienteDetalhes extends StatelessWidget {
     );
   }
 }
+
