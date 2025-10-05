@@ -29,6 +29,8 @@ const String ips = "localhost:5000";
 
 int? idVeterinario;
 
+String? nomeVeterinario;
+
 void main() {
   runApp(MaterialApp(home: TelaInicial()));
 }
@@ -161,9 +163,10 @@ class _LoginState extends State<Login> {
 
         if (data.containsKey('id') && data['id'] != null) {
           idVeterinario = data['id'];
+          nomeVeterinario = userController.text;
           debugPrint("Id do Veterinário=$idVeterinario");
           return null;
-        } else {
+      } else {
           return "Veterinário não identificado no servidor";
         }
       } else {
@@ -828,6 +831,22 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: Colors.black, size: 28 * widthFactor),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Account()),
+              );
+            },
+
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final recarregar = await Navigator.push(
@@ -867,7 +886,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                             MaterialPageRoute(
                               builder: (context) => DetalhesLaudo(
                                 laudo: cards[i],
-                                //clienteMap: clienteMap,
                               ),
                             ),
                           );
@@ -2185,14 +2203,15 @@ class _CapturaCameraState extends State<CapturaCamera>
 }
 
 class Account extends StatefulWidget {
-  final List<Cadastro> usuarios;
+  const Account({Key? key}) : super(key: key);
 
-  Account({required this.usuarios, Key? key}) : super(key: key);
   @override
   _AccountState createState() => _AccountState();
 }
 
 class _AccountState extends State<Account> {
+  bool carregando = true;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -2201,72 +2220,121 @@ class _AccountState extends State<Account> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
-      //background
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('image/backgrounddp.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          //foreground
           SafeArea(
             child: Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 400.0 * heightFactor,
-                  width: 300.0 * widthFactor,
-                  color: Colors.white,
-                  child: Column(
+                  width: 320 * widthFactor,
+                  height: 500 * heightFactor,
+                  padding: EdgeInsets.all(20 * widthFactor),
+                  color: Colors.white.withValues(alpha: 0.9),
+                  child: carregando
+                      ? const Center(child: CircularProgressIndicator())
+                      : Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //logo
-                      Padding(
-                        padding: EdgeInsets.only(top: 10.0 * widthFactor),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60 * widthFactor),
-                          child: Container(
-                            height: 120 * heightFactor,
-                            width: 120 * widthFactor,
-                            child: Icon(Icons.account_circle),
+                      Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 50 * widthFactor,
+                            backgroundImage:
+                            AssetImage('image/dermapet.jpeg'),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 30 * heightFactor),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 380 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: Text('xx: ${widget.usuarios}'),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(10.0 * widthFactor),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10 * heightFactor,
+                          SizedBox(height: 15 * heightFactor),
+                          Text(
+                            nomeVeterinario ?? "Usuário Atual",
+                            style: TextStyle(
+                              fontSize: 22 * widthFactor,
+                              fontWeight: FontWeight.bold,
                             ),
-                            textStyle: TextStyle(fontSize: 18 * widthFactor),
                           ),
-                          child: Text("Sair da conta"),
-                          onPressed: () async {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => Login()),
-                            );
-                            Navigator.pop(context);
-                          },
-                        ),
+
+                          const SizedBox(height: 5),
+                          const Text(
+                            "CRMV-SP123",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF49D5D2),
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20 * widthFactor,
+                                vertical: 10 * heightFactor,
+                              ),
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Abrindo suporte via WhatsApp...",
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.phone),
+                            label: const Text("Fale conosco"),
+                          ),
+                          SizedBox(height: 15 * heightFactor),
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              side: const BorderSide(
+                                  color: Colors.red, width: 2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 40 * widthFactor,
+                                vertical: 10 * heightFactor,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            onPressed: () {
+                              idVeterinario = null;
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => Login()),
+                                    (route) => false,
+                              );
+                            },
+                            child: const Text(
+                              "Sair da conta",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.facebook,
+                              size: 30, color: Colors.blue),
+                          SizedBox(width: 25),
+                          Icon(Icons.camera_alt,
+                              size: 30, color: Colors.purple),
+                        ],
                       ),
                     ],
                   ),
@@ -2278,7 +2346,7 @@ class _AccountState extends State<Account> {
       ),
     );
   }
-} //mexer
+}
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
