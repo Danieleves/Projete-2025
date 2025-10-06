@@ -166,7 +166,7 @@ class _LoginState extends State<Login> {
           nomeVeterinario = userController.text;
           debugPrint("Id do Veterinário=$idVeterinario");
           return null;
-      } else {
+        } else {
           return "Veterinário não identificado no servidor";
         }
       } else {
@@ -789,15 +789,15 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       return lista
           .map(
             (json) => Clientes(
-          id: json['id'],
-          usuarioid: json['usuario_id'],
-          nome: json['nome'] ?? "",
-          nomeAnimal: json['nome_animal'] ?? "",
-          telefone: json['telefone'] ?? "",
-          email: json['email'] ?? "",
-          endereco: json['endereco'] ?? "",
-        ),
-      )
+              id: json['id'],
+              usuarioid: json['usuario_id'],
+              nome: json['nome'] ?? "",
+              nomeAnimal: json['nome_animal'] ?? "",
+              telefone: json['telefone'] ?? "",
+              email: json['email'] ?? "",
+              endereco: json['endereco'] ?? "",
+            ),
+          )
           .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
@@ -839,14 +839,17 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings, color: Colors.black, size: 28 * widthFactor),
+            icon: Icon(
+              Icons.settings,
+              color: Colors.black,
+              size: 28 * widthFactor,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const Account()),
               );
             },
-
           ),
         ],
       ),
@@ -863,7 +866,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
             await carregarLaudos();
           }
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.person),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Stack(
@@ -888,9 +891,8 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetalhesLaudo(
-                                laudo: cards[i],
-                              ),
+                              builder: (context) =>
+                                  DetalhesLaudo(laudo: cards[i]),
                             ),
                           );
                         },
@@ -906,9 +908,9 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                     flex: 2,
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       mainAxisAlignment:
-                                      MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Exame: ${i + 1}',
@@ -981,7 +983,7 @@ class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   CadastroCliente({Key? key, required this.cards, required this.cadastro})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _CadastroClienteState createState() => _CadastroClienteState();
@@ -1022,15 +1024,15 @@ class _CadastroClienteState extends State<CadastroCliente> {
       return lista
           .map(
             (json) => Clientes(
-          id: json['id'] ?? 0,
-          usuarioid: json['usuario_id'],
-          nome: json['nome'] ?? "",
-          nomeAnimal: json['nome_animal'] ?? "",
-          telefone: json['telefone'] ?? "",
-          email: json['email'] ?? "",
-          endereco: json['endereco'] ?? "",
-        ),
-      )
+              id: json['id'] ?? 0,
+              usuarioid: json['usuario_id'],
+              nome: json['nome'] ?? "",
+              nomeAnimal: json['nome_animal'] ?? "",
+              telefone: json['telefone'] ?? "",
+              email: json['email'] ?? "",
+              endereco: json['endereco'] ?? "",
+            ),
+          )
           .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
@@ -1122,8 +1124,10 @@ class _CadastroClienteState extends State<CadastroCliente> {
                                   Expanded(
                                     flex: 2,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Cliente: ${i + 1}',
@@ -1133,9 +1137,13 @@ class _CadastroClienteState extends State<CadastroCliente> {
                                           ),
                                         ),
                                         SizedBox(height: 15 * heightFactor),
-                                        Text('Animal: ${clientes[i].nomeAnimal}'),
+                                        Text(
+                                          'Animal: ${clientes[i].nomeAnimal}',
+                                        ),
                                         Text('Dono: ${clientes[i].nome}'),
-                                        Text('Endereço: ${clientes[i].endereco}'),
+                                        Text(
+                                          'Endereço: ${clientes[i].endereco}',
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -1145,7 +1153,9 @@ class _CadastroClienteState extends State<CadastroCliente> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
-                                          image: AssetImage('image/dermapetbottomless.png'),
+                                          image: AssetImage(
+                                            'image/dermapetbottomless.png',
+                                          ),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -1174,7 +1184,7 @@ class ClientesInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   ClientesInfos({required this.cards, required this.cadastro, Key? key})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _ClientesInfosState createState() => _ClientesInfosState();
@@ -1306,49 +1316,49 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                            setState(() => _salvando = true);
+                                  setState(() => _salvando = true);
 
-                            if (nomeController.text.isEmpty ||
-                                nomeAnimalController.text.isEmpty ||
-                                telefoneController.text.isEmpty ||
-                                emailController.text.isEmpty ||
-                                enderecoController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            }
+                                  if (nomeController.text.isEmpty ||
+                                      nomeAnimalController.text.isEmpty ||
+                                      telefoneController.text.isEmpty ||
+                                      emailController.text.isEmpty ||
+                                      enderecoController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
 
-                            try {
-                              final clienteId = await adicionarCliente();
-                              debugPrint(
-                                "Cliente cadastrado com sucesso: $clienteId",
-                              );
+                                  try {
+                                    final clienteId = await adicionarCliente();
+                                    debugPrint(
+                                      "Cliente cadastrado com sucesso: $clienteId",
+                                    );
 
-                              nomeController.clear();
-                              nomeAnimalController.clear();
-                              telefoneController.clear();
-                              emailController.clear();
-                              enderecoController.clear();
+                                    nomeController.clear();
+                                    nomeAnimalController.clear();
+                                    telefoneController.clear();
+                                    emailController.clear();
+                                    enderecoController.clear();
 
-                              Navigator.pop(context, true);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Erro ao cadastrar cliente: $e',
-                                  ),
-                                ),
-                              );
-                            }
+                                    Navigator.pop(context, true);
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao cadastrar cliente: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
 
-                            setState(() => _salvando = false);
-                          },
+                                  setState(() => _salvando = false);
+                                },
                           child: _salvando
                               ? CircularProgressIndicator()
                               : Text("Confirmar"),
@@ -1366,12 +1376,12 @@ class _ClientesInfosState extends State<ClientesInfos> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      String hint,
-      double widthFactor,
-      double heightFactor, {
-        List<TextInputFormatter>? inputFormatters,
-      }) {
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1571,84 +1581,84 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                            setState(() => _salvando = true);
+                                  setState(() => _salvando = true);
 
-                            if (animalController.text.isEmpty ||
-                                donoController.text.isEmpty ||
-                                idadeController.text.isEmpty ||
-                                sexoController.text.isEmpty ||
-                                racaController.text.isEmpty ||
-                                pesoController.text.isEmpty ||
-                                dataController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            } else if (int.tryParse(
-                              idadeController.text,
-                            ) ==
-                                0 ||
-                                double.tryParse(pesoController.text) ==
-                                    0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha os campos corretamente',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            }
+                                  if (animalController.text.isEmpty ||
+                                      donoController.text.isEmpty ||
+                                      idadeController.text.isEmpty ||
+                                      sexoController.text.isEmpty ||
+                                      racaController.text.isEmpty ||
+                                      pesoController.text.isEmpty ||
+                                      dataController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  } else if (int.tryParse(
+                                            idadeController.text,
+                                          ) ==
+                                          0 ||
+                                      double.tryParse(pesoController.text) ==
+                                          0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha os campos corretamente',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
 
-                            final result =
-                            await Navigator.push<
-                                Map<String?, dynamic>
-                            >(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Foto(
-                                  cards: [],
-                                  cadastro: widget.cadastro,
-                                  index: 0,
-                                ),
-                              ),
-                            );
-                            if (result != null) {
-                              final boxes = result['boxes'] as List<Box>;
-                            }
+                                  final result =
+                                      await Navigator.push<
+                                        Map<String?, dynamic>
+                                      >(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Foto(
+                                            cards: [],
+                                            cadastro: widget.cadastro,
+                                            index: 0,
+                                          ),
+                                        ),
+                                      );
+                                  if (result != null) {
+                                    final boxes = result['boxes'] as List<Box>;
+                                  }
 
-                            if (result != null) {
-                              try {
-                                await adicionarLaudo(result['boxes']);
-                                animalController.clear();
-                                donoController.clear();
-                                idadeController.clear();
-                                sexoController.clear();
-                                racaController.clear();
-                                pesoController.clear();
-                                dataController.clear();
-                                Navigator.pop(context);
-                              } catch (e) {
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Erro ao cadastrar exame: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
+                                  if (result != null) {
+                                    try {
+                                      await adicionarLaudo(result['boxes']);
+                                      animalController.clear();
+                                      donoController.clear();
+                                      idadeController.clear();
+                                      sexoController.clear();
+                                      racaController.clear();
+                                      pesoController.clear();
+                                      dataController.clear();
+                                      Navigator.pop(context);
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Erro ao cadastrar exame: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
 
-                            setState(() => _salvando = false);
-                          },
+                                  setState(() => _salvando = false);
+                                },
 
                           child: _salvando
                               ? CircularProgressIndicator()
@@ -1667,12 +1677,12 @@ class _PreencherInfosState extends State<PreencherInfos> {
   }
 
   Widget campoTexto(
-      TextEditingController controller,
-      String hint,
-      double widthFactor,
-      double heightFactor, {
-        TextInputFormatter? formatter,
-      }) {
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    TextInputFormatter? formatter,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1930,51 +1940,51 @@ class _FotoState extends State<Foto> {
                           clipBehavior: Clip.antiAlias,
                           child: imageBytes != null
                               ? Stack(
-                            children: [
-                              Image.memory(
-                                imageBytes!,
-                                fit: BoxFit.cover,
-                              ),
-                              ...boxes.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                Box box = entry.value;
+                                  children: [
+                                    Image.memory(
+                                      imageBytes!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    ...boxes.asMap().entries.map((entry) {
+                                      int index = entry.key;
+                                      Box box = entry.value;
 
-                                return Positioned(
-                                  left: box.x1! * scaleX,
-                                  top: box.y1! * scaleY,
-                                  child: GestureDetector(
-                                    onTap: () => _onBoxTap(index),
-                                    child: Container(
-                                      width: (box.x2! - box.x1!) * scaleX,
-                                      height:
-                                      (box.y2! - box.y1!) * scaleY,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Colors.red,
-                                          width: 2,
-                                        ),
-                                        color: Colors.red.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          box.name,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
-                                            backgroundColor:
-                                            Colors.white70,
+                                      return Positioned(
+                                        left: box.x1! * scaleX,
+                                        top: box.y1! * scaleY,
+                                        child: GestureDetector(
+                                          onTap: () => _onBoxTap(index),
+                                          child: Container(
+                                            width: (box.x2! - box.x1!) * scaleX,
+                                            height:
+                                                (box.y2! - box.y1!) * scaleY,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Colors.red,
+                                                width: 2,
+                                              ),
+                                              color: Colors.red.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                            ),
+                                            child: Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Text(
+                                                box.name,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                  backgroundColor:
+                                                      Colors.white70,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          )
+                                      );
+                                    }),
+                                  ],
+                                )
                               : Image.file(File(fotoPath!), fit: BoxFit.cover),
                         )
                       else
@@ -2112,7 +2122,7 @@ class _CapturaCameraState extends State<CapturaCamera>
     try {
       final cameras = await availableCameras();
       final back = cameras.firstWhere(
-            (c) => c.lensDirection == CameraLensDirection.back,
+        (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
 
@@ -2177,63 +2187,63 @@ class _CapturaCameraState extends State<CapturaCamera>
       body: controller == null
           ? const Center(child: CircularProgressIndicator())
           : FutureBuilder<void>(
-        future: _initFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Stack(
-              children: [
-                Center(child: CameraPreview(controller)),
-                Positioned(
-                  bottom: 32 * heightFactor,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: EdgeInsets.all(18 * widthFactor),
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                      ),
-                      onPressed: () async {
-                        try {
-                          await _initFuture;
-                          final file = await controller.takePicture();
-                          if (!mounted) return;
-                          Navigator.pop(context, file.path);
-                        } catch (erro) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Falha ao tirar foto: $erro'),
+              future: _initFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Stack(
+                    children: [
+                      Center(child: CameraPreview(controller)),
+                      Positioned(
+                        bottom: 32 * heightFactor,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: EdgeInsets.all(18 * widthFactor),
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
                             ),
-                          );
-                        }
-                      },
-                      child: Icon(
-                        Icons.camera_alt,
-                        size: 32 * widthFactor,
+                            onPressed: () async {
+                              try {
+                                await _initFuture;
+                                final file = await controller.takePicture();
+                                if (!mounted) return;
+                                Navigator.pop(context, file.path);
+                              } catch (erro) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Falha ao tirar foto: $erro'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 32 * widthFactor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro: ${snapshot.error}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16 * widthFactor,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Erro: ${snapshot.error}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16 * widthFactor,
-                ),
-              ),
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
     );
   }
 }
@@ -2246,7 +2256,6 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -2281,8 +2290,7 @@ class _AccountState extends State<Account> {
                         children: [
                           CircleAvatar(
                             radius: 50 * widthFactor,
-                            backgroundImage:
-                            AssetImage('image/dermapet.jpeg'),
+                            backgroundImage: AssetImage('image/dermapet.jpeg'),
                           ),
                           SizedBox(height: 15 * heightFactor),
                           Text(
@@ -2296,10 +2304,7 @@ class _AccountState extends State<Account> {
                           const SizedBox(height: 5),
                           const Text(
                             "CRMV-SP12345",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
                         ],
                       ),
@@ -2334,7 +2339,9 @@ class _AccountState extends State<Account> {
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.white,
                               side: const BorderSide(
-                                  color: Colors.red, width: 2),
+                                color: Colors.red,
+                                width: 2,
+                              ),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 40 * widthFactor,
                                 vertical: 10 * heightFactor,
@@ -2347,9 +2354,8 @@ class _AccountState extends State<Account> {
                               idVeterinario = null;
                               Navigator.pushAndRemoveUntil(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (_) => Login()),
-                                    (route) => false,
+                                MaterialPageRoute(builder: (_) => Login()),
+                                (route) => false,
                               );
                             },
                             child: const Text(
@@ -2362,11 +2368,13 @@ class _AccountState extends State<Account> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.facebook,
-                              size: 30, color: Colors.blue),
+                          Icon(Icons.facebook, size: 30, color: Colors.blue),
                           SizedBox(width: 25),
-                          Icon(Icons.camera_alt,
-                              size: 30, color: Colors.purple),
+                          Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                            color: Colors.purple,
+                          ),
                         ],
                       ),
                     ],
@@ -2383,10 +2391,7 @@ class _AccountState extends State<Account> {
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
-  DetalhesLaudo({
-    required this.laudo,
-    Key? key,
-  }) : super(key: key);
+  DetalhesLaudo({required this.laudo, Key? key}) : super(key: key);
   @override
   _DetalhesLaudoState createState() => _DetalhesLaudoState();
 }
@@ -2670,7 +2675,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                             maxLines: null,
                             decoration: const InputDecoration(
                               hintText:
-                              'Adicione observações caso seja necessário: ',
+                                  'Adicione observações caso seja necessário: ',
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -2714,7 +2719,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   await savePdfToDownloads(pdfData);
                                   await Printing.layoutPdf(
                                     onLayout: (PdfPageFormat format) async =>
-                                    pdfData,
+                                        pdfData,
                                   );
                                 },
                                 child: const Text("Baixar PDF"),
@@ -2793,19 +2798,30 @@ class ClienteDetalhes extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Column(
-                    children: [
-                      SizedBox(height: 20 * heightFactor),
-                      Text(
-                        'Laudos',
-                        style: TextStyle(
-                          fontSize: 24 * widthFactor,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  children: [
+                    SizedBox(height: 20 * heightFactor),
+                    Text(
+                      'Laudos',
+                      style: TextStyle(
+                        fontSize: 24 * widthFactor,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 20 * heightFactor),
-                      Expanded(
-                        child: ListView.builder(
+                    ),
+                    SizedBox(height: 20 * heightFactor),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12 * widthFactor,
+                        ),
+                        child: GridView.builder(
                           itemCount: laudosDoCliente.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12 * widthFactor,
+                                mainAxisSpacing: 12 * heightFactor,
+                                childAspectRatio: 3 / 2,
+                              ),
                           itemBuilder: (context, index) {
                             final laudo = laudosDoCliente[index];
                             return GestureDetector(
@@ -2818,11 +2834,18 @@ class ClienteDetalhes extends StatelessWidget {
                                 );
                               },
                               child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    12 * widthFactor,
+                                  ),
+                                ),
                                 child: Padding(
                                   padding: EdgeInsets.all(8.0 * widthFactor),
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
                                         'Exame: ${index + 1}',
@@ -2831,12 +2854,14 @@ class ClienteDetalhes extends StatelessWidget {
                                           fontSize: 16 * widthFactor,
                                         ),
                                       ),
+                                      SizedBox(height: 4 * heightFactor),
                                       Text(
                                         'Animal: ${laudo.animal}',
                                         style: TextStyle(
                                           fontSize: 14 * widthFactor,
                                         ),
                                       ),
+                                      SizedBox(height: 4 * heightFactor),
                                       Text(
                                         'Data: ${laudo.data}',
                                         style: TextStyle(
@@ -2851,36 +2876,39 @@ class ClienteDetalhes extends StatelessWidget {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(10.0 * widthFactor),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49D5D2),
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10 * heightFactor,
-                            ),
-                            textStyle: TextStyle(fontSize: 18 * widthFactor),
+                    ),
+                    // Botão
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 20.0 * heightFactor),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF49D5D2),
+                          foregroundColor: Colors.black,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 40 * widthFactor,
+                            vertical: 10 * heightFactor,
                           ),
-                          child: Text("Novo Exame"),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PreencherInfos(
-                                  cadastro: cadastro,
-                                  cards: laudos,
-                                  fotos: [],
-                                  clienteSelecionado: cliente,
-                                ),
-                              ),
-                            );
-                            Navigator.pop(context);
-                          },
+                          textStyle: TextStyle(fontSize: 18 * widthFactor),
                         ),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PreencherInfos(
+                                cadastro: cadastro,
+                                cards: laudos,
+                                fotos: [],
+                                clienteSelecionado: cliente,
+                              ),
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                        child: Text("Novo Exame"),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -2889,4 +2917,3 @@ class ClienteDetalhes extends StatelessWidget {
     );
   }
 }
-
