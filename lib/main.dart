@@ -25,7 +25,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "localhost:5000";
+const String ips = "192.168.137.36:5000";
 
 int? idVeterinario;
 
@@ -831,9 +831,12 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.black, size: 28 * widthFactor),
@@ -862,6 +865,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
         },
         child: Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Stack(
         children: [
           Container(
@@ -1042,6 +1046,8 @@ class _CadastroClienteState extends State<CadastroCliente> {
     final heightFactor = screenHeight / 808;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Clientes'),
         backgroundColor: Colors.transparent,
@@ -1086,37 +1092,67 @@ class _CadastroClienteState extends State<CadastroCliente> {
               SizedBox(height: 70 * heightFactor),
               Column(
                 children: [
-                  for (var cliente in clientes) ...[
-                    GestureDetector(
-                      onTap: () async {
-                        final laudosDoCliente = widget.cards
-                            .where((l) => l.clienteid == cliente.id)
-                            .toList();
+                  for (int i = 0; i < clientes.length; i++) ...[
+                    Center(
+                      child: GestureDetector(
+                        onTap: () async {
+                          final laudosDoCliente = widget.cards
+                              .where((l) => l.clienteid == clientes[i].id)
+                              .toList();
 
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ClienteDetalhes(
-                              cliente: cliente,
-                              laudos: laudosDoCliente,
-                              cadastro: widget.cadastro,
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ClienteDetalhes(
+                                cliente: clientes[i],
+                                laudos: laudosDoCliente,
+                                cadastro: widget.cadastro,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        child: SizedBox(
-                          height: 130.0 * heightFactor,
-                          width: 350.0 * widthFactor,
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0 * widthFactor),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Animal: ${cliente.nomeAnimal}'),
-                                Text('Dono: ${cliente.nome}'),
-                                Text('Endereço: ${cliente.endereco}'),
-                              ],
+                          );
+                        },
+                        child: Card(
+                          child: SizedBox(
+                            height: 130.0 * heightFactor,
+                            width: 330.0 * widthFactor,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0 * widthFactor),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Cliente: ${i + 1}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16 * widthFactor,
+                                          ),
+                                        ),
+                                        SizedBox(height: 15 * heightFactor),
+                                        Text('Animal: ${clientes[i].nomeAnimal}'),
+                                        Text('Dono: ${clientes[i].nome}'),
+                                        Text('Endereço: ${clientes[i].endereco}'),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 10 * widthFactor),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: AssetImage('image/dermapetbottomless.png'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -1206,7 +1242,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 750.0 * heightFactor,
+                  height: 530.0 * heightFactor,
                   width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
@@ -1214,7 +1250,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                       SizedBox(height: 40 * heightFactor),
                       Text(
                         'Cadastre um novo cliente',
-                        style: TextStyle(fontSize: 30 * widthFactor),
+                        style: TextStyle(fontSize: 26 * widthFactor),
                       ),
                       SizedBox(height: 70 * heightFactor),
                       //Textfields
@@ -1340,7 +1376,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
         height: 40 * heightFactor,
-        width: 330 * widthFactor,
+        width: 310 * widthFactor,
         color: Colors.grey[300],
         alignment: Alignment.centerLeft,
         padding: EdgeInsets.only(left: 12 * widthFactor),
@@ -2210,7 +2246,6 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  bool carregando = true;
 
   @override
   Widget build(BuildContext context) {
@@ -2239,9 +2274,7 @@ class _AccountState extends State<Account> {
                   height: 500 * heightFactor,
                   padding: EdgeInsets.all(20 * widthFactor),
                   color: Colors.white.withValues(alpha: 0.9),
-                  child: carregando
-                      ? const Center(child: CircularProgressIndicator())
-                      : Column(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
@@ -2262,7 +2295,7 @@ class _AccountState extends State<Account> {
 
                           const SizedBox(height: 5),
                           const Text(
-                            "CRMV-SP123",
+                            "CRMV-SP12345",
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 16,
@@ -2350,10 +2383,8 @@ class _AccountState extends State<Account> {
 
 class DetalhesLaudo extends StatefulWidget {
   final Laudo laudo;
-  //final Map<int, String> clienteMap;
   DetalhesLaudo({
     required this.laudo,
-    //required this.clienteMap,
     Key? key,
   }) : super(key: key);
   @override
@@ -2402,8 +2433,6 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 ),
               ),
               pw.Divider(),
-
-              //pw.Text('Dono: $dono', style: pw.TextStyle(fontSize: 14)),
               pw.Text(
                 'Animal: ${widget.laudo.animal}',
                 style: pw.TextStyle(fontSize: 14),
@@ -2763,15 +2792,11 @@ class ClienteDetalhes extends StatelessWidget {
             child: Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
-                child: Container(
-                  width: 350 * widthFactor,
-                  height: 750 * heightFactor,
-                  color: Colors.white,
-                  child: Column(
+                child: Column(
                     children: [
                       SizedBox(height: 20 * heightFactor),
                       Text(
-                        '$cliente.nome',
+                        'Laudos',
                         style: TextStyle(
                           fontSize: 24 * widthFactor,
                           fontWeight: FontWeight.bold,
@@ -2856,7 +2881,6 @@ class ClienteDetalhes extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
               ),
             ),
           ),
