@@ -12,6 +12,18 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+
+String formatarData(String dataOriginal) {
+  try {
+    DateTime dataUtc = HttpDate.parse(dataOriginal);
+    DateTime dataLocal = dataUtc.toLocal();
+    final formato = DateFormat('dd/MM/yyyy');
+    return formato.format(dataLocal);
+  } catch (e) {
+    return dataOriginal;
+  }
+}
 
 var dataFormatter = MaskTextInputFormatter(
   mask: '##/##/####',
@@ -25,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "192.168.137.36:5000";
+const String ips = "192.168.0.108:5000";
 
 int? idVeterinario;
 
@@ -922,7 +934,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                                         SizedBox(height: 15 * heightFactor),
                                         Text('Animal: ${cards[i].animal}'),
                                         Text('Dono: ${cards[i].dono}'),
-                                        Text('Data: ${cards[i].data}'),
+                                        Text('Data: ${formatarData(cards[i].data)}'),
                                       ],
                                     ),
                                   ),
@@ -1253,7 +1265,7 @@ class _ClientesInfosState extends State<ClientesInfos> {
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
                   height: 530.0 * heightFactor,
-                  width: 350.0 * widthFactor,
+                  width: 340.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
@@ -1470,8 +1482,14 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
@@ -1493,7 +1511,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 750.0 * heightFactor,
+                  height: 690.0 * heightFactor,
                   width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
@@ -1503,7 +1521,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
                         'Início de um novo teste',
                         style: TextStyle(fontSize: 30 * widthFactor),
                       ),
-                      SizedBox(height: 10 * heightFactor),
+                      SizedBox(height: 15 * heightFactor),
                       Text(
                         'Preencha esse questionário sobre o animal para continuar',
                         style: TextStyle(fontSize: 14 * widthFactor),
@@ -1540,6 +1558,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
                         "Idade do animal",
                         widthFactor,
                         heightFactor,
+                        keyboardType: TextInputType.number,
+                        formatter: FilteringTextInputFormatter.digitsOnly,
                       ),
                       SizedBox(height: 15 * heightFactor),
                       campoTexto(
@@ -1561,10 +1581,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
                         "Peso do animal",
                         widthFactor,
                         heightFactor,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        formatter: FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                       ),
-
                       const Spacer(),
-
                       //botao
                       Padding(
                         padding: EdgeInsets.all(10.0 * widthFactor),
@@ -1581,84 +1601,85 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                                  setState(() => _salvando = true);
+                            setState(() => _salvando = true);
 
-                                  if (animalController.text.isEmpty ||
-                                      donoController.text.isEmpty ||
-                                      idadeController.text.isEmpty ||
-                                      sexoController.text.isEmpty ||
-                                      racaController.text.isEmpty ||
-                                      pesoController.text.isEmpty ||
-                                      dataController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Preencha todos os campos',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _salvando = false);
-                                    return;
-                                  } else if (int.tryParse(
-                                            idadeController.text,
-                                          ) ==
-                                          0 ||
-                                      double.tryParse(pesoController.text) ==
-                                          0) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Preencha os campos corretamente',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _salvando = false);
-                                    return;
-                                  }
+                            if (animalController.text.isEmpty ||
+                                donoController.text.isEmpty ||
+                                idadeController.text.isEmpty ||
+                                sexoController.text.isEmpty ||
+                                racaController.text.isEmpty ||
+                                pesoController.text.isEmpty ||
+                                dataController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Preencha todos os campos',
+                                  ),
+                                ),
+                              );
+                              setState(() => _salvando = false);
+                              return;
+                            } else if (int.tryParse(
+                              idadeController.text,
+                            ) ==
+                                0 ||
+                                double.tryParse(pesoController.text) ==
+                                    0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Preencha os campos corretamente',
+                                  ),
+                                ),
+                              );
+                              setState(() => _salvando = false);
+                              return;
+                            }
 
-                                  final result =
-                                      await Navigator.push<
-                                        Map<String?, dynamic>
-                                      >(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Foto(
-                                            cards: [],
-                                            cadastro: widget.cadastro,
-                                            index: 0,
-                                          ),
-                                        ),
-                                      );
-                                  if (result != null) {
-                                    final boxes = result['boxes'] as List<Box>;
-                                  }
+                            final result =
+                            await Navigator.push<
+                                Map<String?, dynamic>
+                            >(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    Foto(
+                                      cards: [],
+                                      cadastro: widget.cadastro,
+                                      index: 0,
+                                    ),
+                              ),
+                            );
+                            if (result != null) {
+                              final boxes = result['boxes'] as List<Box>;
+                            }
 
-                                  if (result != null) {
-                                    try {
-                                      await adicionarLaudo(result['boxes']);
-                                      animalController.clear();
-                                      donoController.clear();
-                                      idadeController.clear();
-                                      sexoController.clear();
-                                      racaController.clear();
-                                      pesoController.clear();
-                                      dataController.clear();
-                                      Navigator.pop(context);
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Erro ao cadastrar exame: $e',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
+                            if (result != null) {
+                              try {
+                                await adicionarLaudo(result['boxes']);
+                                animalController.clear();
+                                donoController.clear();
+                                idadeController.clear();
+                                sexoController.clear();
+                                racaController.clear();
+                                pesoController.clear();
+                                dataController.clear();
+                                Navigator.pop(context);
+                              } catch (e) {
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Erro ao cadastrar exame: $e',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
 
-                                  setState(() => _salvando = false);
-                                },
+                            setState(() => _salvando = false);
+                          },
 
                           child: _salvando
                               ? CircularProgressIndicator()
@@ -1676,13 +1697,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
     );
   }
 
-  Widget campoTexto(
-    TextEditingController controller,
-    String hint,
-    double widthFactor,
-    double heightFactor, {
-    TextInputFormatter? formatter,
-  }) {
+  Widget campoTexto(TextEditingController controller,
+      String hint,
+      double widthFactor,
+      double heightFactor, {
+        TextInputFormatter? formatter,
+        TextInputType keyboardType = TextInputType.text,
+      }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1693,6 +1714,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
         padding: EdgeInsets.only(left: 12 * widthFactor),
         child: TextField(
           controller: controller,
+          keyboardType: keyboardType,
           inputFormatters: formatter != null ? [formatter] : null,
           decoration: InputDecoration(
             hintText: hint,
@@ -1873,7 +1895,7 @@ class _FotoState extends State<Foto> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
-                  height: 750.0 * heightFactor,
+                  height: 690.0 * heightFactor,
                   width: 350.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
@@ -2068,7 +2090,19 @@ class _FotoState extends State<Foto> {
                                     if (fotoPath != null && confirm == true) {
                                       confirm = false;
                                       Navigator.pop(context, {'boxes': boxes});
-                                    } else {
+                                    }
+                                    else if (fotoPath != null && confirm == false ){
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Antes de finalizar é necessário enviar a foto para a IA analisar",
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    else {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -2451,7 +2485,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 style: pw.TextStyle(fontSize: 14),
               ),
               pw.Text(
-                'Data do Exame: ${widget.laudo.data}',
+                'Data do Exame: ${formatarData(widget.laudo.data)}',
                 style: pw.TextStyle(fontSize: 14),
               ),
 
@@ -2565,28 +2599,28 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 borderRadius: BorderRadius.circular(30 * widthFactor),
                 child: Container(
                   height: 880.0 * heightFactor,
-                  width: 350.0 * widthFactor,
+                  width: 345.0 * widthFactor,
                   color: Colors.white,
                   child: Column(
                     children: [
-                      SizedBox(height: 20 * heightFactor),
+                      SizedBox(height: 50 * heightFactor),
                       Text(
                         'Detalhes do Exame ',
                         style: TextStyle(fontSize: 30 * widthFactor),
                       ),
-                      SizedBox(height: 20 * heightFactor),
+                      SizedBox(height: 50 * heightFactor),
 
                       // Dono
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 330 * widthFactor,
+                          width: 270 * widthFactor,
                           color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           child: Text(
-                            'Animal: ${widget.laudo.dono}',
+                            'Dono: ${widget.laudo.dono}',
                             style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
@@ -2598,10 +2632,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 330 * widthFactor,
+                          width: 270 * widthFactor,
                           color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           child: Text(
                             'Animal: ${widget.laudo.animal}',
                             style: TextStyle(fontSize: 15 * widthFactor),
@@ -2615,10 +2649,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 330 * widthFactor,
+                          width: 270 * widthFactor,
                           color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           child: Text(
                             'Sexo do animal: ${widget.laudo.sexo}',
                             style: TextStyle(fontSize: 15 * widthFactor),
@@ -2632,10 +2666,10 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 330 * widthFactor,
+                          width: 270 * widthFactor,
                           color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           child: Text(
                             'Peso do animal: ${widget.laudo.peso}',
                             style: TextStyle(fontSize: 15 * widthFactor),
@@ -2649,21 +2683,21 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                         borderRadius: BorderRadius.circular(40 * widthFactor),
                         child: Container(
                           height: 40 * heightFactor,
-                          width: 330 * widthFactor,
+                          width: 270 * widthFactor,
                           color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           child: Text(
-                            'Data do Exame: ${widget.laudo.data}',
+                            'Data do Exame: ${formatarData(widget.laudo.data)}',
                             style: TextStyle(fontSize: 15 * widthFactor),
                           ),
                         ),
                       ),
-                      SizedBox(height: 20 * heightFactor),
+                      SizedBox(height: 30 * heightFactor),
 
                       // Observação
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
+                        borderRadius: BorderRadius.circular(26 * widthFactor),
                         child: Container(
                           height: 230 * heightFactor,
                           width: 330 * widthFactor,
@@ -2788,7 +2822,7 @@ class ClienteDetalhes extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('image/backgrounddp.png'),
+                image: AssetImage('image/backgrounddp2.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -2863,7 +2897,7 @@ class ClienteDetalhes extends StatelessWidget {
                                       ),
                                       SizedBox(height: 4 * heightFactor),
                                       Text(
-                                        'Data: ${laudo.data}',
+                                        'Data: ${formatarData(laudo.data)}',
                                         style: TextStyle(
                                           fontSize: 14 * widthFactor,
                                         ),
@@ -2885,10 +2919,10 @@ class ClienteDetalhes extends StatelessWidget {
                           backgroundColor: Color(0xFF49D5D2),
                           foregroundColor: Colors.black,
                           padding: EdgeInsets.symmetric(
-                            horizontal: 40 * widthFactor,
+                            horizontal: 30 * widthFactor,
                             vertical: 10 * heightFactor,
                           ),
-                          textStyle: TextStyle(fontSize: 18 * widthFactor),
+                          textStyle: TextStyle(fontSize: 14 * widthFactor),
                         ),
                         onPressed: () async {
                           await Navigator.push(
