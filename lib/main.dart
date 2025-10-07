@@ -895,8 +895,25 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
             ),
           ),
           _carregando
+              ? Center(child: CircularProgressIndicator())
+              : cards.isEmpty
               ? Center(
-            child: CircularProgressIndicator(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Tente novamente"),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _carregando = true;
+                    });
+                    carregarLaudos();
+                  },
+                  child: Text("Tentar novamente"),
+                ),
+              ],
+            ),
           )
               : ListView(
             children: [
