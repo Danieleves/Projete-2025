@@ -227,13 +227,9 @@ class _LoginState extends State<Login> {
                         padding: EdgeInsets.only(top: 10.0 * heightFactor),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(60 * widthFactor),
-                          child: Container(
-                            height: 120 * heightFactor,
-                            width: 120 * widthFactor,
-                            child: Image.asset(
-                              'image/dermapet.jpeg',
-                              fit: BoxFit.contain,
-                            ),
+                          child: CircleAvatar(
+                            radius: 50 * widthFactor,
+                            backgroundImage: AssetImage('image/dermapet.jpeg'),
                           ),
                         ),
                       ),
@@ -474,13 +470,9 @@ class _SignupState extends State<Signup> {
                         padding: EdgeInsets.only(top: 15.0 * heightFactor),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(60 * widthFactor),
-                          child: Container(
-                            height: 120 * heightFactor,
-                            width: 120 * widthFactor,
-                            child: Image.asset(
-                              'image/dermapet.jpeg',
-                              fit: BoxFit.contain,
-                            ),
+                          child: CircleAvatar(
+                            radius: 50 * widthFactor,
+                            backgroundImage: AssetImage('image/dermapet.jpeg'),
                           ),
                         ),
                       ),
@@ -2324,7 +2316,7 @@ class _AccountState extends State<Account> {
                         children: [
                           CircleAvatar(
                             radius: 50 * widthFactor,
-                            backgroundImage: AssetImage('image/dermapet.jpeg'),
+                            backgroundImage: AssetImage('image/dermapetsupport.jpeg'),
                           ),
                           SizedBox(height: 15 * heightFactor),
                           Text(
