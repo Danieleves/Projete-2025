@@ -731,6 +731,8 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
   bool _carregando = true;
+  bool _erro = false;
+  bool _snackbar = false;
 
   @override
   void initState() {
@@ -739,6 +741,11 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
   }
 
   Future<void> carregarLaudos() async {
+    setState(() {
+      _erro = false;
+      _carregando = true;
+      _snackbar = false;
+    });
     try {
       final clientes = await reqClientes();
       List<Laudo> todosLaudos = [];
@@ -775,18 +782,37 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       setState(() {
         cards = todosLaudos;
       });
+      if (todosLaudos.isEmpty && !_snackbar && mounted) {
+        _snackbar = true;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Nenhum laudo encontrado. Cadastre um novo."),
+            backgroundColor: Colors.orange[800],
+          ),
+        );
+      }
+
     } catch (e) {
       debugPrint("Erro ao carregar laudos: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao carregar os laudos. Verifique a conexão com a internet.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
       setState(() {
-        _carregando = false;
+        _erro = true;
       });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao carregar os laudos. Verifique a conexão com a internet.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _carregando = false;
+        });
+      }
     }
   }
 
@@ -894,101 +920,110 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               ),
             ),
           ),
-          _carregando
-              ? Center(child: CircularProgressIndicator())
-              : cards.isEmpty
-              ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Tente novamente"),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _carregando = true;
-                    });
-                    carregarLaudos();
-                  },
-                  child: Text("Tentar novamente"),
+          if (_carregando)
+            Center(child: CircularProgressIndicator())
+          else if (_erro)
+            Center(
+              child: _carregando
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _carregando = true;
+                  });
+                  carregarLaudos();
+                },
+                child: Text("Tentar novamente"),
+              ),
+            )
+          else if (cards.isEmpty)
+              Center(
+                child: Text(
+                  "Nenhum laudo realizado.",
+                  style: TextStyle(fontSize: 16),
                 ),
-              ],
-            ),
-          )
-              : ListView(
-            children: [
-              SizedBox(height: 100 * heightFactor),
-              Column(
-                children: [
-                  for (int i = 0; i < cards.length; i++) ...[
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetalhesLaudo(laudo: cards[i]),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          child: SizedBox(
-                            height: 130.0 * heightFactor,
-                            width: 330.0 * widthFactor,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0 * widthFactor),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+              )
+
+            else ListView(
+                  children: [
+                    SizedBox(height: 100 * heightFactor),
+                    Column(
+                      children: [
+                        for (int i = 0; i < cards.length; i++) ...[
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DetalhesLaudo(laudo: cards[i]),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                child: SizedBox(
+                                  height: 130.0 * heightFactor,
+                                  width: 330.0 * widthFactor,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0 * widthFactor),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Exame: ${i + 1}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16 * widthFactor,
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Exame: ${i + 1}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16 * widthFactor,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 15 * heightFactor,
+                                              ),
+                                              Text(
+                                                'Animal: ${cards[i].animal}',
+                                              ),
+                                              Text('Dono: ${cards[i].dono}'),
+                                              Text(
+                                                'Data: ${formatarData(cards[i].data)}',
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(height: 15 * heightFactor),
-                                        Text('Animal: ${cards[i].animal}'),
-                                        Text('Dono: ${cards[i].dono}'),
-                                        Text('Data: ${formatarData(cards[i].data)}'),
+                                        SizedBox(width: 10 * widthFactor),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  'image/dermapetbottomless.png',
+                                                ),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
-                                  SizedBox(width: 10 * widthFactor),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                            'image/dermapetbottomless.png',
-                                          ),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                          SizedBox(height: 20 * heightFactor),
+                        ],
+                      ],
                     ),
-                    SizedBox(height: 20 * heightFactor),
                   ],
-                ],
-              ),
-            ],
-          ),
+                ),
         ],
       ),
     );
@@ -1027,6 +1062,10 @@ class CadastroCliente extends StatefulWidget {
 
 class _CadastroClienteState extends State<CadastroCliente> {
   List<Clientes> clientes = [];
+  bool _carregando = true;
+  bool _erro = false;
+  bool _snackbar = false;
+
   @override
   void initState() {
     super.initState();
@@ -1034,13 +1073,46 @@ class _CadastroClienteState extends State<CadastroCliente> {
   }
 
   void carregarClientes() async {
+    setState(() {
+      _erro = false;
+      _carregando = true;
+      _snackbar = false;
+    });
     try {
       final novos = await reqClientes();
       setState(() {
         clientes = novos;
       });
+      if (novos.isEmpty && !_snackbar && mounted) {
+        _snackbar = true;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Nenhum cliente encontrado. Cadastre um novo."),
+            backgroundColor: Colors.orange[800],
+          ),
+        );
+      }
     } catch (e) {
       debugPrint(e.toString());
+      setState(() {
+        _erro = true;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao carregar os clientes. Verifique a conexão com a internet.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _carregando = false;
+        });
+      }
     }
   }
 
@@ -1125,91 +1197,119 @@ class _CadastroClienteState extends State<CadastroCliente> {
               ),
             ),
           ),
-          ListView(
-            children: [
-              SizedBox(height: 70 * heightFactor),
-              Column(
-                children: [
-                  for (int i = 0; i < clientes.length; i++) ...[
-                    Center(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final laudosDoCliente = widget.cards
-                              .where((l) => l.clienteid == clientes[i].id)
-                              .toList();
+          if (_carregando)
+            Center(child: CircularProgressIndicator())
+          else if (_erro)
+            Center(
+              child: _carregando
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _carregando = true;
+                  });
+                  carregarClientes();
+                },
+                child: Text("Tentar novamente"),
+              ),
+            )
 
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ClienteDetalhes(
-                                cliente: clientes[i],
-                                laudos: laudosDoCliente,
-                                cadastro: widget.cadastro,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          child: SizedBox(
-                            height: 130.0 * heightFactor,
-                            width: 330.0 * widthFactor,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0 * widthFactor),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+          else if (clientes.isEmpty)
+              Center(
+                child: Text(
+                  "Nenhum cliente cadastrado.",
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+
+            else
+            ListView(
+                  children: [
+                    SizedBox(height: 70 * heightFactor),
+                    Column(
+                      children: [
+                        for (int i = 0; i < clientes.length; i++) ...[
+                          Center(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final laudosDoCliente = widget.cards
+                                    .where((l) => l.clienteid == clientes[i].id)
+                                    .toList();
+
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ClienteDetalhes(
+                                      cliente: clientes[i],
+                                      laudos: laudosDoCliente,
+                                      cadastro: widget.cadastro,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                child: SizedBox(
+                                  height: 130.0 * heightFactor,
+                                  width: 330.0 * widthFactor,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0 * widthFactor),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'Cliente: ${i + 1}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16 * widthFactor,
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Cliente: ${i + 1}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16 * widthFactor,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 15 * heightFactor,
+                                              ),
+                                              Text(
+                                                'Animal: ${clientes[i].nomeAnimal}',
+                                              ),
+                                              Text('Dono: ${clientes[i].nome}'),
+                                              Text(
+                                                'Endereço: ${clientes[i].endereco}',
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(height: 15 * heightFactor),
-                                        Text(
-                                          'Animal: ${clientes[i].nomeAnimal}',
-                                        ),
-                                        Text('Dono: ${clientes[i].nome}'),
-                                        Text(
-                                          'Endereço: ${clientes[i].endereco}',
+                                        SizedBox(width: 10 * widthFactor),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  'image/dermapetbottomless.png',
+                                                ),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  SizedBox(width: 10 * widthFactor),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                            'image/dermapetbottomless.png',
-                                          ),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                          SizedBox(height: 20 * heightFactor),
+                        ],
+                      ],
                     ),
-                    SizedBox(height: 20 * heightFactor),
                   ],
-                ],
-              ),
-            ],
-          ),
+            ),
         ],
       ),
     );
@@ -1506,14 +1606,8 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
@@ -1605,8 +1699,12 @@ class _PreencherInfosState extends State<PreencherInfos> {
                         "Peso do animal",
                         widthFactor,
                         heightFactor,
-                        keyboardType: TextInputType.numberWithOptions(decimal: true),
-                        formatter: FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        formatter: FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}'),
+                        ),
                       ),
                       const Spacer(),
                       //botao
@@ -1625,85 +1723,84 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                            setState(() => _salvando = true);
+                                  setState(() => _salvando = true);
 
-                            if (animalController.text.isEmpty ||
-                                donoController.text.isEmpty ||
-                                idadeController.text.isEmpty ||
-                                sexoController.text.isEmpty ||
-                                racaController.text.isEmpty ||
-                                pesoController.text.isEmpty ||
-                                dataController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha todos os campos',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            } else if (int.tryParse(
-                              idadeController.text,
-                            ) ==
-                                0 ||
-                                double.tryParse(pesoController.text) ==
-                                    0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Preencha os campos corretamente',
-                                  ),
-                                ),
-                              );
-                              setState(() => _salvando = false);
-                              return;
-                            }
+                                  if (animalController.text.isEmpty ||
+                                      donoController.text.isEmpty ||
+                                      idadeController.text.isEmpty ||
+                                      sexoController.text.isEmpty ||
+                                      racaController.text.isEmpty ||
+                                      pesoController.text.isEmpty ||
+                                      dataController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha todos os campos',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  } else if (int.tryParse(
+                                            idadeController.text,
+                                          ) ==
+                                          0 ||
+                                      double.tryParse(pesoController.text) ==
+                                          0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Preencha os campos corretamente',
+                                        ),
+                                      ),
+                                    );
+                                    setState(() => _salvando = false);
+                                    return;
+                                  }
 
-                            final result =
-                            await Navigator.push<
-                                Map<String?, dynamic>
-                            >(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    Foto(
-                                      cards: [],
-                                      cadastro: widget.cadastro,
-                                      index: 0,
-                                    ),
-                              ),
-                            );
-                            if (result != null) {
-                              final boxes = result['boxes'] as List<Box>;
-                            }
+                                  final result =
+                                      await Navigator.push<
+                                        Map<String?, dynamic>
+                                      >(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Foto(
+                                            cards: [],
+                                            cadastro: widget.cadastro,
+                                            index: 0,
+                                          ),
+                                        ),
+                                      );
+                                  if (result != null) {
+                                    final boxes = result['boxes'] as List<Box>;
+                                  }
 
-                            if (result != null) {
-                              try {
-                                await adicionarLaudo(result['boxes']);
-                                animalController.clear();
-                                donoController.clear();
-                                idadeController.clear();
-                                sexoController.clear();
-                                racaController.clear();
-                                pesoController.clear();
-                                dataController.clear();
-                                Navigator.pop(context);
-                              } catch (e) {
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Erro ao cadastrar exame: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
+                                  if (result != null) {
+                                    try {
+                                      await adicionarLaudo(result['boxes']);
+                                      animalController.clear();
+                                      donoController.clear();
+                                      idadeController.clear();
+                                      sexoController.clear();
+                                      racaController.clear();
+                                      pesoController.clear();
+                                      dataController.clear();
+                                      Navigator.pop(context);
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Erro ao cadastrar exame: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
 
-                            setState(() => _salvando = false);
-                          },
+                                  setState(() => _salvando = false);
+                                },
 
                           child: _salvando
                               ? CircularProgressIndicator()
@@ -1721,13 +1818,14 @@ class _PreencherInfosState extends State<PreencherInfos> {
     );
   }
 
-  Widget campoTexto(TextEditingController controller,
-      String hint,
-      double widthFactor,
-      double heightFactor, {
-        TextInputFormatter? formatter,
-        TextInputType keyboardType = TextInputType.text,
-      }) {
+  Widget campoTexto(
+    TextEditingController controller,
+    String hint,
+    double widthFactor,
+    double heightFactor, {
+    TextInputFormatter? formatter,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -2114,8 +2212,8 @@ class _FotoState extends State<Foto> {
                                     if (fotoPath != null && confirm == true) {
                                       confirm = false;
                                       Navigator.pop(context, {'boxes': boxes});
-                                    }
-                                    else if (fotoPath != null && confirm == false ){
+                                    } else if (fotoPath != null &&
+                                        confirm == false) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -2125,8 +2223,7 @@ class _FotoState extends State<Foto> {
                                           ),
                                         ),
                                       );
-                                    }
-                                    else {
+                                    } else {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -2348,7 +2445,9 @@ class _AccountState extends State<Account> {
                         children: [
                           CircleAvatar(
                             radius: 50 * widthFactor,
-                            backgroundImage: AssetImage('image/dermapetsupport.jpeg'),
+                            backgroundImage: AssetImage(
+                              'image/dermapetsupport.jpeg',
+                            ),
                           ),
                           SizedBox(height: 15 * heightFactor),
                           Text(
@@ -2871,7 +2970,15 @@ class ClienteDetalhes extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                           horizontal: 12 * widthFactor,
                         ),
-                        child: GridView.builder(
+                        child:
+                        laudosDoCliente.isEmpty
+                            ? Center(
+                          child: Text(
+                            'Nenhum exame cadastrado para este cliente.',
+                            style: TextStyle(fontSize: 16 * widthFactor),
+                          ),
+                        )
+                            :GridView.builder(
                           itemCount: laudosDoCliente.length,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
