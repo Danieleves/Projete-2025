@@ -37,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "localhost:5000";
+const String ips = "192.168.0.106:5000";
 
 int? idVeterinario;
 
@@ -1188,6 +1188,7 @@ class _CadastroClienteState extends State<CadastroCliente> {
           if (recarregar == true) {
             carregarClientes();
           }
+          Navigator.pop(context, true);
         },
         child: Icon(Icons.add, size: 24 * widthFactor),
       ),
@@ -1947,6 +1948,7 @@ class _FotoState extends State<Foto> {
       );
 
       if (postResponse.statusCode == 200) {
+        debugPrint("Resposta do servidor: ${postResponse.body}");
         var data = jsonDecode(postResponse.body);
 
         String receivedBase64 = data['img'];
