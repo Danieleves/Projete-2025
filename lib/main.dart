@@ -1907,6 +1907,7 @@ class _FotoState extends State<Foto> {
   String? fotoPath;
   Uint8List? imageBytes;
   bool confirm = false;
+  bool _carregando = false;
 
   void atualizarFoto() {
     setState(() {});
@@ -1931,6 +1932,10 @@ class _FotoState extends State<Foto> {
     if (fotoPath == null) return;
 
     try {
+      setState(() {
+        _carregando = true;
+      });
+
       final fileBytes = await File(fotoPath!).readAsBytes();
       String base64Image = base64Encode(fileBytes);
 
@@ -1950,12 +1955,17 @@ class _FotoState extends State<Foto> {
         setState(() {
           imageBytes = base64Decode(receivedBase64);
           boxes = boxesJson.map((b) => Box.fromJson(b)).toList();
+          confirm = true;
         });
       } else {
         debugPrint("Erro ao processar: ${postResponse.statusCode}");
       }
     } catch (e) {
       debugPrint("Erro ao processar: $e");
+    } finally {
+      setState(() {
+        _carregando = false;
+      });
     }
   }
 
@@ -2246,6 +2256,15 @@ class _FotoState extends State<Foto> {
                           ],
                         ),
                       ),
+                      if (_carregando)
+                        Container(
+                          color: Colors.black54,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF49D5D2),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
