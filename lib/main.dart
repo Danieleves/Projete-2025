@@ -730,6 +730,7 @@ class PrimeiraTela extends StatefulWidget {
 class _PrimeiraTelaState extends State<PrimeiraTela> {
   List<Laudo> cards = [];
   List<Clientes> cadastro = [];
+  bool _carregando = true;
 
   @override
   void initState() {
@@ -776,6 +777,16 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       });
     } catch (e) {
       debugPrint("Erro ao carregar laudos: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao carregar os laudos. Verifique a conexão com a internet.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _carregando = false;
+      });
     }
   }
 
@@ -883,7 +894,11 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               ),
             ),
           ),
-          ListView(
+          _carregando
+              ? Center(
+            child: CircularProgressIndicator(),
+          )
+              : ListView(
             children: [
               SizedBox(height: 100 * heightFactor),
               Column(
