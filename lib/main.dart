@@ -684,6 +684,7 @@ class Laudo {
   int clienteid;
   String? observacao;
   String? fotoPath;
+  String? racoes;
 
   Laudo({
     required this.animal,
@@ -700,6 +701,7 @@ class Laudo {
     required this.clienteid,
     required this.observacao,
     required this.fotoPath,
+    required this.racoes,
   });
 
   factory Laudo.fromJson(Map<String, dynamic> json, {Clientes? cliente}) {
@@ -718,6 +720,7 @@ class Laudo {
       endereco: cliente?.endereco ?? 'Não informado',
       fotoPath: json['fotoPath'] ?? '',
       observacao: json['observacao'] ?? '',
+      racoes: json['racoes'] ?? '',
     );
   }
 }
@@ -774,6 +777,7 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
                 : "Não informado",
             fotoPath: e.fotoPath,
             observacao: e.observacao,
+            racoes: e.racoes,
           );
         }).toList();
         todosLaudos.addAll(examesCompletos);
