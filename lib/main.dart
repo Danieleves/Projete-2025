@@ -133,6 +133,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<List<Ids>> reqValidar() async {
+
     final url = Uri.parse("http://$ips/verifyuser");
     final response = await http.post(
       url,
@@ -144,6 +145,13 @@ class _LoginState extends State<Login> {
     );
 
     if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Conexão feita',
+          ),
+        ),
+      );
       final data = jsonDecode(response.body);
       if (data['usuarioId'] != null) {
         final usuario = Ids(userid: data['usuarioId']['id']);
@@ -187,7 +195,14 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       debugPrint("Erro na verificação: $e");
-      return "Erro de conexão com o servidor";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erro: $e',
+          ),
+        ),
+      );
+      return "Erro de conexão com o servidor: $e";
     }
   }
 
