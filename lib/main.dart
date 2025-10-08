@@ -37,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "192.168.0.106:5000";
+const String ips = "192.168.137.199:5000";
 
 int? idVeterinario;
 
@@ -2098,7 +2098,9 @@ class _FotoState extends State<Foto> {
                             border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: imageBytes != null
+                          child: _carregando ?
+                          CircularProgressIndicator(color: Color(0xFF49D5D2),)
+                              : imageBytes != null
                               ? Stack(
                                   children: [
                                     Image.memory(
@@ -2258,15 +2260,6 @@ class _FotoState extends State<Foto> {
                           ],
                         ),
                       ),
-                      if (_carregando)
-                        Container(
-                          color: Colors.black54,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Color(0xFF49D5D2),
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
