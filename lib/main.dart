@@ -37,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "192.168.137.199:5000";
+const String ips = "172.20.10.2:5000";
 
 int? idVeterinario;
 
@@ -1590,7 +1590,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
   bool _salvando = false;
 
   //conexão backend
-  Future<String> adicionarLaudo(List<Box> boxes) async {
+  Future<String> adicionarLaudo(List<Box> boxes, List<Recomendacoes> racoes) async {
     final url = Uri.parse("http://$ips/addexame");
 
     final clienteId = widget.clienteSelecionado.id;
@@ -1603,6 +1603,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
         .map((box) => {"name": box.name, "veri": box.veri})
         .toList();
 
+    final List<Map<String, dynamic>> racoesjson = racoes
+      .map((racoes) => {"nome": racoes.nome, "marca": racoes.marca, "mensagem": racoes.mensagem})
+        .toList();
+
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -1611,6 +1615,7 @@ class _PreencherInfosState extends State<PreencherInfos> {
         "alimentos": boxesjson,
         "peso": peso,
         "sexo": sexoController.text,
+        "racoes": racoesjson,
       }),
     );
 
@@ -1792,12 +1797,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
                                         ),
                                       );
                                   if (result != null) {
-                                    final boxes = result['boxes'] as List<Box>;
+                                    result['boxes'] as List<Box>;
+                                    result['racoes'] as List<Recomendacoes>;
                                   }
 
                                   if (result != null) {
                                     try {
-                                      await adicionarLaudo(result['boxes']);
+                                      await adicionarLaudo(result['boxes'], result['racoes']);
                                       animalController.clear();
                                       donoController.clear();
                                       idadeController.clear();
@@ -1903,6 +1909,31 @@ class Box {
   }
 }
 
+class Recomendacoes {
+
+  String? nome;
+  String? marca;
+  String? mensagem;
+
+  Recomendacoes({
+    required this.nome,
+    required this.marca,
+    required this.mensagem,
+  });
+
+  factory Recomendacoes.fromJson(Map<String, dynamic> json) {
+    return Recomendacoes(
+      nome: json["nome"] ?? '',
+      marca: json["marca"] ?? '',
+      mensagem: json["mensagem"] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {"nome": nome, "marca": marca, "mensagem": mensagem};
+  }
+}
+
 class Foto extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
@@ -1920,14 +1951,17 @@ class Foto extends StatefulWidget {
 
 class _FotoState extends State<Foto> {
   List<Box> boxes = [];
+  List<Recomendacoes> racoes = [];
   String? fotoPath;
   Uint8List? imageBytes;
-  bool confirm = false;
+  bool _confirm = false;
+  bool _confirm2 = false;
   bool _carregando = false;
 
   void atualizarFoto() {
     setState(() {});
-    confirm = true;
+    _confirm = true;
+    _confirm2 = true;
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -1941,6 +1975,35 @@ class _FotoState extends State<Foto> {
           widget.cards[widget.index].fotoPath = foto.path;
         }
       });
+    }
+  }
+
+  Future<void> reqRacoes() async {
+
+    try {
+      var postUrl = Uri.parse('http://$ips/recomendacao');
+      var postResponse = await http.post(
+        postUrl,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"boxes": boxes}),
+      );
+
+      if (postResponse.statusCode == 200) {
+        debugPrint("Resposta do servidor: ${postResponse.body}");
+        var data = jsonDecode(postResponse.body);
+
+        List<dynamic> racoesJson = data['racoes'];
+
+        setState(() {
+          racoes = racoesJson.map((b) => Recomendacoes.fromJson(b)).toList();
+          _confirm = true;
+          _confirm2 = true;
+        });
+      } else {
+        debugPrint("Erro ao retornar rações: ${postResponse.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("Erro ao retornar recomendações: $e");
     }
   }
 
@@ -1972,7 +2035,7 @@ class _FotoState extends State<Foto> {
         setState(() {
           imageBytes = base64Decode(receivedBase64);
           boxes = boxesJson.map((b) => Box.fromJson(b)).toList();
-          confirm = true;
+          _confirm = true;
         });
       } else {
         debugPrint("Erro ao processar: ${postResponse.statusCode}");
@@ -2207,7 +2270,7 @@ class _FotoState extends State<Foto> {
                                   onPressed: () async {
                                     if (fotoPath != null) {
                                       await processarImagem();
-                                      confirm = true;
+                                      _confirm = true;
                                     } else {
                                       ScaffoldMessenger.of(
                                         context,
@@ -2241,12 +2304,28 @@ class _FotoState extends State<Foto> {
                                       fontSize: 18 * widthFactor,
                                     ),
                                   ),
-                                  onPressed: () {
-                                    if (fotoPath != null && confirm == true) {
-                                      confirm = false;
-                                      Navigator.pop(context, {'boxes': boxes});
+                                  onPressed: () async {
+                                    if (fotoPath != null && _confirm == true) {
+                                      _confirm = false;
+                                      await reqRacoes();
+                                      if(_confirm2 == true) {
+                                        _confirm2 = false;
+                                        Navigator.pop(
+                                            context, {'boxes': boxes, 'racoes': racoes});
+                                      }
+                                     else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Erro ao retornar as recomendações",
+                                          ),
+                                        ),
+                                      );
+                                    }
                                     } else if (fotoPath != null &&
-                                        confirm == false) {
+                                        _confirm == false) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
