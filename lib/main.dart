@@ -133,7 +133,6 @@ class _LoginState extends State<Login> {
   }
 
   Future<List<Ids>> reqValidar() async {
-
     final url = Uri.parse("http://$ips/verifyuser");
     final response = await http.post(
       url,
@@ -145,13 +144,9 @@ class _LoginState extends State<Login> {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Conexão feita',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Conexão feita')));
       final data = jsonDecode(response.body);
       if (data['usuarioId'] != null) {
         final usuario = Ids(userid: data['usuarioId']['id']);
@@ -195,13 +190,9 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       debugPrint("Erro na verificação: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erro: $e',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
       return "Erro de conexão com o servidor: $e";
     }
   }
@@ -699,7 +690,7 @@ class Laudo {
   int clienteid;
   String? observacao;
   String? fotoPath;
-  String? racoes;
+  String racoes;
 
   Laudo({
     required this.animal,
@@ -810,7 +801,6 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
           ),
         );
       }
-
     } catch (e) {
       debugPrint("Erro ao carregar laudos: $e");
       setState(() {
@@ -946,103 +936,99 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               child: _carregando
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _carregando = true;
-                  });
-                  carregarLaudos();
-                },
-                child: Text("Tentar novamente"),
-              ),
+                      onPressed: () {
+                        setState(() {
+                          _carregando = true;
+                        });
+                        carregarLaudos();
+                      },
+                      child: Text("Tentar novamente"),
+                    ),
             )
           else if (cards.isEmpty)
-              Center(
-                child: Text(
-                  "Nenhum laudo realizado.",
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-
-            else ListView(
+            Center(
+              child: Text(
+                "Nenhum laudo realizado.",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          else
+            ListView(
+              children: [
+                SizedBox(height: 100 * heightFactor),
+                Column(
                   children: [
-                    SizedBox(height: 100 * heightFactor),
-                    Column(
-                      children: [
-                        for (int i = 0; i < cards.length; i++) ...[
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DetalhesLaudo(laudo: cards[i]),
-                                  ),
-                                );
-                              },
-                              child: Card(
-                                child: SizedBox(
-                                  height: 130.0 * heightFactor,
-                                  width: 330.0 * widthFactor,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0 * widthFactor),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Exame: ${i + 1}',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16 * widthFactor,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 15 * heightFactor,
-                                              ),
-                                              Text(
-                                                'Animal: ${cards[i].animal}',
-                                              ),
-                                              Text('Dono: ${cards[i].dono}'),
-                                              Text(
-                                                'Data: ${formatarData(cards[i].data)}',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 10 * widthFactor),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                  'image/dermapetbottomless.png',
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
+                    for (int i = 0; i < cards.length; i++) ...[
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetalhesLaudo(laudo: cards[i]),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            child: SizedBox(
+                              height: 130.0 * heightFactor,
+                              width: 330.0 * widthFactor,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0 * widthFactor),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Exame: ${i + 1}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16 * widthFactor,
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(height: 15 * heightFactor),
+                                          Text('Animal: ${cards[i].animal}'),
+                                          Text('Dono: ${cards[i].dono}'),
+                                          Text(
+                                            'Data: ${formatarData(cards[i].data)}',
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                    SizedBox(width: 10 * widthFactor),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              'image/dermapetbottomless.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 20 * heightFactor),
-                        ],
-                      ],
-                    ),
+                        ),
+                      ),
+                      SizedBox(height: 20 * heightFactor),
+                    ],
                   ],
                 ),
+              ],
+            ),
         ],
       ),
     );
@@ -1224,111 +1210,107 @@ class _CadastroClienteState extends State<CadastroCliente> {
               child: _carregando
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _carregando = true;
-                  });
-                  carregarClientes();
-                },
-                child: Text("Tentar novamente"),
+                      onPressed: () {
+                        setState(() {
+                          _carregando = true;
+                        });
+                        carregarClientes();
+                      },
+                      child: Text("Tentar novamente"),
+                    ),
+            )
+          else if (clientes.isEmpty)
+            Center(
+              child: Text(
+                "Nenhum cliente cadastrado.",
+                style: TextStyle(fontSize: 16),
               ),
             )
-
-          else if (clientes.isEmpty)
-              Center(
-                child: Text(
-                  "Nenhum cliente cadastrado.",
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-
-            else
+          else
             ListView(
+              children: [
+                SizedBox(height: 70 * heightFactor),
+                Column(
                   children: [
-                    SizedBox(height: 70 * heightFactor),
-                    Column(
-                      children: [
-                        for (int i = 0; i < clientes.length; i++) ...[
-                          Center(
-                            child: GestureDetector(
-                              onTap: () async {
-                                final laudosDoCliente = widget.cards
-                                    .where((l) => l.clienteid == clientes[i].id)
-                                    .toList();
+                    for (int i = 0; i < clientes.length; i++) ...[
+                      Center(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final laudosDoCliente = widget.cards
+                                .where((l) => l.clienteid == clientes[i].id)
+                                .toList();
 
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ClienteDetalhes(
-                                      cliente: clientes[i],
-                                      laudos: laudosDoCliente,
-                                      cadastro: widget.cadastro,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Card(
-                                child: SizedBox(
-                                  height: 130.0 * heightFactor,
-                                  width: 330.0 * widthFactor,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0 * widthFactor),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Cliente: ${i + 1}',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16 * widthFactor,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 15 * heightFactor,
-                                              ),
-                                              Text(
-                                                'Animal: ${clientes[i].nomeAnimal}',
-                                              ),
-                                              Text('Dono: ${clientes[i].nome}'),
-                                              Text(
-                                                'Endereço: ${clientes[i].endereco}',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 10 * widthFactor),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                  'image/dermapetbottomless.png',
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ClienteDetalhes(
+                                  cliente: clientes[i],
+                                  laudos: laudosDoCliente,
+                                  cadastro: widget.cadastro,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            child: SizedBox(
+                              height: 130.0 * heightFactor,
+                              width: 330.0 * widthFactor,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0 * widthFactor),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Cliente: ${i + 1}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16 * widthFactor,
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          SizedBox(height: 15 * heightFactor),
+                                          Text(
+                                            'Animal: ${clientes[i].nomeAnimal}',
+                                          ),
+                                          Text('Dono: ${clientes[i].nome}'),
+                                          Text(
+                                            'Endereço: ${clientes[i].endereco}',
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                    SizedBox(width: 10 * widthFactor),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              'image/dermapetbottomless.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 20 * heightFactor),
-                        ],
-                      ],
-                    ),
+                        ),
+                      ),
+                      SizedBox(height: 20 * heightFactor),
+                    ],
                   ],
+                ),
+              ],
             ),
         ],
       ),
@@ -1590,7 +1572,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
   bool _salvando = false;
 
   //conexão backend
-  Future<String> adicionarLaudo(List<Box> boxes, List<Recomendacoes> racoes) async {
+  Future<String> adicionarLaudo(
+    List<Box> boxes,
+    List<Recomendacoes> racoes,
+  ) async {
     final url = Uri.parse("http://$ips/addexame");
 
     final clienteId = widget.clienteSelecionado.id;
@@ -1604,7 +1589,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
         .toList();
 
     final List<Map<String, dynamic>> racoesjson = racoes
-      .map((racoes) => {"nome": racoes.nome, "marca": racoes.marca, "mensagem": racoes.mensagem})
+        .map(
+          (racoes) => {
+            "nome": racoes.nome,
+            "marca": racoes.marca,
+            "mensagem": racoes.mensagem,
+          },
+        )
         .toList();
 
     final response = await http.post(
@@ -1803,7 +1794,10 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
                                   if (result != null) {
                                     try {
-                                      await adicionarLaudo(result['boxes'], result['racoes']);
+                                      await adicionarLaudo(
+                                        result['boxes'],
+                                        result['racoes'],
+                                      );
                                       animalController.clear();
                                       donoController.clear();
                                       idadeController.clear();
@@ -1910,7 +1904,6 @@ class Box {
 }
 
 class Recomendacoes {
-
   String? nome;
   String? marca;
   String? mensagem;
@@ -1979,7 +1972,6 @@ class _FotoState extends State<Foto> {
   }
 
   Future<void> reqRacoes() async {
-
     try {
       var postUrl = Uri.parse('http://$ips/recomendacao');
       var postResponse = await http.post(
@@ -2176,8 +2168,10 @@ class _FotoState extends State<Foto> {
                             border: Border.all(color: Colors.black),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: _carregando ?
-                          CircularProgressIndicator(color: Color(0xFF49D5D2),)
+                          child: _carregando
+                              ? CircularProgressIndicator(
+                                  color: Color(0xFF49D5D2),
+                                )
                               : imageBytes != null
                               ? Stack(
                                   children: [
@@ -2308,22 +2302,23 @@ class _FotoState extends State<Foto> {
                                     if (fotoPath != null && _confirm == true) {
                                       _confirm = false;
                                       await reqRacoes();
-                                      if(_confirm2 == true) {
+                                      if (_confirm2 == true) {
                                         _confirm2 = false;
-                                        Navigator.pop(
-                                            context, {'boxes': boxes, 'racoes': racoes});
-                                      }
-                                     else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Erro ao retornar as recomendações",
+                                        Navigator.pop(context, {
+                                          'boxes': boxes,
+                                          'racoes': racoes,
+                                        });
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Erro ao retornar as recomendações",
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    }
+                                        );
+                                      }
                                     } else if (fotoPath != null &&
                                         _confirm == false) {
                                       ScaffoldMessenger.of(
@@ -2678,6 +2673,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
   Future<Uint8List> generatePdf(String observacao) async {
     final pdf = pw.Document();
     List<dynamic> ali = jsonDecode(widget.laudo.alimentos);
+    List<dynamic> alo = jsonDecode(widget.laudo.racoes);
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -2731,6 +2727,19 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 final veri = e['veri'] == 1 ? "Não contem." : "Contem.";
                 return pw.Text(
                   "- $nome : $veri",
+                  style: pw.TextStyle(fontSize: 14),
+                );
+              }).toList(),
+
+              pw.SizedBox(height: 8),
+              ...alo.map((e) {
+                final nome = e['nome'];
+                final marca = e['marca'];
+                final mensagem = e['mensagem'];
+                return pw.Text(
+                  "Racao: $nome, "
+                  "Marca da ração: $marca, "
+                  "Motivo: $mensagem ",
                   style: pw.TextStyle(fontSize: 14),
                 );
               }).toList(),
@@ -2845,112 +2854,216 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                       ),
                       SizedBox(height: 50 * heightFactor),
 
-                      // Dono
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 270 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.zero,
-                          child: Text(
-                            'Dono: ${widget.laudo.dono}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: [
+                                // Dono
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 40 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Dono: ${widget.laudo.dono}',
+                                      style: TextStyle(
+                                        fontSize: 13 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10 * heightFactor),
 
-                      // Animal
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 270 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.zero,
-                          child: Text(
-                            'Animal: ${widget.laudo.animal}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
+                                // Animal
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 40 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Animal: ${widget.laudo.animal}',
+                                      style: TextStyle(
+                                        fontSize: 13 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10 * heightFactor),
 
-                      // Sexo
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 270 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.zero,
-                          child: Text(
-                            'Sexo do animal: ${widget.laudo.sexo}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
+                                // Sexo
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 40 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Sexo do animal: ${widget.laudo.sexo}',
+                                      style: TextStyle(
+                                        fontSize: 13 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10 * heightFactor),
 
-                      // Peso
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 270 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.zero,
-                          child: Text(
-                            'Peso do animal: ${widget.laudo.peso}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10 * heightFactor),
+                                // Peso
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 40 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Peso do animal: ${widget.laudo.peso}',
+                                      style: TextStyle(
+                                        fontSize: 13 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10 * heightFactor),
 
-                      // Data
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40 * widthFactor),
-                        child: Container(
-                          height: 40 * heightFactor,
-                          width: 270 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.zero,
-                          child: Text(
-                            'Data do Exame: ${formatarData(widget.laudo.data)}',
-                            style: TextStyle(fontSize: 15 * widthFactor),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 30 * heightFactor),
-
-                      // Observação
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(26 * widthFactor),
-                        child: Container(
-                          height: 230 * heightFactor,
-                          width: 330 * widthFactor,
-                          color: Colors.grey[300],
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12 * widthFactor),
-                          child: TextField(
-                            controller: observacaoController,
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              hintText:
-                                  'Adicione observações caso seja necessário: ',
-                              border: InputBorder.none,
-                              isCollapsed: true,
+                                // Data
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 40 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Data: ${formatarData(widget.laudo.data)}',
+                                      style: TextStyle(
+                                        fontSize: 13 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            style: TextStyle(fontSize: 15 * widthFactor),
                           ),
-                        ),
+                          SizedBox(width: 5 * widthFactor),
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: [
+                                // Resultado exame
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 240 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Alergias: ${formatarData(widget.laudo.alimentos)}',
+                                      style: TextStyle(
+                                        fontSize: 12 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20 * heightFactor),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: [
+                                //Resultado recomendações
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    40 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 250 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.zero,
+                                    child: Text(
+                                      'Rações recomendadas: ${formatarData(widget.laudo.racoes)}',
+                                      style: TextStyle(
+                                        fontSize: 12 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5 * widthFactor),
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: [
+                                // Observação
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    26 * widthFactor,
+                                  ),
+                                  child: Container(
+                                    height: 250 * heightFactor,
+                                    width: 160 * widthFactor,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.only(
+                                      left: 12 * widthFactor,
+                                    ),
+                                    child: TextField(
+                                      controller: observacaoController,
+                                      maxLines: null,
+                                      decoration: const InputDecoration(
+                                        hintText:
+                                            'Adicione observações caso seja necessário: ',
+                                        border: InputBorder.none,
+                                        isCollapsed: true,
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 15 * widthFactor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       Spacer(),
                       // Botões
@@ -3082,76 +3195,79 @@ class ClienteDetalhes extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                           horizontal: 12 * widthFactor,
                         ),
-                        child:
-                        laudosDoCliente.isEmpty
+                        child: laudosDoCliente.isEmpty
                             ? Center(
-                          child: Text(
-                            'Nenhum exame cadastrado para este cliente.',
-                            style: TextStyle(fontSize: 16 * widthFactor),
-                          ),
-                        )
-                            :GridView.builder(
-                          itemCount: laudosDoCliente.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 12 * widthFactor,
-                                mainAxisSpacing: 12 * heightFactor,
-                                childAspectRatio: 3 / 2,
-                              ),
-                          itemBuilder: (context, index) {
-                            final laudo = laudosDoCliente[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => DetalhesLaudo(laudo: laudo),
-                                  ),
-                                );
-                              },
-                              child: Card(
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    12 * widthFactor,
-                                  ),
+                                child: Text(
+                                  'Nenhum exame cadastrado para este cliente.',
+                                  style: TextStyle(fontSize: 16 * widthFactor),
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0 * widthFactor),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Exame: ${index + 1}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16 * widthFactor,
+                              )
+                            : GridView.builder(
+                                itemCount: laudosDoCliente.length,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 12 * widthFactor,
+                                      mainAxisSpacing: 12 * heightFactor,
+                                      childAspectRatio: 3 / 2,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final laudo = laudosDoCliente[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              DetalhesLaudo(laudo: laudo),
+                                        ),
+                                      );
+                                    },
+                                    child: Card(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          12 * widthFactor,
                                         ),
                                       ),
-                                      SizedBox(height: 4 * heightFactor),
-                                      Text(
-                                        'Animal: ${laudo.animal}',
-                                        style: TextStyle(
-                                          fontSize: 14 * widthFactor,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(
+                                          8.0 * widthFactor,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Exame: ${index + 1}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16 * widthFactor,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4 * heightFactor),
+                                            Text(
+                                              'Animal: ${laudo.animal}',
+                                              style: TextStyle(
+                                                fontSize: 14 * widthFactor,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4 * heightFactor),
+                                            Text(
+                                              'Data: ${formatarData(laudo.data)}',
+                                              style: TextStyle(
+                                                fontSize: 14 * widthFactor,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      SizedBox(height: 4 * heightFactor),
-                                      Text(
-                                        'Data: ${formatarData(laudo.data)}',
-                                        style: TextStyle(
-                                          fontSize: 14 * widthFactor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
                     ),
                     // Botão
