@@ -37,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "192.168.137.199:5000";
+const String ips = "172.20.10.2:5000";
 
 int? idVeterinario;
 
