@@ -37,7 +37,7 @@ var mobileFormatter = MaskTextInputFormatter(
   type: MaskAutoCompletionType.lazy,
 );
 
-const String ips = "172.20.10.2:5000";
+const String ips = "192.168.137.199:5000";
 
 int? idVeterinario;
 
@@ -839,15 +839,15 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
       return lista
           .map(
             (json) => Clientes(
-              id: json['id'],
-              usuarioid: json['usuario_id'],
-              nome: json['nome'] ?? "",
-              nomeAnimal: json['nome_animal'] ?? "",
-              telefone: json['telefone'] ?? "",
-              email: json['email'] ?? "",
-              endereco: json['endereco'] ?? "",
-            ),
-          )
+          id: json['id'],
+          usuarioid: json['usuario_id'],
+          nome: json['nome'] ?? "",
+          nomeAnimal: json['nome_animal'] ?? "",
+          telefone: json['telefone'] ?? "",
+          email: json['email'] ?? "",
+          endereco: json['endereco'] ?? "",
+        ),
+      )
           .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
@@ -936,99 +936,99 @@ class _PrimeiraTelaState extends State<PrimeiraTela> {
               child: _carregando
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _carregando = true;
-                        });
-                        carregarLaudos();
-                      },
-                      child: Text("Tentar novamente"),
-                    ),
-            )
-          else if (cards.isEmpty)
-            Center(
-              child: Text(
-                "Nenhum laudo realizado.",
-                style: TextStyle(fontSize: 16),
+                onPressed: () {
+                  setState(() {
+                    _carregando = true;
+                  });
+                  carregarLaudos();
+                },
+                child: Text("Tentar novamente"),
               ),
             )
-          else
-            ListView(
-              children: [
-                SizedBox(height: 100 * heightFactor),
-                Column(
-                  children: [
-                    for (int i = 0; i < cards.length; i++) ...[
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DetalhesLaudo(laudo: cards[i]),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            child: SizedBox(
-                              height: 130.0 * heightFactor,
-                              width: 330.0 * widthFactor,
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0 * widthFactor),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 2,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Exame: ${i + 1}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16 * widthFactor,
+          else if (cards.isEmpty)
+              Center(
+                child: Text(
+                  "Nenhum laudo realizado.",
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+            else
+              ListView(
+                children: [
+                  SizedBox(height: 100 * heightFactor),
+                  Column(
+                    children: [
+                      for (int i = 0; i < cards.length; i++) ...[
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetalhesLaudo(laudo: cards[i]),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              child: SizedBox(
+                                height: 130.0 * heightFactor,
+                                width: 330.0 * widthFactor,
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0 * widthFactor),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Exame: ${i + 1}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16 * widthFactor,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(height: 15 * heightFactor),
-                                          Text('Animal: ${cards[i].animal}'),
-                                          Text('Dono: ${cards[i].dono}'),
-                                          Text(
-                                            'Data: ${formatarData(cards[i].data)}',
-                                          ),
-                                        ],
+                                            SizedBox(height: 15 * heightFactor),
+                                            Text('Animal: ${cards[i].animal}'),
+                                            Text('Dono: ${cards[i].dono}'),
+                                            Text(
+                                              'Data: ${formatarData(cards[i].data)}',
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: 10 * widthFactor),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: AssetImage(
-                                              'image/dermapetbottomless.png',
+                                      SizedBox(width: 10 * widthFactor),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: AssetImage(
+                                                'image/dermapetbottomless.png',
+                                              ),
+                                              fit: BoxFit.cover,
                                             ),
-                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 20 * heightFactor),
+                        SizedBox(height: 20 * heightFactor),
+                      ],
                     ],
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
         ],
       ),
     );
@@ -1059,7 +1059,7 @@ class CadastroCliente extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   CadastroCliente({Key? key, required this.cards, required this.cadastro})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _CadastroClienteState createState() => _CadastroClienteState();
@@ -1137,15 +1137,15 @@ class _CadastroClienteState extends State<CadastroCliente> {
       return lista
           .map(
             (json) => Clientes(
-              id: json['id'] ?? 0,
-              usuarioid: json['usuario_id'],
-              nome: json['nome'] ?? "",
-              nomeAnimal: json['nome_animal'] ?? "",
-              telefone: json['telefone'] ?? "",
-              email: json['email'] ?? "",
-              endereco: json['endereco'] ?? "",
-            ),
-          )
+          id: json['id'] ?? 0,
+          usuarioid: json['usuario_id'],
+          nome: json['nome'] ?? "",
+          nomeAnimal: json['nome_animal'] ?? "",
+          telefone: json['telefone'] ?? "",
+          email: json['email'] ?? "",
+          endereco: json['endereco'] ?? "",
+        ),
+      )
           .toList();
     } else {
       throw Exception("Erro ao carregar clientes: ${response.body}");
@@ -1210,108 +1210,108 @@ class _CadastroClienteState extends State<CadastroCliente> {
               child: _carregando
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _carregando = true;
-                        });
-                        carregarClientes();
-                      },
-                      child: Text("Tentar novamente"),
-                    ),
-            )
-          else if (clientes.isEmpty)
-            Center(
-              child: Text(
-                "Nenhum cliente cadastrado.",
-                style: TextStyle(fontSize: 16),
+                onPressed: () {
+                  setState(() {
+                    _carregando = true;
+                  });
+                  carregarClientes();
+                },
+                child: Text("Tentar novamente"),
               ),
             )
-          else
-            ListView(
-              children: [
-                SizedBox(height: 70 * heightFactor),
-                Column(
-                  children: [
-                    for (int i = 0; i < clientes.length; i++) ...[
-                      Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final laudosDoCliente = widget.cards
-                                .where((l) => l.clienteid == clientes[i].id)
-                                .toList();
+          else if (clientes.isEmpty)
+              Center(
+                child: Text(
+                  "Nenhum cliente cadastrado.",
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+            else
+              ListView(
+                children: [
+                  SizedBox(height: 70 * heightFactor),
+                  Column(
+                    children: [
+                      for (int i = 0; i < clientes.length; i++) ...[
+                        Center(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final laudosDoCliente = widget.cards
+                                  .where((l) => l.clienteid == clientes[i].id)
+                                  .toList();
 
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ClienteDetalhes(
-                                  cliente: clientes[i],
-                                  laudos: laudosDoCliente,
-                                  cadastro: widget.cadastro,
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ClienteDetalhes(
+                                    cliente: clientes[i],
+                                    laudos: laudosDoCliente,
+                                    cadastro: widget.cadastro,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            child: SizedBox(
-                              height: 130.0 * heightFactor,
-                              width: 330.0 * widthFactor,
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0 * widthFactor),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 2,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Cliente: ${i + 1}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16 * widthFactor,
+                              );
+                            },
+                            child: Card(
+                              child: SizedBox(
+                                height: 130.0 * heightFactor,
+                                width: 330.0 * widthFactor,
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0 * widthFactor),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Cliente: ${i + 1}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16 * widthFactor,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(height: 15 * heightFactor),
-                                          Text(
-                                            'Animal: ${clientes[i].nomeAnimal}',
-                                          ),
-                                          Text('Dono: ${clientes[i].nome}'),
-                                          Text(
-                                            'Endereço: ${clientes[i].endereco}',
-                                          ),
-                                        ],
+                                            SizedBox(height: 15 * heightFactor),
+                                            Text(
+                                              'Animal: ${clientes[i].nomeAnimal}',
+                                            ),
+                                            Text('Dono: ${clientes[i].nome}'),
+                                            Text(
+                                              'Endereço: ${clientes[i].endereco}',
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: 10 * widthFactor),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: AssetImage(
-                                              'image/dermapetbottomless.png',
+                                      SizedBox(width: 10 * widthFactor),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: AssetImage(
+                                                'image/dermapetbottomless.png',
+                                              ),
+                                              fit: BoxFit.cover,
                                             ),
-                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 20 * heightFactor),
+                        SizedBox(height: 20 * heightFactor),
+                      ],
                     ],
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
         ],
       ),
     );
@@ -1322,7 +1322,7 @@ class ClientesInfos extends StatefulWidget {
   final List<Laudo> cards;
   final List<Clientes> cadastro;
   ClientesInfos({required this.cards, required this.cadastro, Key? key})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _ClientesInfosState createState() => _ClientesInfosState();
@@ -1454,49 +1454,49 @@ class _ClientesInfosState extends State<ClientesInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                                  setState(() => _salvando = true);
+                            setState(() => _salvando = true);
 
-                                  if (nomeController.text.isEmpty ||
-                                      nomeAnimalController.text.isEmpty ||
-                                      telefoneController.text.isEmpty ||
-                                      emailController.text.isEmpty ||
-                                      enderecoController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Preencha todos os campos',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _salvando = false);
-                                    return;
-                                  }
+                            if (nomeController.text.isEmpty ||
+                                nomeAnimalController.text.isEmpty ||
+                                telefoneController.text.isEmpty ||
+                                emailController.text.isEmpty ||
+                                enderecoController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Preencha todos os campos',
+                                  ),
+                                ),
+                              );
+                              setState(() => _salvando = false);
+                              return;
+                            }
 
-                                  try {
-                                    final clienteId = await adicionarCliente();
-                                    debugPrint(
-                                      "Cliente cadastrado com sucesso: $clienteId",
-                                    );
+                            try {
+                              final clienteId = await adicionarCliente();
+                              debugPrint(
+                                "Cliente cadastrado com sucesso: $clienteId",
+                              );
 
-                                    nomeController.clear();
-                                    nomeAnimalController.clear();
-                                    telefoneController.clear();
-                                    emailController.clear();
-                                    enderecoController.clear();
+                              nomeController.clear();
+                              nomeAnimalController.clear();
+                              telefoneController.clear();
+                              emailController.clear();
+                              enderecoController.clear();
 
-                                    Navigator.pop(context, true);
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Erro ao cadastrar cliente: $e',
-                                        ),
-                                      ),
-                                    );
-                                  }
+                              Navigator.pop(context, true);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Erro ao cadastrar cliente: $e',
+                                  ),
+                                ),
+                              );
+                            }
 
-                                  setState(() => _salvando = false);
-                                },
+                            setState(() => _salvando = false);
+                          },
                           child: _salvando
                               ? CircularProgressIndicator()
                               : Text("Confirmar"),
@@ -1514,12 +1514,12 @@ class _ClientesInfosState extends State<ClientesInfos> {
   }
 
   Widget _buildTextField(
-    TextEditingController controller,
-    String hint,
-    double widthFactor,
-    double heightFactor, {
-    List<TextInputFormatter>? inputFormatters,
-  }) {
+      TextEditingController controller,
+      String hint,
+      double widthFactor,
+      double heightFactor, {
+        List<TextInputFormatter>? inputFormatters,
+      }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1573,9 +1573,9 @@ class _PreencherInfosState extends State<PreencherInfos> {
 
   //conexão backend
   Future<String> adicionarLaudo(
-    List<Box> boxes,
-    List<Recomendacoes> racoes,
-  ) async {
+      List<Box> boxes,
+      List<Recomendacoes> racoes,
+      ) async {
     final url = Uri.parse("http://$ips/addexame");
 
     final clienteId = widget.clienteSelecionado.id;
@@ -1591,11 +1591,11 @@ class _PreencherInfosState extends State<PreencherInfos> {
     final List<Map<String, dynamic>> racoesjson = racoes
         .map(
           (racoes) => {
-            "nome": racoes.nome,
-            "marca": racoes.marca,
-            "mensagem": racoes.mensagem,
-          },
-        )
+        "nome": racoes.nome,
+        "marca": racoes.marca,
+        "mensagem": racoes.mensagem,
+      },
+    )
         .toList();
 
     final response = await http.post(
@@ -1739,88 +1739,88 @@ class _PreencherInfosState extends State<PreencherInfos> {
                           onPressed: _salvando
                               ? null
                               : () async {
-                                  setState(() => _salvando = true);
+                            setState(() => _salvando = true);
 
-                                  if (animalController.text.isEmpty ||
-                                      donoController.text.isEmpty ||
-                                      idadeController.text.isEmpty ||
-                                      sexoController.text.isEmpty ||
-                                      racaController.text.isEmpty ||
-                                      pesoController.text.isEmpty ||
-                                      dataController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Preencha todos os campos',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _salvando = false);
-                                    return;
-                                  } else if (int.tryParse(
-                                            idadeController.text,
-                                          ) ==
-                                          0 ||
-                                      double.tryParse(pesoController.text) ==
-                                          0) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Preencha os campos corretamente',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _salvando = false);
-                                    return;
-                                  }
+                            if (animalController.text.isEmpty ||
+                                donoController.text.isEmpty ||
+                                idadeController.text.isEmpty ||
+                                sexoController.text.isEmpty ||
+                                racaController.text.isEmpty ||
+                                pesoController.text.isEmpty ||
+                                dataController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Preencha todos os campos',
+                                  ),
+                                ),
+                              );
+                              setState(() => _salvando = false);
+                              return;
+                            } else if (int.tryParse(
+                              idadeController.text,
+                            ) ==
+                                0 ||
+                                double.tryParse(pesoController.text) ==
+                                    0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Preencha os campos corretamente',
+                                  ),
+                                ),
+                              );
+                              setState(() => _salvando = false);
+                              return;
+                            }
 
-                                  final result =
-                                      await Navigator.push<
-                                        Map<String?, dynamic>
-                                      >(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Foto(
-                                            cards: [],
-                                            cadastro: widget.cadastro,
-                                            index: 0,
-                                          ),
-                                        ),
-                                      );
-                                  if (result != null) {
-                                    result['boxes'] as List<Box>;
-                                    result['racoes'] as List<Recomendacoes>;
-                                  }
+                            final result =
+                            await Navigator.push<
+                                Map<String?, dynamic>
+                            >(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Foto(
+                                  cards: [],
+                                  cadastro: widget.cadastro,
+                                  index: 0,
+                                ),
+                              ),
+                            );
+                            if (result != null) {
+                              result['boxes'] as List<Box>;
+                              result['racoes'] as List<Recomendacoes>;
+                            }
 
-                                  if (result != null) {
-                                    try {
-                                      await adicionarLaudo(
-                                        result['boxes'],
-                                        result['racoes'],
-                                      );
-                                      animalController.clear();
-                                      donoController.clear();
-                                      idadeController.clear();
-                                      sexoController.clear();
-                                      racaController.clear();
-                                      pesoController.clear();
-                                      dataController.clear();
-                                      Navigator.pop(context);
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Erro ao cadastrar exame: $e',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
+                            if (result != null) {
+                              try {
+                                await adicionarLaudo(
+                                  result['boxes'],
+                                  result['racoes'],
+                                );
+                                animalController.clear();
+                                donoController.clear();
+                                idadeController.clear();
+                                sexoController.clear();
+                                racaController.clear();
+                                pesoController.clear();
+                                dataController.clear();
+                                Navigator.pop(context);
+                              } catch (e) {
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Erro ao cadastrar exame: $e',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
 
-                                  setState(() => _salvando = false);
-                                },
+                            setState(() => _salvando = false);
+                          },
 
                           child: _salvando
                               ? CircularProgressIndicator()
@@ -1839,13 +1839,13 @@ class _PreencherInfosState extends State<PreencherInfos> {
   }
 
   Widget campoTexto(
-    TextEditingController controller,
-    String hint,
-    double widthFactor,
-    double heightFactor, {
-    TextInputFormatter? formatter,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+      TextEditingController controller,
+      String hint,
+      double widthFactor,
+      double heightFactor, {
+        TextInputFormatter? formatter,
+        TextInputType keyboardType = TextInputType.text,
+      }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40 * widthFactor),
       child: Container(
@@ -1984,7 +1984,9 @@ class _FotoState extends State<Foto> {
         debugPrint("Resposta do servidor: ${postResponse.body}");
         var data = jsonDecode(postResponse.body);
 
-        List<dynamic> racoesJson = data['racoes'];
+        List<Map<String, dynamic>> racoesJson = List<Map<String, dynamic>>.from(
+          data['racoes']['racoes'],
+        );
 
         setState(() {
           racoes = racoesJson.map((b) => Recomendacoes.fromJson(b)).toList();
@@ -2170,55 +2172,57 @@ class _FotoState extends State<Foto> {
                           clipBehavior: Clip.antiAlias,
                           child: _carregando
                               ? CircularProgressIndicator(
-                                  color: Color(0xFF49D5D2),
-                                )
+                            color: Color(0xFF49D5D2),
+                          )
                               : imageBytes != null
                               ? Stack(
-                                  children: [
-                                    Image.memory(
-                                      imageBytes!,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    ...boxes.asMap().entries.map((entry) {
-                                      int index = entry.key;
-                                      Box box = entry.value;
+                            children: [
+                              Image.memory(
+                                imageBytes!,
+                                width: displayedWidth,
+                                height: displayedHeight,
+                                fit: BoxFit.fill,
+                              ),
+                              ...boxes.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                Box box = entry.value;
 
-                                      return Positioned(
-                                        left: box.x1! * scaleX,
-                                        top: box.y1! * scaleY,
-                                        child: GestureDetector(
-                                          onTap: () => _onBoxTap(index),
-                                          child: Container(
-                                            width: (box.x2! - box.x1!) * scaleX,
-                                            height:
-                                                (box.y2! - box.y1!) * scaleY,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: Colors.red,
-                                                width: 2,
-                                              ),
-                                              color: Colors.red.withValues(
-                                                alpha: 0.1,
-                                              ),
-                                            ),
-                                            child: Align(
-                                              alignment: Alignment.topLeft,
-                                              child: Text(
-                                                box.name,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black,
-                                                  backgroundColor:
-                                                      Colors.white70,
-                                                ),
-                                              ),
-                                            ),
+                                return Positioned(
+                                  left: box.x1! * scaleX,
+                                  top: box.y1! * scaleY,
+                                  child: GestureDetector(
+                                    onTap: () => _onBoxTap(index),
+                                    child: Container(
+                                      width: (box.x2! - box.x1!) * scaleX,
+                                      height:
+                                      (box.y2! - box.y1!) * scaleY,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.red,
+                                          width: 2,
+                                        ),
+                                        color: Colors.red.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          box.name,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                            backgroundColor:
+                                            Colors.white70,
                                           ),
                                         ),
-                                      );
-                                    }),
-                                  ],
-                                )
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          )
                               : Image.file(File(fotoPath!), fit: BoxFit.cover),
                         )
                       else
@@ -2384,7 +2388,7 @@ class _CapturaCameraState extends State<CapturaCamera>
     try {
       final cameras = await availableCameras();
       final back = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.back,
+            (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
 
@@ -2449,63 +2453,63 @@ class _CapturaCameraState extends State<CapturaCamera>
       body: controller == null
           ? const Center(child: CircularProgressIndicator())
           : FutureBuilder<void>(
-              future: _initFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Stack(
-                    children: [
-                      Center(child: CameraPreview(controller)),
-                      Positioned(
-                        bottom: 32 * heightFactor,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: const CircleBorder(),
-                              padding: EdgeInsets.all(18 * widthFactor),
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                            ),
-                            onPressed: () async {
-                              try {
-                                await _initFuture;
-                                final file = await controller.takePicture();
-                                if (!mounted) return;
-                                Navigator.pop(context, file.path);
-                              } catch (erro) {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Falha ao tirar foto: $erro'),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 32 * widthFactor,
-                            ),
-                          ),
-                        ),
+        future: _initFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              children: [
+                Center(child: CameraPreview(controller)),
+                Positioned(
+                  bottom: 32 * heightFactor,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        padding: EdgeInsets.all(18 * widthFactor),
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
                       ),
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Erro: ${snapshot.error}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16 * widthFactor,
+                      onPressed: () async {
+                        try {
+                          await _initFuture;
+                          final file = await controller.takePicture();
+                          if (!mounted) return;
+                          Navigator.pop(context, file.path);
+                        } catch (erro) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Falha ao tirar foto: $erro'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 32 * widthFactor,
                       ),
                     ),
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+                  ),
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Erro: ${snapshot.error}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16 * widthFactor,
+                ),
+              ),
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
     );
   }
 }
@@ -2619,7 +2623,7 @@ class _AccountState extends State<Account> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(builder: (_) => Login()),
-                                (route) => false,
+                                    (route) => false,
                               );
                             },
                             child: const Text(
@@ -2722,9 +2726,9 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
 
               pw.Text("Exame:", style: pw.TextStyle(fontSize: 14)),
               pw.SizedBox(height: 8),
-              ...ali.map((e) {
+              ...ali.where((e) => e['name'] != "Sem nome").map((e) {
                 final nome = e['name'];
-                final veri = e['veri'] == 1 ? "Não contem." : "Contem.";
+                final veri = e['veri'] == 0 ? "Não contem." : "Contem.";
                 return pw.Text(
                   "- $nome : $veri",
                   style: pw.TextStyle(fontSize: 14),
@@ -2738,8 +2742,8 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                 final mensagem = e['mensagem'];
                 return pw.Text(
                   "Racao: $nome, "
-                  "Marca da ração: $marca, "
-                  "Motivo: $mensagem ",
+                      "Marca da ração: $marca, "
+                      "Motivo: $mensagem ",
                   style: pw.TextStyle(fontSize: 14),
                 );
               }).toList(),
@@ -2824,6 +2828,17 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
 
     final widthFactor = screenWidth / 360;
     final heightFactor = screenHeight / 808;
+
+    final listaalimentos = jsonDecode(widget.laudo.alimentos);
+
+    final alergias = listaalimentos
+        .where((a) => a["name"] != "Sem nome" && a["veri"] == 1)
+        .map((a) => a["name"])
+        .join(", ");
+
+    final listaracoes = jsonDecode(widget.laudo.racoes);
+
+    final racoes = listaracoes.map((a) => a['nome']).join(", ");
 
     return Scaffold(
       body: Stack(
@@ -2984,7 +2999,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.zero,
                                     child: Text(
-                                      'Alergias: ${formatarData(widget.laudo.alimentos)}',
+                                      'Alergias: $alergias',
                                       style: TextStyle(
                                         fontSize: 12 * widthFactor,
                                       ),
@@ -3017,7 +3032,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.zero,
                                     child: Text(
-                                      'Rações recomendadas: ${formatarData(widget.laudo.racoes)}',
+                                      'Rações recomendadas: $racoes',
                                       style: TextStyle(
                                         fontSize: 12 * widthFactor,
                                       ),
@@ -3050,7 +3065,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                       maxLines: null,
                                       decoration: const InputDecoration(
                                         hintText:
-                                            'Adicione observações caso seja necessário: ',
+                                        'Adicione observações caso seja necessário: ',
                                         border: InputBorder.none,
                                         isCollapsed: true,
                                       ),
@@ -3101,7 +3116,7 @@ class _DetalhesLaudoState extends State<DetalhesLaudo> {
                                   await savePdfToDownloads(pdfData);
                                   await Printing.layoutPdf(
                                     onLayout: (PdfPageFormat format) async =>
-                                        pdfData,
+                                    pdfData,
                                   );
                                 },
                                 child: const Text("Baixar PDF"),
@@ -3197,77 +3212,77 @@ class ClienteDetalhes extends StatelessWidget {
                         ),
                         child: laudosDoCliente.isEmpty
                             ? Center(
-                                child: Text(
-                                  'Nenhum exame cadastrado para este cliente.',
-                                  style: TextStyle(fontSize: 16 * widthFactor),
-                                ),
-                              )
+                          child: Text(
+                            'Nenhum exame cadastrado para este cliente.',
+                            style: TextStyle(fontSize: 16 * widthFactor),
+                          ),
+                        )
                             : GridView.builder(
-                                itemCount: laudosDoCliente.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 12 * widthFactor,
-                                      mainAxisSpacing: 12 * heightFactor,
-                                      childAspectRatio: 3 / 2,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  final laudo = laudosDoCliente[index];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              DetalhesLaudo(laudo: laudo),
-                                        ),
-                                      );
-                                    },
-                                    child: Card(
-                                      elevation: 4,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          12 * widthFactor,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(
-                                          8.0 * widthFactor,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Exame: ${index + 1}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16 * widthFactor,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4 * heightFactor),
-                                            Text(
-                                              'Animal: ${laudo.animal}',
-                                              style: TextStyle(
-                                                fontSize: 14 * widthFactor,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4 * heightFactor),
-                                            Text(
-                                              'Data: ${formatarData(laudo.data)}',
-                                              style: TextStyle(
-                                                fontSize: 14 * widthFactor,
-                                              ),
-                                            ),
-                                          ],
+                          itemCount: laudosDoCliente.length,
+                          gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12 * widthFactor,
+                            mainAxisSpacing: 12 * heightFactor,
+                            childAspectRatio: 3 / 2,
+                          ),
+                          itemBuilder: (context, index) {
+                            final laudo = laudosDoCliente[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        DetalhesLaudo(laudo: laudo),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    12 * widthFactor,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(
+                                    8.0 * widthFactor,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Exame: ${index + 1}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16 * widthFactor,
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                      SizedBox(height: 4 * heightFactor),
+                                      Text(
+                                        'Animal: ${laudo.animal}',
+                                        style: TextStyle(
+                                          fontSize: 14 * widthFactor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4 * heightFactor),
+                                      Text(
+                                        'Data: ${formatarData(laudo.data)}',
+                                        style: TextStyle(
+                                          fontSize: 14 * widthFactor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                     // Botão
