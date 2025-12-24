@@ -1,0 +1,106 @@
+from ultralytics import YOLO
+import cv2
+import numpy as np
+import base64
+import matplotlib.pyplot as plt
+
+
+def procecar(imagem_base64):
+    img_bytes = base64.b64decode(imagem_base64)
+    np_arr = np.frombuffer(img_bytes,dtype=np.uint8)
+
+    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    model = YOLO("Gray_Blur.pt")
+    # Processamento exemplo: escala de cinza
+    imagem = cv2.resize(img, (600, 600))
+
+    # Remove tons de azul com HSV
+    hsv = cv2.cvtColor(imagem, cv2.COLOR_BGR2HSV)
+    lower_blue = (90, 50, 20)
+    upper_blue= (130, 255, 255)
+    mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    # Limpeza da máscara
+    kernel_small = np.ones((5, 5), np.uint8)
+    mask_clean = cv2.morphologyEx(mask_blue, cv2.MORPH_OPEN, kernel_small)
+
+    # Dilatação para garantir remoção completa
+    kernel_large = np.ones((5, 5), np.uint8)
+    mask_dilated = cv2.dilate(mask_clean, kernel_large, iterations=2)
+
+    # Remove azul da imagem original
+    imagem_sem_azul = cv2.inpaint(imagem, mask_dilated, 3, cv2.INPAINT_TELEA)
+
+    # Pré-processamento: grayscale + blur
+    gray = cv2.cvtColor(imagem_sem_azul, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (3, 3), 0)
+
+    #Com IA
+    img_rgb = cv2.cvtColor(blur, cv2.COLOR_BGR2RGB)
+    results = model(img_rgb)
+
+ # valor bem alto para começar
+    box_ref = None
+    boxes_all = []
+
+    for r in results:
+        boxes = r.boxes.xyxy.cpu().numpy()   # coordenadas [x1, y1, x2, y2]
+        confs = r.boxes.conf.cpu().numpy()   # confiança
+        classes = r.boxes.cls.cpu().numpy()
+          # classes preditasaa
+        min_y1 = float('inf')
+        tamanho = 0
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box)
+        
+            if y1 < min_y1:
+                min_y1 = y1
+                tamanho = y2 - y1
+                box_ref = (x1, y1, x2, y2)
+
+        for box, conf, cls in zip(boxes, confs, classes):
+            x1, y1, x2, y2 = map(int, box)
+            w = y2 - y1
+            verificador = 0
+                # Se for o box de referência, pula
+            if (x1, y1, x2, y2) == box_ref:
+                cv2.rectangle(img_rgb, (x1, y1), (x2, y2), (255, 255, 0), 2)
+                cv2.putText(img_rgb, "Referencia", (x1, y1 - 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+                continue
+
+            if(tamanho>w):
+                verificador = 1
+                # Desenha retângulo
+                cv2.rectangle(img_rgb, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+                # Escreve  classe + confiança
+                label = f"{'Seguro'}"
+                cv2.putText(img_rgb, label, (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            else:
+                # Desenha retângulo
+                cv2.rectangle(img_rgb, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+                # Escreve classe + confiança
+                label = f"{'Alergico'}"
+                cv2.putText(img_rgb, label, (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            boxes_all.append({
+                "x1": x1,
+                "y1": y1,
+                "x2": x2,
+                "y2": y2,
+                'veri':verificador
+            })
+
+    _, buffer = cv2.imencode('.png', img_rgb)  # Converte para PNG
+    img_bytes = buffer.tobytes()   
+    img_return = base64.b64encode(img_bytes).decode('utf-8')
+
+
+    return {
+        'img' : img_return,
+        'boxes' : boxes_all,
+    }
